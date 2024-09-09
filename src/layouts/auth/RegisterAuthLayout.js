@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Box,
   Flex,
@@ -17,6 +19,7 @@ import {
   IconButton,
   useDisclosure,
 } from "@chakra-ui/react";
+
 import { FaUser } from "react-icons/fa";
 import { FiMenu, FiLock } from "react-icons/fi";
 import { GiPayMoney } from "react-icons/gi";
@@ -66,9 +69,13 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         bg="green.500"
         color="gray.50"
       >
-        <Text fontSize="lg" fontWeight="bold" color={"gray.50"}>
-          TCAC Registration
-        </Text>
+                  <Link href="/" passHref>
+            <Image
+              src="/images/timsan-logo.png"
+              alt="Logo"
+              className="h-12 mb-6"
+            />
+          </Link>
 
         <IconButton
           icon={<FiMenu />}
@@ -85,6 +92,7 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         color="white"
         w={{ base: isOpen ? "full" : "0", md: "40%" }} // Visible automatically on md
         py={8}
+        pb={4}
         px={{ base: isOpen ? 4 : 0, md: 4 }} // Add padding for medium and above
         overflow="hidden"
         position={{ base: "absolute", md: "relative" }} // Sidebar is relative on medium
@@ -94,11 +102,13 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         onClick={onClose}
       >
         <Stack spacing={6} align="start" pl={6}>
-          <Image
-            src="/images/timsan-logo.png"
-            alt="Logo"
-            className="h-12 mb-6"
-          />
+          <Link href="/" passHref>
+            <Image
+              src="/images/timsan-logo.png"
+              alt="Logo"
+              className="h-12 mb-6"
+            />
+          </Link>
 
           <Stepper index={currentStep} orientation="vertical" height="400px">
             {steps.map((step, index) => (
@@ -118,16 +128,16 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
                     color="whiteAlpha"
                     p={2}
                     _hover={{
-                      background: "green.600", 
-                      boxShadow: "md", 
-                      textDecoration: "none", 
+                      background: "green.600",
+                      boxShadow: "md",
+                      textDecoration: "none",
                     }}
                     _focus={{
-                      background: "green.600", 
-                      boxShadow: "md", 
-                      textDecoration: "none", 
+                      background: "green.600",
+                      boxShadow: "md",
+                      textDecoration: "none",
                     }}
-                    boxShadow="none" 
+                    boxShadow="none"
                     background="transparent" // No background by default
                     onClick={() => setStep(index)}
                   >
@@ -189,7 +199,51 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         <Box bg="white" p={8} borderRadius="lg" shadow="lg">
           {children}
         </Box>
+
+
+        <Stack spacing={4} mt={8}>
+            <Text fontSize="sm" color="gray.600">
+              Already have an account?{" "}
+              <Link href={`/login/${role}`} passHref>
+                <Button
+                  variant="link"
+                  colorScheme="green"
+                  _hover={{
+                    color: "white",
+                    bg: "green.500",
+                    borderColor: "green.500",
+                    px: "2",
+                    py: "1",
+                  }}
+                >
+                  Login
+                </Button>
+              </Link>
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              Forgot password?{" "}
+              <Link href={`/reset-password/${role}`} passHref>
+                <Button
+                  variant="link"
+                  colorScheme="green"
+                  _hover={{
+                    color: "white",
+                    bg: "green.500",
+                    borderColor: "green.500",
+                    px: "2",
+                    py: "1",
+                  }}
+                >
+                  Reset
+                </Button>
+              </Link>
+            </Text>
+          </Stack>
+
+
       </Box>
+
+    
     </Flex>
   );
 };

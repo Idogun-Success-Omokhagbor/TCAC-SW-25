@@ -77,13 +77,14 @@ const PrevTCACRecap = () => {
         justifyItems={"flex-start"}
         alignItems={"center"}
          maxW="fit-content"
+         mb={6}
         p={"2"}
         border="2px solid black"
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
         className="bg-lime-100"
       >
         <Heading as="h2" textAlign="center">
-         Previous TCAC RECAP
+         Previous TCAC Recap
         </Heading>
       </Flex>
 

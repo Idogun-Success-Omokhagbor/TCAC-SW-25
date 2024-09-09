@@ -48,7 +48,7 @@ const ActivitiesSection = () => {
         mb={6}
         p={2}
         border="2px solid black"
-        borderRadius="md"
+     
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
         bg="lime.100"
         maxW="fit-content"

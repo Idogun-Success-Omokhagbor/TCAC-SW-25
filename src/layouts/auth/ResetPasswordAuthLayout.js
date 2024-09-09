@@ -1,6 +1,6 @@
 // components/LoginLayout.js
 import Link from "next/link";
-import { Box, Flex, Stack, HStack, Text, Button } from "@chakra-ui/react";
+import { Box, Flex, Stack, HStack, Text, Button, Image } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
@@ -19,9 +19,13 @@ const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
         py={8}
         px={12}
       >
-        <Text as="a" href="/" fontWeight="bold">
-          Home
-        </Text>
+                  <Link href="/" passHref>
+            <Image
+              src="/images/timsan-logo.png"
+              alt="Logo"
+              className="h-12 mb-6"
+            />
+          </Link>
 
         <HStack spacing={4}>
           <Text fontWeight="medium">Have your password now?</Text>
