@@ -1,0 +1,210 @@
+{
+  "institutions": {
+    "universities": {
+      "federal": [
+        {
+          "name": "Obafemi Awolowo University",
+          "location": "Ile-Ife, Osun State"
+        },
+        {
+          "name": "University of Ibadan",
+          "location": "Ibadan, Oyo State"
+        },
+        {
+          "name": "Federal University of Agriculture",
+          "location": "Abeokuta, Ogun State"
+        },
+        {
+          "name": "Federal University of Technology, Akure",
+          "location": "Akure, Ondo State"
+        }
+      ],
+      "state": [
+        {
+          "name": "Ladoke Akintola University of Technology",
+          "location": "Ogbomosho, Oyo State"
+        },
+        {
+          "name": "Olabisi Onabanjo University",
+          "location": "Ago-Iwoye, Ogun State"
+        },
+        {
+          "name": "Ekiti State University",
+          "location": "Ado-Ekiti, Ekiti State"
+        },
+        {
+          "name": "Adekunle Ajasin University",
+          "location": "Akungba-Akoko, Ondo State"
+        },
+        {
+          "name": "Lagos State University",
+          "location": "Ojo, Lagos State"
+        },
+        {
+          "name": "Ondo State University of Science and Technology",
+          "location": "Okitipupa, Ondo State"
+        }
+      ],
+      "private": [
+        {
+          "name": "Covenant University",
+          "location": "Ota, Ogun State"
+        },
+        {
+          "name": "Babcock University",
+          "location": "Ilishan-Remo, Ogun State"
+        },
+        {
+          "name": "Afe Babalola University",
+          "location": "Ado-Ekiti, Ekiti State"
+        },
+        {
+          "name": "Bowen University",
+          "location": "Iwo, Osun State"
+        },
+        {
+          "name": "Redeemer's University",
+          "location": "Ede, Osun State"
+        },
+        {
+          "name": "Lead City University",
+          "location": "Ibadan, Oyo State"
+        },
+        {
+          "name": "Ajayi Crowther University",
+          "location": "Oyo, Oyo State"
+        },
+        {
+          "name": "Joseph Ayo Babalola University",
+          "location": "Ikeji-Arakeji, Osun State"
+        },
+        {
+          "name": "Oduduwa University",
+          "location": "Ipetumodu, Osun State"
+        },
+        {
+          "name": "Wesley University",
+          "location": "Ondo, Ondo State"
+        },
+        {
+          "name": "Crescent University",
+          "location": "Abeokuta, Ogun State"
+        },
+        {
+          "name": "Chrisland University",
+          "location": "Abeokuta, Ogun State"
+        }
+      ]
+    },
+    "polytechnics": {
+      "federal": [
+        {
+          "name": "Yaba College of Technology",
+          "location": "Yaba, Lagos State"
+        },
+        {
+          "name": "Federal Polytechnic Ado-Ekiti",
+          "location": "Ado-Ekiti, Ekiti State"
+        },
+        {
+          "name": "Federal Polytechnic Ede",
+          "location": "Ede, Osun State"
+        },
+        {
+          "name": "Federal Polytechnic Ilaro",
+          "location": "Ilaro, Ogun State"
+        },
+        {
+          "name": "Federal Polytechnic Offa",
+          "location": "Offa, Kwara State"
+        }
+      ],
+      "state": [
+        {
+          "name": "The Polytechnic Ibadan",
+          "location": "Ibadan, Oyo State"
+        },
+        {
+          "name": "Osun State Polytechnic",
+          "location": "Iree, Osun State"
+        },
+        {
+          "name": "Gateway Polytechnic",
+          "location": "Saapade, Ogun State"
+        },
+        {
+          "name": "Lagos State Polytechnic",
+          "location": "Ikorodu, Lagos State"
+        },
+        {
+          "name": "Moshood Abiola Polytechnic",
+          "location": "Abeokuta, Ogun State"
+        }
+      ],
+      "private": [
+        {
+          "name": "Lagos City Polytechnic",
+          "location": "Ikeja, Lagos State"
+        },
+        {
+          "name": "Covenant Polytechnic",
+          "location": "Abeokuta, Ogun State"
+        },
+        {
+          "name": "Ajayi Polytechnic",
+          "location": "Ikere-Ekiti, Ekiti State"
+        }
+      ]
+    },
+    "colleges_of_education": {
+      "federal": [
+        {
+          "name": "Adeyemi College of Education",
+          "location": "Ondo, Ondo State"
+        },
+        {
+          "name": "Federal College of Education (Technical), Akoka",
+          "location": "Akoka, Lagos State"
+        },
+        {
+          "name": "Federal College of Education, Abeokuta",
+          "location": "Abeokuta, Ogun State"
+        }
+      ],
+      "state": [
+        {
+          "name": "Osun State College of Education",
+          "location": "Ila-Orangun, Osun State"
+        },
+        {
+          "name": "Oyo State College of Education",
+          "location": "Oyo, Oyo State"
+        },
+        {
+          "name": "Lagos State College of Education",
+          "location": "Ijanikin, Lagos State"
+        }
+      ],
+      "private": [
+        {
+          "name": "St. Augustine College of Education",
+          "location": "Akoka, Lagos State"
+        },
+        {
+          "name": "City College of Education",
+          "location": "Ikeja, Lagos State"
+        }
+      ]
+    },
+    "others": [
+      {
+        "name": "NIJ (Nigerian Institute of Journalism)",
+        "location": "Ogba, Lagos State"
+      },
+      {
+        "name": "Nigerian Navy School of Health Sciences",
+        "location": "Offa, Kwara State"
+      }
+    ]
+  }
+}
