@@ -9,7 +9,7 @@ import {
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/admin/adminAuthSlice";
+} from "../../../store/slices/auth/superAdmin/superAdminAuthSlice";
 import {
   FormControl,
   FormLabel,

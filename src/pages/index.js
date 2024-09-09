@@ -3,7 +3,7 @@ import Head from "next/head";
 import { Box } from "@chakra-ui/react";
 import Header from "../components/landingPage/Header";
 import HeroSection from "../components/landingPage/HeroSection";
-import PreviousTCAC from "../components/landingPage/PreviousTCAC";
+import PreviousTCACRecap from "../components/landingPage/PreviousTCACRecap";
 import ActivitiesSection from "../components/landingPage/ActivitiesSession";
 import Footer from "../components/landingPage/Footer";
 import TCACUpdates from "@/components/landingPage/TCACUpdates";
@@ -24,7 +24,7 @@ export default function Home() {
 
         <HeroSection />
 
-        <PreviousTCAC />
+        <PreviousTCACRecap />
         <ActivitiesSection />
         <TCACUpdates />
         <Footer />

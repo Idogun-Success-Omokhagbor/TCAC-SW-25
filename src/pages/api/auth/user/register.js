@@ -29,6 +29,9 @@ export default async function handler(req, res) {
 
       await newUser.save();
 
+      await appendToSheet(userData);
+
+
       return res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
       console.error(error);

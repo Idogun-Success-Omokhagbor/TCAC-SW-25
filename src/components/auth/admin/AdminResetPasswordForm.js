@@ -8,7 +8,7 @@ import {
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/user/userAuthSlice";
+} from "../../../store/slices/auth/admin/adminAuthSlice";
 
 
 import {

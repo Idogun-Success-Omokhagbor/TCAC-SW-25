@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import RegisterAuthLayout from "../../layouts/auth/RegisterAuthLayout";
-import AdminRegAuthLayout from "../../layouts/auth/adminRegAuthLayout"; 
+import AdminRegAuthLayout from "../../layouts/auth/AdminRegAuthLayout"; 
 
 // user-specific form components
 import PersonalInformationForm from "../../components/auth/user/register/PersonalInformationForm";
