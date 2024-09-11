@@ -62,7 +62,7 @@ const ActivitiesSection = () => {
       {/* Slider Component */}
       <Slider {...settings}>
         {activities.map((activity, index) => (
-          <Box key={index} p={4}>
+          <Box key={index} px={2}>
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
@@ -71,7 +71,7 @@ const ActivitiesSection = () => {
                 bg="white"
                 borderRadius="md"
                 boxShadow="lg"
-                p={6}
+                p={4}
                 textAlign="center"
                 spacing={4}
               >

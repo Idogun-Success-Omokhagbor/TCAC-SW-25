@@ -1,3 +1,4 @@
+// store/slices/auth/user/userAuthSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { HYDRATE } from "next-redux-wrapper";
 import axios from 'axios';

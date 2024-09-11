@@ -28,7 +28,7 @@ const LoginAuthLayout = ({ formHeading, loginForm, role }) => {
           </Link>
 
         <HStack spacing={4}>
-          <Text fontWeight="medium">Don&apos;t have an account yet?</Text>
+          <Text display={{base: "none", md:"block"}} fontWeight="medium">Don&apos;t have an account yet?</Text>
           <Button
             variant="outline"
             colorScheme="green"

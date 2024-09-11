@@ -8,8 +8,7 @@ const superAdminSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ["Super Admin",  "Reg. Team Lead", "Health Team Lead"],
-    default: "Super Admin",
+    default: "super_admin",
   },
 
   superAdminID: { type: String },

@@ -1,5 +1,4 @@
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
@@ -12,146 +11,170 @@ import {
 import {
   FormControl,
   FormLabel,
+  FormErrorMessage,
   Input,
   Button,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  useToast,
+  Box,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 
 const AdminLoginForm = ({ role }) => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const toast = useToast();
 
   const loading = useSelector(selectAuthLoading);
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [alertStatus, setAlertStatus] = useState(null);
+  const [formValues, setFormValues] = useState({
+    email: "",
+    password: "",
+  });
+  const [formErrors, setFormErrors] = useState({
+    email: "",
+    password: "",
+  });
 
-  // Clear status on component mount
   useEffect(() => {
     dispatch(clearStatus());
   }, [dispatch]);
 
-  
-
   useEffect(() => {
     if (status === "succeeded") {
-      setAlertStatus("success");
-      setAlertMessage("Login successful. Redirecting to your dashboard...");
+      toast({
+        title: "Success!",
+        description: "Login successful. Redirecting to your dashboard...",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      router.push(`/dashboard/${role}`);
     } else if (status === "failed") {
-      setAlertStatus("error");
-      setAlertMessage(error?.message || "Login failed. Please try again.");
+      toast({
+        title: "Error!",
+        description: error?.message || "Login failed. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-  }, [status, error]);
+  }, [status, error, router, role, toast]);
 
+  const validateForm = () => {
+    const errors = {};
+    const { email, password } = formValues;
 
+    if (!email) {
+      errors.email = "Required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      errors.email = "Invalid email address";
+    }
+    if (!password) {
+      errors.password = "Required";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
 
-  const handleLogin = async (values, { setSubmitting, resetForm }) => {
-    setSubmitting(true);
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      const resultAction = await dispatch(loginAdmin({ ...values, role }));
+      const resultAction = await dispatch(loginAdmin({ ...formValues, role }));
       if (loginAdmin.fulfilled.match(resultAction)) {
         const adminData = resultAction.payload;
         if (adminData.registrationStatus === "pending") {
-          setAlertStatus("info");
-          setAlertMessage(
-            "Your account is pending approval. Please check back later."
-          );
+          toast({
+            title: "Pending Approval",
+            description: "Your account is pending approval. Please check back later.",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+          });
         } else if (adminData.registrationStatus === "rejected") {
-          setAlertStatus("error");
-          setAlertMessage(
-            "Your account has been rejected. Please contact support or re-register."
-          );
+          toast({
+            title: "Registration Rejected",
+            description: "Your account has been rejected. Please contact support or re-register.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
         } else {
-          // Successful reset
-          resetForm();
-
-          // Redirect to login page after successful login
-          router.push(`/dashboard/${role}`);
+          // Successful login already handled in useEffect
         }
       } else {
-        // Error handled by Redux state
         console.log("Error: ", resultAction.payload || resultAction.error);
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
-      setAlertStatus("error");
-      setAlertMessage("An unexpected error occurred. Please try again.");
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    setSubmitting(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
   };
 
   return (
-    <>
-      <Formik
-        initialValues={{ email: "", password: "" }}
-        validationSchema={Yup.object({
-          email: Yup.string()
-            .email("Invalid email address")
-            .required("Required"),
-          password: Yup.string()
-            .min(8, "Password must be at least 8 characters")
-            .required("Required"),
-        })}
-        onSubmit={handleLogin}
+    <form onSubmit={handleSubmit}>
+      <FormControl mb={4} isInvalid={formErrors.email}>
+        <FormLabel>Email</FormLabel>
+        <Input
+          name="email"
+          type="email"
+          value={formValues.email}
+          onChange={handleChange}
+          placeholder="Enter your email"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.email}</FormErrorMessage>
+      </FormControl>
+
+      <FormControl mb={4} isInvalid={formErrors.password}>
+        <FormLabel>Password</FormLabel>
+        <Input
+          name="password"
+          type="password"
+          value={formValues.password}
+          onChange={handleChange}
+          placeholder="Enter your password"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.password}</FormErrorMessage>
+      </FormControl>
+
+      <Button
+        type="submit"
+        w="full"
+        isLoading={loading}
+        colorScheme="blue"
       >
-        {({ isSubmitting }) => (
-          <Form>
-            <FormControl mb={4}>
-              <FormLabel>Email</FormLabel>
-              <Field name="email" type="email" as={Input} 
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-              />
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Password</FormLabel>
-              <Field name="password" type="password" as={Input} 
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-              />
-            </FormControl>
-
-            <Button
-              type="submit"
-              w={"full"}
-              isLoading={isSubmitting || loading}
-              colorScheme="blue"
-            >
-              Login
-            </Button>
-
-            {alertMessage && (
-              <Alert status={alertStatus} mt={4}>
-                <AlertIcon />
-                <AlertTitle>
-                  {alertStatus === "info"
-                    ? "Pending Approval"
-                    : alertStatus === "error"
-                    ? "Registration Rejected"
-                    : "Success"}
-                </AlertTitle>
-                <AlertDescription>{alertMessage}</AlertDescription>
-              </Alert>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
+        Login
+      </Button>
+    </form>
   );
 };
 

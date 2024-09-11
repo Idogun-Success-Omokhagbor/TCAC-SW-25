@@ -29,7 +29,7 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
           </Link>
 
         <HStack spacing={4}>
-          <Text fontWeight="medium">Already Registered?</Text>
+          <Text display={{base: "none", md:"block"}} fontWeight="medium">Already Registered?</Text>
           <Button
             variant="outline"
             colorScheme="green"

@@ -174,7 +174,7 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
           </Text>
 
           <HStack spacing={4}>
-            <Text fontWeight="medium">Already registered?</Text>
+            <Text display={{base: "none", md:"block"}} fontWeight="medium">Already registered?</Text>
             <Button
               variant="outline"
               colorScheme="green"

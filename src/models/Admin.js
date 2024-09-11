@@ -6,11 +6,12 @@ const adminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phoneNumber: { type: String, required: true},
   password: { type: String, required: true },
-  role: {
-    type: String,
-    enum: ["Admin",  "Reg. Team Lead", "Health Team Lead"],
-    default: "Admin",
+  role: { 
+    type: String, 
+    default: "admin" // Default value for role
   },
+
+  adminFunction: { type: String, enum: ['admin', 'reg_team_lead', 'health_team_lead'], default: 'admin' },
 
   registrationStatus: {
     type: String,

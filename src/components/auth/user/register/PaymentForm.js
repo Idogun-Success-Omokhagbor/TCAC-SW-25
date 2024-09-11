@@ -1,3 +1,4 @@
+import React, { useState, useRef } from "react";
 import {
   Box,
   Flex,
@@ -11,38 +12,42 @@ import {
   Select,
   Text,
   IconButton,
+  Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
-import { useState, useRef } from "react";
-import { upload } from "@vercel/blob/client";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import { FaCopy } from "react-icons/fa";
 import { MdAttachFile } from "react-icons/md";
+import { upload } from "@vercel/blob/client";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
-const PaymentForm = ({ role, values, onValuesChange, onNext, onPrevious }) => {
-  const [minAmount, setMinAmount] = useState(5000); // Default to ₦5000
+const PaymentForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormValues }) => {
+  const [selectedPaymentType, setSelectedPaymentType] = useState(values?.paymentType || "");
+  const [selectedCampType, setSelectedCampType] = useState(values?.campType || "");
+  const [paymentAmount, setPaymentAmount] = useState(values?.amount || "");
+  const [receiptFile, setReceiptFile] = useState(values?.receipt || "");
+  const [paymentDetails, setPaymentDetails] = useState(values?.paymentNarration || "");
+  const [minimumAmountRequired, setMinimumAmountRequired] = useState(5000); // Default to ₦5000
+  const [formErrors, setFormErrors] = useState({});
   const inputFileRef = useRef(null);
   const toast = useToast();
 
-  const bankDetails = {
+  const bankAccountDetails = {
     accountName: "John Doe",
     accountNumber: "1234567890",
     bank: "Example Bank",
   };
 
-  const handleAmountChange = (paymentType, campType) => {
+  const handlePaymentAmountChange = (paymentType, campType) => {
     if (campType === "Camp Only") {
-      setMinAmount(paymentType === "Full Payment" ? 5000 : 3000);
+      setMinimumAmountRequired(paymentType === "Full Payment" ? 5000 : 3000);
     } else if (campType === "Conference Only") {
-      setMinAmount(paymentType === "Full Payment" ? 15000 : 5000);
+      setMinimumAmountRequired(paymentType === "Full Payment" ? 15000 : 5000);
     } else if (campType === "Camp and Conference") {
-      setMinAmount(paymentType === "Full Payment" ? 20000 : 5000);
+      setMinimumAmountRequired(paymentType === "Full Payment" ? 20000 : 5000);
     }
   };
 
-  const handleCopy = (text, label) => {
+  const handleCopyToClipboard = (text, label) => {
     toast({
       title: `${label} copied to clipboard!`,
       status: "success",
@@ -51,265 +56,226 @@ const PaymentForm = ({ role, values, onValuesChange, onNext, onPrevious }) => {
     });
   };
 
+  const validateForm = () => {
+    const validationErrors = {};
+    if (!selectedPaymentType) validationErrors.paymentType = "Payment type is required";
+    if (!selectedCampType) validationErrors.campType = "Camp type is required";
+    if (!paymentAmount || paymentAmount < minimumAmountRequired) validationErrors.amount = `Minimum amount is ₦${minimumAmountRequired}`;
+    if (!receiptFile) validationErrors.receipt = "Receipt upload is required";
+
+    setFormErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      // Handle file upload
+      const file = inputFileRef.current.files[0];
+      let receiptUrl = "";
+      if (file) {
+        const newBlob = await upload(file.name, file, { access: "public" });
+        receiptUrl = newBlob.url;
+      }
+
+      // Merge previous values and the current form values
+      const mergedValues = {
+        role,
+       
+        ...values,
+        ...prevFormValues,
+        paymentType: selectedPaymentType,
+        campType: selectedCampType,
+        amount: paymentAmount,
+        receiptUrl,
+        paymentNarration: paymentDetails,
+      };
+
+      console.log('merged values:', mergedValues);
+
+      onValuesChange(mergedValues);
+      onNext(mergedValues);
+      toast({
+        title: "Success",
+        description: "Form data saved successfully!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("File upload failed", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload file. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
-    <Formik
-      initialValues={values}
-      validationSchema={Yup.object({
-        paymentType: Yup.string().required("Required"),
-        campType: Yup.string().required("Required"),
-        amount: Yup.number()
-          .min(minAmount, `Minimum amount is ₦${minAmount}`)
-          .required("Required"),
-        receipt: Yup.mixed().required("Receipt upload is required"),
-      })}
-      onSubmit={async (newValues, { setSubmitting }) => {
-        try {
-          // Handle file upload
-          const file = inputFileRef.current.files[0];
-          if (file) {
-            const newBlob = await upload(file.name, file, { access: "public" });
-            const receiptUrl = newBlob.url;
+    <form onSubmit={handleFormSubmit}>
+      <Box display={"flex"} flexDirection={"column"} gap={6}>
+        {/* Bank Account Details */}
+        <Flex
+          flexDirection={"column"}
+          gap={4}
+          bg="gray.100"
+          p={4}
+          borderRadius="md"
+        >
+          <Text fontWeight="bold" mb={2}>
+            Bank Account Details
+          </Text>
 
-            // Merge previous values and the current form values
-            const mergedValues = {
-              role,
-              ...values,
-              ...newValues,
-              amount: minAmount,
-              receiptUrl,
-            };
-            onValuesChange(mergedValues);
-            onNext(mergedValues);
-          } else {
-            console.error("No receipt file selected");
-          }
-        } catch (error) {
-          console.error("File upload failed", error);
-        } finally {
-          setSubmitting(false);
-        }
-      }}
-    >
-      {({ errors, touched, setFieldValue, values }) => (
-        <Form>
-          <Box display={"flex"} flexDirection={"column"} gap={6}>
-            {/* Bank Account Details */}
-            <Flex
-              flexDirection={"column"}
-              // marginLeft={"auto"}
-              gap={4}
-              bg="gray.100"
-              p={4}
-              borderRadius="md"
-            >
-              <Text fontWeight="bold" mb={2}>
-                Bank Account Details
+          <Stack spacing={6}>
+            <Box display={"flex"} justifyContent={"space-between"}>
+              <Text>
+                <strong>Account Name:</strong> {bankAccountDetails.accountName}
               </Text>
-
-              <Stack spacing={6}>
-                {/* account name */}
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  justifyContent={"space-between"}
-                >
-                  <Text>
-                    <strong>Account Name:</strong> {bankDetails.accountName}
-                  </Text>
-                  <CopyToClipboard
-                    text={bankDetails.accountName}
-                    onCopy={() =>
-                      handleCopy(bankDetails.accountName, "Account Name")
-                    }
-                  >
-                    <IconButton
-                      icon={<FaCopy />}
-                      size="sm"
-                      aria-label="Copy Account Name"
-                    />
-                  </CopyToClipboard>
-                </Box>
-
-                {/* account number */}
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  justifyContent={"space-between"}
-                >
-                  <Text>
-                    <strong>Account Number:</strong> {bankDetails.accountNumber}
-                  </Text>
-                  <CopyToClipboard
-                    text={bankDetails.accountNumber}
-                    onCopy={() =>
-                      handleCopy(bankDetails.accountNumber, "Account Number")
-                    }
-                  >
-                    <IconButton
-                      icon={<FaCopy />}
-                      size="sm"
-                      aria-label="Copy Account Number"
-                    />
-                  </CopyToClipboard>
-                </Box>
-
-                {/* bank */}
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  justifyContent={"space-between"}
-                >
-                  <Text>
-                    <strong>Bank:</strong> {bankDetails.bank}
-                  </Text>
-                  <CopyToClipboard
-                    text={bankDetails.bank}
-                    onCopy={() => handleCopy(bankDetails.bank, "Bank")}
-                  >
-                    <IconButton
-                      icon={<FaCopy />}
-                      size="sm"
-                      aria-label="Copy Bank"
-                    />
-                  </CopyToClipboard>
-                </Box>
-              </Stack>
-            </Flex>
-
-            {/* payment form fields */}
-            {/* Mode of Payment */}
-            <FormControl
-              id="paymentType"
-              isInvalid={errors.paymentType && touched.paymentType}
-            >
-              <FormLabel>Mode of Payment</FormLabel>
-              <Field
-                name="paymentType"
-                as={Select}
-                onChange={(e) => {
-                  const paymentType = e.target.value;
-                  setFieldValue("paymentType", paymentType);
-                  handleAmountChange(paymentType, values.campType);
-                }}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+              <CopyToClipboard
+                text={bankAccountDetails.accountName}
+                onCopy={() =>
+                  handleCopyToClipboard(bankAccountDetails.accountName, "Account Name")
+                }
               >
-                <option value="Full Payment">Full Payment</option>
-                <option value="Installmental Payment">
-                  Installmental Payment
-                </option>
-              </Field>
-            </FormControl>
-
-            {/* Camp/Conference Selection */}
-            <FormControl
-              id="campType"
-              isInvalid={errors.campType && touched.campType}
-            >
-              <FormLabel>What part of the Camp/Conference?</FormLabel>
-              <Field
-                name="campType"
-                as={Select}
-                onChange={(e) => {
-                  const campType = e.target.value;
-                  setFieldValue("campType", campType);
-                  handleAmountChange(values.paymentType, campType);
-                }}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              >
-                <option value="Camp Only">Camp Only</option>
-                <option value="Conference Only">Conference Only</option>
-                <option value="Camp and Conference">Camp and Conference</option>
-              </Field>
-            </FormControl>
-
-            {/* Amount (automatically set based on selection) */}
-            <FormControl
-              id="amount"
-              isInvalid={errors.amount && touched.amount}
-            >
-              <FormLabel>Amount</FormLabel>
-              <Field
-                name="amount"
-                type="number"
-                as={Input}
-                value={minAmount}
-                readOnly
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              />
-            </FormControl>
-
-            {/* Payment Receipt (File Upload) */}
-            <FormControl
-              id="receipt"
-              isInvalid={errors.receipt && touched.receipt}
-            >
-              <FormLabel>Upload Payment Receipt</FormLabel>
-              <InputGroup>
-                {/* Hide default file input placeholder text */}
-                <Input
-                  type="file"
-                  ref={inputFileRef}
-                  onChange={(e) => setFieldValue("receipt", e.target.files[0])}
-                  sx={{
-                    "&::file-selector-button": {
-                      display: "none", // Hide the default file input button
-                    },
-                    // Additional styles to hide default text
-                    "&::-webkit-file-upload-button": {
-                      display: "none", // For WebKit browsers
-                    },
-                    appearance: "none", // Remove default styling
-                  }}
-                  _focus={{
-                    boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                    border: "2px solid",
-                    borderColor: "green",
-                    transition: "border-color 0.3s ease",
-                  }}
+                <IconButton
+                  icon={<FaCopy />}
+                  size="sm"
+                  aria-label="Copy Account Name"
                 />
-                <InputRightElement>
-                  <MdAttachFile
-                    className="h-6 w-6"
-                    onClick={() => inputFileRef.current.click()}
-                  />
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
+              </CopyToClipboard>
+            </Box>
 
-            {/* Buttons */}
-            <Stack direction="row" spacing={4} mt={4}>
-              <Button
-                type="button"
-                colorScheme="gray"
-                size="lg"
-                w="full"
-                onClick={onPrevious}
+            <Box display={"flex"} justifyContent={"space-between"}>
+              <Text>
+                <strong>Account Number:</strong> {bankAccountDetails.accountNumber}
+              </Text>
+              <CopyToClipboard
+                text={bankAccountDetails.accountNumber}
+                onCopy={() =>
+                  handleCopyToClipboard(bankAccountDetails.accountNumber, "Account Number")
+                }
               >
-                Back
-              </Button>
-              <Button type="submit" colorScheme="green" size="lg" w="full">
-                Next
-              </Button>
-            </Stack>
-          </Box>
-        </Form>
-      )}
-    </Formik>
+                <IconButton
+                  icon={<FaCopy />}
+                  size="sm"
+                  aria-label="Copy Account Number"
+                />
+              </CopyToClipboard>
+            </Box>
+
+            <Box display={"flex"} justifyContent={"space-between"}>
+              <Text>
+                <strong>Bank:</strong> {bankAccountDetails.bank}
+              </Text>
+              <CopyToClipboard
+                text={bankAccountDetails.bank}
+                onCopy={() => handleCopyToClipboard(bankAccountDetails.bank, "Bank")}
+              >
+                <IconButton icon={<FaCopy />} size="sm" aria-label="Copy Bank" />
+              </CopyToClipboard>
+            </Box>
+          </Stack>
+        </Flex>
+
+        {/* Payment Form Fields */}
+        <FormControl id="paymentType" isInvalid={!!formErrors.paymentType}>
+          <FormLabel>Mode of Payment</FormLabel>
+          <Select
+            value={selectedPaymentType}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedPaymentType(value);
+              handlePaymentAmountChange(value, selectedCampType);
+            }}
+          >
+            <option value="Full Payment">Full Payment</option>
+            <option value="Installmental Payment">Installmental Payment</option>
+          </Select>
+          {formErrors.paymentType && (
+            <Text color="red.500" fontSize="sm">{formErrors.paymentType}</Text>
+          )}
+        </FormControl>
+
+        <FormControl id="campType" isInvalid={!!formErrors.campType}>
+          <FormLabel>What part of the Camp/Conference?</FormLabel>
+          <Select
+            value={selectedCampType}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedCampType(value);
+              handlePaymentAmountChange(selectedPaymentType, value);
+            }}
+          >
+            <option value="Camp Only">Camp Only</option>
+            <option value="Conference Only">Conference Only</option>
+            <option value="Camp and Conference">Camp and Conference</option>
+          </Select>
+          {formErrors.campType && (
+            <Text color="red.500" fontSize="sm">{formErrors.campType}</Text>
+          )}
+        </FormControl>
+
+        <FormControl id="amount">
+          <FormLabel>Amount</FormLabel>
+          <Input
+            type="number"
+            value={paymentAmount || minimumAmountRequired}
+            readOnly
+          />
+          {formErrors.amount && (
+            <Text color="red.500" fontSize="sm">{formErrors.amount}</Text>
+          )}
+        </FormControl>
+
+        <FormControl id="receipt" isInvalid={!!formErrors.receipt}>
+          <FormLabel>Upload Payment Receipt</FormLabel>
+          <InputGroup>
+            <Input
+              type="file"
+              ref={inputFileRef}
+              onChange={(e) => setReceiptFile(e.target.files[0])}
+            />
+            <InputRightElement>
+              <MdAttachFile
+                onClick={() => inputFileRef.current.click()}
+              />
+            </InputRightElement>
+          </InputGroup>
+          {formErrors.receipt && (
+            <Text color="red.500" fontSize="sm">{formErrors.receipt}</Text>
+          )}
+        </FormControl>
+
+        <FormControl id="paymentNarration">
+          <FormLabel>Payment Narration (Optional)</FormLabel>
+          <Textarea
+            value={paymentDetails}
+            onChange={(e) => setPaymentDetails(e.target.value)}
+            placeholder="Enter any additional details for this payment"
+          />
+        </FormControl>
+
+        <Stack direction="row" spacing={4} mt={4}>
+          <Button
+            type="button"
+            colorScheme="gray"
+            size="lg"
+            w="full"
+            onClick={() => onPrevious(values)}
+          >
+            Back
+          </Button>
+          <Button type="submit" colorScheme="green" size="lg" w="full">
+            Next
+          </Button>
+        </Stack>
+      </Box>
+    </form>
   );
 };
 

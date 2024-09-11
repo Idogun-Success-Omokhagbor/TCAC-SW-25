@@ -1,6 +1,4 @@
-import React, {useEffect} from "react";
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   resetUserPassword,
@@ -9,152 +7,168 @@ import {
   selectAuthError,
   clearStatus,
 } from "../../../store/slices/auth/user/userAuthSlice";
-
 import {
   FormControl,
   FormLabel,
   Input,
   Button,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import * as Yup from "yup";
 
-const ResetPasswordForm = () => {
+const UserResetPasswordForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const toast = useToast();
   const { role = "user" } = router.query;
 
   const loading = useSelector(selectAuthLoading);
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
+  const [formValues, setFormValues] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({});
+
   // Clear status on component mount
   useEffect(() => {
     dispatch(clearStatus());
   }, [dispatch]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setSubmitting(true);
+  useEffect(() => {
+    if (status === "succeeded") {
+      toast({
+        title: "Success!",
+        description: "Password reset successful. Redirecting to login...",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      router.push(`/login/${role}`);
+    } else if (status === "failed") {
+      toast({
+        title: "Error!",
+        description: error?.message || "An error occurred",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [status, error, router, role, toast]);
+
+  const validateForm = () => {
+    const validationErrors = {};
+    const { email, password, confirmPassword } = formValues;
+
+    // Email validation
+    if (!email) validationErrors.email = "Required";
+    else if (!Yup.string().email().isValidSync(email)) validationErrors.email = "Invalid email address";
+
+    // Password validation
+    if (!password) validationErrors.password = "Required";
+    else if (password.length < 8) validationErrors.password = "Password must be at least 8 characters";
+
+    // Confirm Password validation
+    if (!confirmPassword) validationErrors.confirmPassword = "Required";
+    else if (confirmPassword !== password) validationErrors.confirmPassword = "Passwords must match";
+
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      const resultAction = await dispatch(resetUserPassword(values));
+      const resultAction = await dispatch(resetUserPassword(formValues));
       if (resetUserPassword.fulfilled.match(resultAction)) {
         // Successful reset
-        resetForm();
-
-        // Redirect to login page after successful reset
-        router.push(`/login/${role}`);
+        setFormValues({ email: "", password: "", confirmPassword: "" }); // Clear form
       } else {
         // Error handled by Redux state
         console.log("Error: ", resultAction.payload || resultAction.error);
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
-      // Global error handling
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    setSubmitting(false);
   };
 
   return (
-    <>
-      <Formik
-        initialValues={{ email: "", password: "", confirmPassword: "" }}
-        validationSchema={Yup.object({
-          email: Yup.string()
-            .email("Invalid email address")
-            .required("Required"),
-          password: Yup.string()
-            .min(8, "Password must be at least 8 characters")
-            .required("Required"),
-          confirmPassword: Yup.string()
-            .oneOf([Yup.ref("password"), null], "Passwords must match")
-            .required("Required"),
-        })}
-        onSubmit={handleSubmit}
+    <form onSubmit={handleSubmit}>
+      <FormControl mb={4} isInvalid={!!errors.email}>
+        <FormLabel>Email</FormLabel>
+        <Input
+          name="email"
+          type="email"
+          value={formValues.email}
+          onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
+          placeholder="Enter your email"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={4} isInvalid={!!errors.password}>
+        <FormLabel>New Password</FormLabel>
+        <Input
+          name="password"
+          type="password"
+          value={formValues.password}
+          onChange={(e) => setFormValues({ ...formValues, password: e.target.value })}
+          placeholder="Enter your new password"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={4} isInvalid={!!errors.confirmPassword}>
+        <FormLabel>Confirm Password</FormLabel>
+        <Input
+          name="confirmPassword"
+          type="password"
+          value={formValues.confirmPassword}
+          onChange={(e) => setFormValues({ ...formValues, confirmPassword: e.target.value })}
+          placeholder="Confirm your new password"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+      </FormControl>
+
+      <Button
+        type="submit"
+        colorScheme="green"
+        w="full"
+        isLoading={loading}
       >
-        {({ isSubmitting }) => (
-          <Form>
-            <FormControl mb={4}>
-              <FormLabel>Email</FormLabel>
-              <Field
-                name="email"
-                type="email"
-                as={Input}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              />
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>New Password</FormLabel>
-              <Field
-                name="password"
-                type="password"
-                as={Input}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              />
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Confirm Password</FormLabel>
-              <Field
-                name="confirmPassword"
-                type="password"
-                as={Input}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              />
-            </FormControl>
-
-            <Button
-              type="submit"
-                colorScheme="green"
-                w={"full"}
-              isLoading={isSubmitting || loading}
-            
-            >
-              Reset Password
-            </Button>
-
-            {status === "succeeded" && (
-              <Alert status="success" mt={4}>
-                <AlertIcon />
-                <AlertTitle>Success!</AlertTitle>
-                <AlertDescription>
-                  Password reset successful. Redirecting to login...
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {status === "failed" && (
-              <Alert status="error" mt={4}>
-                <AlertIcon />
-                <AlertTitle>Error!</AlertTitle>
-                <AlertDescription>
-                  {error?.message || "An error occurred"}
-                </AlertDescription>
-              </Alert>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
+        Reset Password
+      </Button>
+    </form>
   );
 };
 
-export default ResetPasswordForm;
+export default UserResetPasswordForm;

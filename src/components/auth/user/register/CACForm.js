@@ -1,168 +1,226 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Stack,
-  Select as ChakraSelect,
-  Checkbox,
-} from "@chakra-ui/react";
+import React, { useEffect, useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Stack, Select as ChakraSelect, FormErrorMessage, useToast } from '@chakra-ui/react';
+import { FaSchool, FaUser, FaPhoneAlt, FaAddressBook } from 'react-icons/fa';
+import { AiOutlineFieldNumber } from 'react-icons/ai';
+import NaijaStates from 'naija-state-local-government';
 
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
-
-import NaijaStates from "naija-state-local-government";
-
-// Get all Nigerian states
+// Load all states from NaijaStates
 const allStates = NaijaStates.states();
 
-// console.log(allStates);
+const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormValues }) => {
 
-const CACForm = ({ role, values, onValuesChange, onNext, onPrevious }) => {
-  const [userCategory, setUserCategory] = useState("Student");
-  const [institutions, setInstitutions] = useState({});
+  const [institutions, setInstitutions] = useState([]);
+  const [formValues, setFormValues] = useState({
+    userCategory: values?.userCategory || 'Student',
+    institution: values?.institution || '',
+    otherInstitution: values?.otherInstitution || '',
+    graduationYear: values?.graduationYear || '',
+    state: values?.state || '',
+    otherState: values?.otherState || '',
+    guardianName: values?.guardianName || '',
+    guardianPhone: values?.guardianPhone || '',
+    guardianAddress: values?.guardianAddress || '',
+    nonTimsaniteInstitution: values?.nonTimsaniteInstitution || '',
+    nonTimsaniteState: values?.nonTimsaniteState || '',
+    nextOfKinName: values?.nextOfKinName || '',
+    nextOfKinPhone: values?.nextOfKinPhone || '',
+    nextOfKinAddress: values?.nextOfKinAddress || '',
+    isStudent: values?.isStudent || false,
+  });
   const [isInstitutionOther, setIsInstitutionOther] = useState(false);
   const [isStateOther, setIsStateOther] = useState(false);
   const [isStudent, setIsStudent] = useState(false);
+  const [error, setError] = useState({});
+  const toast = useToast();
 
   useEffect(() => {
-    // Fetch the JSON file from the public folder
-    fetch("/institutions.json")
-      .then((response) => response.json())
-      .then((data) => setInstitutions(data.institutions))
-      .catch((error) => console.error("Error fetching institutions:", error));
+    fetch('/institutions.json')
+      .then(response => response.json())
+      .then(data => setInstitutions(data.institutions))
+      .catch(error => console.error('Error fetching institutions:', error));
   }, []);
 
-  const renderInstitutionOptions = (institutionList) => {
-    return institutionList.map((institution, index) => (
-      <option key={index} value={institution.name}>
-        {institution.name} - {institution.location}
-      </option>
-    ));
+  useEffect(() => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      ...prevFormValues
+    }));
+  }, [prevFormValues]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [name]: value
+    }));
   };
 
   const handleUserCategoryChange = (e) => {
-    setUserCategory(e.target.value);
-    if (e.target.value === "Non-TIMSANITE") {
-      setIsStudent(false); // Reset isStudent if not a TIMSANITE
+    const category = e.target.value;
+    setFormValues(prevValues => ({
+      ...prevValues,
+      userCategory: category,
+      institution: '',
+      state: '',
+      otherInstitution: '',
+      otherState: '',
+    }));
+    setIsInstitutionOther(category === 'Other');
+    setIsStateOther(category === 'Other');
+    setIsStudent(false); // Reset isStudent when category changes
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus') {
+      if (!formValues.institution && !formValues.otherInstitution) {
+        errors.institution = 'Institution is required';
+      }
+      if (formValues.userCategory === 'Alumnus' && !formValues.graduationYear) {
+        errors.graduationYear = 'Graduation Year is required';
+      }
+      if (formValues.state === 'Other' && !formValues.otherState) {
+        errors.otherState = 'State is required';
+      }
     }
+    if (formValues.userCategory === 'Child') {
+      if (!formValues.guardianName) errors.guardianName = 'Guardian Name is required';
+      if (!formValues.guardianPhone) errors.guardianPhone = 'Guardian Phone is required';
+      if (!formValues.guardianAddress) errors.guardianAddress = 'Guardian Address is required';
+    }
+    if (formValues.userCategory === 'Non-TIMSANITE') {
+      if (formValues.isStudent && !formValues.nonTimsaniteInstitution) {
+        errors.nonTimsaniteInstitution = 'Institution is required';
+      }
+      if (formValues.isStudent && !formValues.nonTimsaniteState) {
+        errors.nonTimsaniteState = 'State is required';
+      }
+      if (!formValues.nextOfKinName) errors.nextOfKinName = 'Next of Kin Name is required';
+      if (!formValues.nextOfKinPhone) errors.nextOfKinPhone = 'Next of Kin Phone is required';
+      if (!formValues.nextOfKinAddress) errors.nextOfKinAddress = 'Next of Kin Address is required';
+    }
+    setError(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleInstitutionChange = (e) => {
-    setIsInstitutionOther(e.target.value === "Other");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      Object.values(error).forEach((err) => {
+        toast({
+          title: "Validation Error",
+          description: err,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      });
+      return;
+    }
+    const mergedValues = { role, ...values, ...prevFormValues, ...formValues };
+    console.log('merged values:', mergedValues);
+    
+    onValuesChange(mergedValues);
+    onNext(mergedValues);
+    toast({
+      title: "Success",
+      description: "Form submitted successfully!",
+      status: "success",
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
-  const handleStateChange = (e) => {
-    setIsStateOther(e.target.value === "Other");
-  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <Stack spacing={4}>
+        {/* User Category Selector */}
+        <FormControl id="user-category">
+          <FormLabel>Register as</FormLabel>
+          <ChakraSelect
+            name="userCategory"
+            onChange={handleUserCategoryChange}
+            value={formValues.userCategory}
+          >
+            <option value="Student">Student (TIMSANITE)</option>
+            <option value="Alumnus">Alumnus (IOTB)</option>
+            <option value="Child">Child</option>
+            <option value="Non-TIMSANITE">Non-TIMSANITE</option>
+          </ChakraSelect>
+        </FormControl>
 
-  const renderConditionalFields = () => {
-    switch (userCategory) {
-      case "Student":
-      case "Alumnus":
-        return (
+        {/* Conditional Fields */}
+        {formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus' ? (
           <>
-            {/* institution */}
-            <FormControl>
+            <FormControl isInvalid={!!error.institution}>
               <FormLabel>Institution</FormLabel>
               <ChakraSelect
-                placeholder="Select institution"
-                id="institution"
                 name="institution"
-                onChange={handleInstitutionChange}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setIsInstitutionOther(value === 'Other');
+                  setFormValues(prevValues => ({
+                    ...prevValues,
+                    institution: value
+                  }));
                 }}
+                value={formValues.institution}
               >
                 <optgroup label="Federal Universities">
-                  {renderInstitutionOptions(
-                    institutions.universities?.federal || []
-                  )}
+                  {institutions.universities?.federal?.map((institution, index) => (
+                    <option key={index} value={institution.name}>
+                      {institution.name} - {institution.location}
+                    </option>
+                  ))}
                 </optgroup>
                 <optgroup label="State Universities">
-                  {renderInstitutionOptions(
-                    institutions.universities?.state || []
-                  )}
+                  {institutions.universities?.state?.map((institution, index) => (
+                    <option key={index} value={institution.name}>
+                      {institution.name} - {institution.location}
+                    </option>
+                  ))}
                 </optgroup>
-                <optgroup label="Private Universities">
-                  {renderInstitutionOptions(
-                    institutions.universities?.private || []
-                  )}
-                </optgroup>
-                <optgroup label="Federal Polytechnics">
-                  {renderInstitutionOptions(
-                    institutions.polytechnics?.federal || []
-                  )}
-                </optgroup>
-                <optgroup label="State Polytechnics">
-                  {renderInstitutionOptions(
-                    institutions.polytechnics?.state || []
-                  )}
-                </optgroup>
-                <optgroup label="Private Polytechnics">
-                  {renderInstitutionOptions(
-                    institutions.polytechnics?.private || []
-                  )}
-                </optgroup>
-                <optgroup label="Federal Colleges of Education">
-                  {renderInstitutionOptions(
-                    institutions.colleges_of_education?.federal || []
-                  )}
-                </optgroup>
-                <optgroup label="State Colleges of Education">
-                  {renderInstitutionOptions(
-                    institutions.colleges_of_education?.state || []
-                  )}
-                </optgroup>
-                <optgroup label="Private Colleges of Education">
-                  {renderInstitutionOptions(
-                    institutions.colleges_of_education?.private || []
-                  )}
-                </optgroup>
+                {/* Add other institution groups here */}
               </ChakraSelect>
               {isInstitutionOther && (
-                <Field
-                  as={Input}
+                <Input
                   name="otherInstitution"
                   placeholder="Enter Institution Name"
+                  value={formValues.otherInstitution}
+                  onChange={handleInputChange}
                 />
               )}
+              <FormErrorMessage>{error.institution}</FormErrorMessage>
             </FormControl>
 
-            {/* Alumnus fields */}
-            {userCategory === "Alumnus" && (
-              <FormControl>
+            {formValues.userCategory === 'Alumnus' && (
+              <FormControl isInvalid={!!error.graduationYear}>
                 <FormLabel>Year of Graduation</FormLabel>
-                <Field
-                  as={Input}
+                <Input
                   type="number"
                   name="graduationYear"
                   placeholder="Select Year"
-                  _focus={{
-                    boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                    border: "2px solid",
-                    borderColor: "green",
-                    transition: "border-color 0.3s ease",
-                  }}
+                  value={formValues.graduationYear}
+                  onChange={handleInputChange}
+                  leftIcon={<AiOutlineFieldNumber />}
                 />
+                <FormErrorMessage>{error.graduationYear}</FormErrorMessage>
               </FormControl>
             )}
 
-            <FormControl>
+            <FormControl isInvalid={!!error.state}>
               <FormLabel>State</FormLabel>
               <ChakraSelect
-                onChange={handleStateChange}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
+                name="state"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setIsStateOther(value === 'Other');
+                  setFormValues(prevValues => ({
+                    ...prevValues,
+                    state: value
+                  }));
                 }}
+                value={formValues.state}
               >
                 <option value="">Select State</option>
                 {allStates.map((state) => (
@@ -173,219 +231,144 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious }) => {
                 <option value="Other">Other</option>
               </ChakraSelect>
               {isStateOther && (
-                <Field as={Input} name="otherState" placeholder="Enter State" />
+                <Input
+                  name="otherState"
+                  placeholder="Enter State"
+                  value={formValues.otherState}
+                  onChange={handleInputChange}
+                />
               )}
+              <FormErrorMessage>{error.state}</FormErrorMessage>
             </FormControl>
           </>
-        );
-
-      case "Child":
-        return (
+        ) : formValues.userCategory === 'Child' ? (
           <>
-            <FormControl>
+            <FormControl isInvalid={!!error.guardianName}>
               <FormLabel>Guardian Name</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="guardianName"
                 placeholder="Enter Guardian Name"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.guardianName}
+                onChange={handleInputChange}
+                leftIcon={<FaUser />}
               />
+              <FormErrorMessage>{error.guardianName}</FormErrorMessage>
             </FormControl>
-
-            <FormControl>
+            <FormControl isInvalid={!!error.guardianPhone}>
               <FormLabel>Guardian Phone Number</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="guardianPhone"
                 placeholder="Enter Guardian Phone"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.guardianPhone}
+                onChange={handleInputChange}
+                leftIcon={<FaPhoneAlt />}
               />
+              <FormErrorMessage>{error.guardianPhone}</FormErrorMessage>
             </FormControl>
-
-            <FormControl>
+            <FormControl isInvalid={!!error.guardianAddress}>
               <FormLabel>Guardian Address</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="guardianAddress"
                 placeholder="Enter Guardian Address"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.guardianAddress}
+                onChange={handleInputChange}
+                leftIcon={<FaAddressBook />}
               />
+              <FormErrorMessage>{error.guardianAddress}</FormErrorMessage>
             </FormControl>
           </>
-        );
-
-      case "Non-TIMSANITE":
-        return (
+        ) : formValues.userCategory === 'Non-TIMSANITE' ? (
           <>
             <FormControl>
               <FormLabel>Are you a Student?</FormLabel>
               <ChakraSelect
-                onChange={(e) => setIsStudent(e.target.value === "yes")}
+                name="isStudent"
+                onChange={(e) => {
+                  const value = e.target.value === 'yes';
+                  setIsStudent(value);
+                  setFormValues(prevValues => ({
+                    ...prevValues,
+                    isStudent: value
+                  }));
+                }}
+                value={formValues.isStudent ? 'yes' : 'no'}
               >
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
               </ChakraSelect>
             </FormControl>
-
             {isStudent && (
               <>
-                <FormControl>
+                <FormControl isInvalid={!!error.nonTimsaniteInstitution}>
                   <FormLabel>Institution</FormLabel>
-                  <Field
-                    as={Input}
+                  <Input
                     name="nonTimsaniteInstitution"
                     placeholder="Enter Institution"
-                    _focus={{
-                      boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                      border: "2px solid",
-                      borderColor: "green",
-                      transition: "border-color 0.3s ease",
-                    }}
+                    value={formValues.nonTimsaniteInstitution}
+                    onChange={handleInputChange}
+                    leftIcon={<FaSchool />}
                   />
+                  <FormErrorMessage>{error.nonTimsaniteInstitution}</FormErrorMessage>
                 </FormControl>
-                <FormControl>
+                <FormControl isInvalid={!!error.nonTimsaniteState}>
                   <FormLabel>State</FormLabel>
-                  <Field
-                    as={Input}
+                  <Input
                     name="nonTimsaniteState"
                     placeholder="Enter State"
-                    _focus={{
-                      boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                      border: "2px solid",
-                      borderColor: "green",
-                      transition: "border-color 0.3s ease",
-                    }}
+                    value={formValues.nonTimsaniteState}
+                    onChange={handleInputChange}
                   />
+                  <FormErrorMessage>{error.nonTimsaniteState}</FormErrorMessage>
                 </FormControl>
               </>
             )}
-
-            <FormControl>
+            <FormControl isInvalid={!!error.nextOfKinName}>
               <FormLabel>Next of Kin Name</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="nextOfKinName"
                 placeholder="Enter Next of Kin Name"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.nextOfKinName}
+                onChange={handleInputChange}
+                leftIcon={<FaUser />}
               />
+              <FormErrorMessage>{error.nextOfKinName}</FormErrorMessage>
             </FormControl>
-
-            <FormControl>
+            <FormControl isInvalid={!!error.nextOfKinPhone}>
               <FormLabel>Next of Kin Phone</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="nextOfKinPhone"
                 placeholder="Enter Next of Kin Phone"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.nextOfKinPhone}
+                onChange={handleInputChange}
+                leftIcon={<FaPhoneAlt />}
               />
+              <FormErrorMessage>{error.nextOfKinPhone}</FormErrorMessage>
             </FormControl>
-
-            <FormControl>
+            <FormControl isInvalid={!!error.nextOfKinAddress}>
               <FormLabel>Next of Kin Address</FormLabel>
-              <Field
-                as={Input}
+              <Input
                 name="nextOfKinAddress"
                 placeholder="Enter Next of Kin Address"
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
+                value={formValues.nextOfKinAddress}
+                onChange={handleInputChange}
+                leftIcon={<FaAddressBook />}
               />
+              <FormErrorMessage>{error.nextOfKinAddress}</FormErrorMessage>
             </FormControl>
           </>
-        );
-      default:
-        return null;
-    }
-  };
+        ) : null}
 
-  return (
-    <Formik
-      initialValues={{
-        userCategory: "Student",
-        institution: "",
-        state: "",
-        guardianName: "",
-        guardianPhone: "",
-        guardianAddress: "",
-        nextOfKinName: "",
-        nextOfKinPhone: "",
-        nextOfKinAddress: "",
-      }}
-      validationSchema={Yup.object({
-        userCategory: Yup.string().required("Please select a category"),
-        // Add validation for other fields as needed
-      })}
-      onSubmit={(newValues) => {
-        console.log("Attendee Info:", newValues);
-        const mergedValues = { role, ...values, ...newValues }; // Merge values from the previous step
-        onValuesChange(mergedValues);
-        onNext(mergedValues);
-      }}
-    >
-      {({ errors, touched }) => (
-        <Form>
-          <Stack spacing={4}>
-            <FormControl id="user-category">
-              <FormLabel>Register as</FormLabel>
-              <ChakraSelect
-                onChange={handleUserCategoryChange}
-                value={userCategory}
-                _focus={{
-                  boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                  border: "2px solid",
-                  borderColor: "green",
-                  transition: "border-color 0.3s ease",
-                }}
-              >
-                <option value="Student">Student (TIMSANITE)</option>
-                <option value="Alumnus">Alumnus (IOTB)</option>
-                <option value="Child">Child</option>
-                <option value="Non-TIMSANITE">Non-TIMSANITE</option>
-              </ChakraSelect>
-            </FormControl>
-
-            {renderConditionalFields()}
-
-            <Stack direction="row" spacing={4} mt={4}>
-              <Button type="button" colorScheme="gray" onClick={onPrevious}>
-                Back
-              </Button>
-              <Button type="submit" colorScheme="green">
-                Next
-              </Button>
-            </Stack>
-          </Stack>
-        </Form>
-      )}
-    </Formik>
+        {/* Navigation Buttons */}
+        <Stack direction="row" spacing={4} mt={4}>
+          <Button type="button" onClick={onPrevious}>
+            Back
+          </Button>
+          <Button type="submit" colorScheme="green">
+            Next
+          </Button>
+        </Stack>
+      </Stack>
+    </form>
   );
 };
 

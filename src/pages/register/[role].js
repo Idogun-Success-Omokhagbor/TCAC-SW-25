@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import RegisterAuthLayout from "../../layouts/auth/RegisterAuthLayout";
-import AdminRegAuthLayout from "../../layouts/auth/AdminRegAuthLayout"; 
+import AdminRegAuthLayout from "../../layouts/auth/AdminRegAuthLayout";
 
 // user-specific form components
 import PersonalInformationForm from "../../components/auth/user/register/PersonalInformationForm";
@@ -33,22 +33,26 @@ const Register = () => {
       userCategory: "Student",
       institution: "",
       state: "",
+      otherInstitution: "",
+      graduationYear: "",
+      otherState: "",
       guardianName: "",
       guardianPhone: "",
       guardianAddress: "",
+      nonTimsaniteInstitution: "",
+      nonTimsaniteState: "",
       nextOfKinName: "",
       nextOfKinPhone: "",
       nextOfKinAddress: "",
     },
     medicalCondition: {
-      // Define initial values for medical condition form
       medicalCondition: "",
       conditionDetails: "",
     },
     payment: {
-      paymentType: "Full Payment", // Default value for Mode of Payment
-      campType: "Camp Only", // Default value for Camp/Conference part
-      amount: 5000, // Default amount (₦5000)
+      paymentType: "Full Payment",
+      campType: "Camp Only",
+      amount: 5000,
       receipt: null,
     },
     password: {
@@ -58,69 +62,124 @@ const Register = () => {
     role,
   });
 
-  const handleFormValuesChange = (newValues) => {
+  // Function to handle moving to the next step
+  const handleNext = (mergedValues) => {
+    console.log("Merged Values:", mergedValues);
     setFormValues((prevValues) => ({
       ...prevValues,
-      ...newValues,
+      ...mergedValues,
     }));
+    setStep((prevStep) => prevStep + 1); // Move to the next step
   };
 
-  const handleNext = () => setStep(step + 1);
-  const handlePrevious = () => setStep(step - 1);
-  
+  // Function to handle going back to the previous step
+  const handlePrevious = (previousValues) => {
+    console.log("Previous Values:", previousValues); // Debugging
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      ...previousValues,
+    }));
+    setStep((prevStep) => prevStep - 1); // Move to the previous step
+  };
+
+  // Calculate all previous values based on the current step
+  const getPreviousValues = () => {
+    switch (step) {
+      case 1:
+        return formValues.personalInfo;
+      case 2:
+        return {
+          ...formValues.personalInfo,
+          ...formValues.CAC,
+        };
+      case 3:
+        return {
+          ...formValues.personalInfo,
+          ...formValues.CAC,
+          ...formValues.medicalCondition,
+        };
+      default:
+        return {};
+    }
+  };
 
   const renderUserRegistrationForm = () => {
     return (
       <>
         {step === 0 && (
           <PersonalInformationForm
-            values={formValues.personalInfo}
             role={role}
-            onValuesChange={(values) =>
-              handleFormValuesChange({ personalInfo: values })
+            values={formValues.personalInfo}
+            onValuesChange={(newValues) =>
+              setFormValues((prev) => ({ ...prev, personalInfo: newValues }))
             }
             onNext={handleNext}
           />
         )}
         {step === 1 && (
           <CACForm
-            values={formValues.CAC}
             role={role}
-            onValuesChange={(values) => handleFormValuesChange({ CAC: values })}
+            values={formValues.CAC}
+            onValuesChange={(newValues) =>
+              setFormValues((prev) => ({ ...prev, CAC: newValues }))
+            }
+            onPrevious={() => handlePrevious(formValues.personalInfo)} // Pass previous form values
             onNext={handleNext}
-            onPrevious={handlePrevious}
+            prevFormValues={formValues.personalInfo} // Pass previous form values
           />
         )}
         {step === 2 && (
           <MedicalConditionForm
             values={formValues.medicalCondition}
             role={role}
-            onValuesChange={(values) =>
-              handleFormValuesChange({ medicalCondition: values })
+            onValuesChange={(newValues) =>
+              setFormValues((prev) => ({
+                ...prev,
+                medicalCondition: newValues,
+              }))
             }
             onNext={handleNext}
-            onPrevious={handlePrevious}
+            onPrevious={() =>
+              handlePrevious({
+                ...formValues.personalInfo,
+                ...formValues.CAC,
+              })
+            }
+            prevFormValues={getPreviousValues()} // Pass combined previous form values
           />
         )}
         {step === 3 && (
           <PaymentForm
             values={formValues.payment}
             role={role}
-            onValuesChange={(values) =>
-              handleFormValuesChange({ payment: values })
+            onValuesChange={(newValues) =>
+              setFormValues((prev) => ({ ...prev, payment: newValues }))
             }
             onNext={handleNext}
-            onPrevious={handlePrevious}
+            onPrevious={() =>
+              handlePrevious({
+                ...formValues.personalInfo,
+                ...formValues.CAC,
+                ...formValues.medicalCondition,
+              })
+            }
           />
         )}
         {step === 4 && (
           <PasswordCreationForm
             values={formValues.password}
             role={role}
-            onValuesChange={(values) =>
-              handleFormValuesChange({ password: values })
+            onValuesChange={(newValues) =>
+              setFormValues((prev) => ({ ...prev, password: newValues }))
             }
-            onPrevious={handlePrevious}
+            onPrevious={() =>
+              handlePrevious({
+                ...formValues.personalInfo,
+                ...formValues.CAC,
+                ...formValues.medicalCondition,
+                ...formValues.payment,
+              })
+            }
           />
         )}
       </>

@@ -28,7 +28,7 @@ const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
           </Link>
 
         <HStack spacing={4}>
-          <Text fontWeight="medium">Have your password now?</Text>
+          <Text display={{base: "none", md:"block"}} fontWeight="medium">Have your password now?</Text>
           <Button
             variant="outline"
             colorScheme="green"

@@ -2,6 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import userAuthReducer from "./slices/auth/user/userAuthSlice";
 import adminAuthReducer from "./slices/auth/admin/adminAuthSlice";
 import superAdminAuthReducer from "./slices/auth/superAdmin/superAdminAuthSlice";
+import userActionsReducer from "./slices/userActionsSlice";
+import adminActionsReducer from "./slices/adminActionsSlice";
 
 
 const store = configureStore({
@@ -9,6 +11,8 @@ const store = configureStore({
     userAuth: userAuthReducer,
     adminAuth: adminAuthReducer,
     superAdminAuth: superAdminAuthReducer,
+    userActions: userActionsReducer,
+    adminActions: adminActionsReducer,
    
   },
 

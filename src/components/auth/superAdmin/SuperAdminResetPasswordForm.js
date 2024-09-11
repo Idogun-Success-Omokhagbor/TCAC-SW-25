@@ -1,6 +1,6 @@
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
 import {
   resetAdminPassword,
   selectAuthLoading,
@@ -13,130 +13,184 @@ import {
   FormLabel,
   Input,
   Button,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  FormErrorMessage,
+  useToast,
+  Box,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 
-const AdminResetPasswordForm = () => {
+const SuperAdminResetPasswordForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const toast = useToast();
+
   const { role = "user" } = router.query;
 
   const loading = useSelector(selectAuthLoading);
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
+  const [formValues, setFormValues] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-   // Clear status on component mount
-   useEffect(() => {
+  useEffect(() => {
     dispatch(clearStatus());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (status === "succeeded") {
+      toast({
+        title: "Success!",
+        description: "Password reset successful. Redirecting to login...",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      router.push(`/login/${role}`);
+    } else if (status === "failed") {
+      toast({
+        title: "Error!",
+        description: error?.message || "An error occurred during the password reset.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [status, error, router, role, toast]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setSubmitting(true);
+  const validateForm = () => {
+    const errors = {};
+    const { email, password, confirmPassword } = formValues;
+
+    if (!email) {
+      errors.email = "Required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      errors.email = "Invalid email address";
+    }
+    if (!password) {
+      errors.password = "Required";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
+    if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords must match";
+    } else if (!confirmPassword) {
+      errors.confirmPassword = "Required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      const resultAction = await dispatch(resetAdminPassword(values));
+      const resultAction = await dispatch(resetAdminPassword(formValues));
       if (resetAdminPassword.fulfilled.match(resultAction)) {
-        // Successful reset
-        resetForm();
-        // Redirect to login page after successful reset
-        router.push(`/login/${role}`);
+        // Clear form values
+        setFormValues({
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
       } else {
-        // Error handled by Redux state
-      console.log("Error: ", resultAction.payload || resultAction.error);
+        // Handle error from Redux
+        console.log("Error: ", resultAction.payload || resultAction.error);
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
-      // Global error handling
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    setSubmitting(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+    setTouched({ ...touched, [name]: true });
   };
 
   return (
-    <>
-      <Formik
-        initialValues={{ email: "", password: "", confirmPassword: "" }}
-        validationSchema={Yup.object({
-          email: Yup.string().email("Invalid email address").required("Required"),
-          password: Yup.string()
-            .min(8, "Password must be at least 8 characters")
-            .required("Required"),
-          confirmPassword: Yup.string()
-            .oneOf([Yup.ref("password"), null], "Passwords must match")
-            .required("Required"),
-        })}
-        onSubmit={handleSubmit}
+    <form onSubmit={handleSubmit}>
+      <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
+        <FormLabel>Email</FormLabel>
+        <Input
+          name="email"
+          type="email"
+          value={formValues.email}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, email: true })}
+          placeholder="Enter your email"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.email}</FormErrorMessage>
+      </FormControl>
+
+      <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
+        <FormLabel>New Password</FormLabel>
+        <Input
+          name="password"
+          type="password"
+          value={formValues.password}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, password: true })}
+          placeholder="Enter new password"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.password}</FormErrorMessage>
+      </FormControl>
+
+      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+        <FormLabel>Confirm Password</FormLabel>
+        <Input
+          name="confirmPassword"
+          type="password"
+          value={formValues.confirmPassword}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, confirmPassword: true })}
+          placeholder="Confirm new password"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
+      </FormControl>
+
+      <Button
+        type="submit"
+        w="full"
+        isLoading={loading}
+        colorScheme="blue"
       >
-        {({ isSubmitting }) => (
-          <Form>
-            <FormControl mb={4}>
-              <FormLabel>Email</FormLabel>
-              <Field name="email" type="email" as={Input} 
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-              />
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>New Password</FormLabel>
-              <Field name="password" type="password" as={Input} 
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-              />
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Confirm Password</FormLabel>
-              <Field name="confirmPassword" type="password" as={Input} 
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-              />
-            </FormControl>
-
-            <Button type="submit"  w={"full"} isLoading={isSubmitting || loading} colorScheme="blue">
-              Reset Password
-            </Button>
-
-            {status === "succeeded" && (
-              <Alert status="success" mt={4}>
-                <AlertIcon />
-                <AlertTitle>Success!</AlertTitle>
-                <AlertDescription>
-                  Password reset successful. Redirecting to login...
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {status === "failed" && (
-              <Alert status="error" mt={4}>
-                <AlertIcon />
-                <AlertTitle>Error!</AlertTitle>
-                <AlertDescription>
-                  {error?.message || "An error occurred"}
-                </AlertDescription>
-              </Alert>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
+        Reset Password
+      </Button>
+    </form>
   );
 };
 
-export default AdminResetPasswordForm;
+export default SuperAdminResetPasswordForm;

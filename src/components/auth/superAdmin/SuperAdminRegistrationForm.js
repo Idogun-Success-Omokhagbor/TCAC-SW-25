@@ -1,7 +1,4 @@
-// components/auth/admin/AdminRegistrationForm.js
-import React, { useEffect } from "react";
-import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
@@ -17,157 +14,208 @@ import {
   FormLabel,
   Input,
   Button,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  FormErrorMessage,
+  useToast,
 } from "@chakra-ui/react";
 
 const SuperAdminRegistrationForm = ({ role }) => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const toast = useToast();
 
   const loading = useSelector(selectAuthLoading);
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
-  // Clear status on component mount
+  const [formValues, setFormValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
   useEffect(() => {
     dispatch(clearStatus());
   }, [dispatch]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setSubmitting(true);
+  useEffect(() => {
+    if (status === "succeeded") {
+      toast({
+        title: "Success!",
+        description: "Registration successful. Redirecting to login...",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      router.push(`/login/${role}`);
+    } else if (status === "failed") {
+      toast({
+        title: "Error!",
+        description: error?.message || "An error occurred during registration.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [status, error, router, role, toast]);
+
+  const validateForm = () => {
+    const errors = {};
+    const { firstName, lastName, email, phoneNumber } = formValues;
+
+    if (!firstName) {
+      errors.firstName = "Required";
+    }
+    if (!lastName) {
+      errors.lastName = "Required";
+    }
+    if (!email) {
+      errors.email = "Required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      errors.email = "Invalid email address";
+    }
+    if (!phoneNumber) {
+      errors.phoneNumber = "Required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
 
     // Ensure the role is "Super Admin" if the role passed is "super_admin"
     if (role === "super_admin") {
-      values.role = "Super Admin";
+      formValues.role = "Super Admin";
     }
 
     try {
-      const resultAction = await dispatch(registerSuperAdmin(values));
+      const resultAction = await dispatch(registerSuperAdmin(formValues));
       if (registerSuperAdmin.fulfilled.match(resultAction)) {
-        // Successful reset
-        resetForm();
-        // Redirect to login page after successful reset
-        router.push(`/login/${role}`);
+        // Successful registration
+        setFormValues({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phoneNumber: "",
+        }); // Clear form values
       } else {
-        // Error handled by Redux state
+        // Handle error from Redux
         console.log("Error: ", resultAction.payload || resultAction.error);
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    setSubmitting(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+    setTouched({ ...touched, [name]: true });
   };
 
   return (
-    <Formik
-      initialValues={{ firstName: "", lastName: "", email: "", phoneNumber: "" }}
-      validationSchema={Yup.object({
-        firstName: Yup.string().required('Required'),
-        lastName: Yup.string().required('Required'),
-        email: Yup.string().email('Invalid email address').required('Required'),
-        phoneNumber: Yup.string().required('Required'),
-      })}
-      onSubmit={handleSubmit}
-    >
-      {({ isSubmitting, errors, touched }) => (
-        <Form>
-          <FormControl id="firstName" isInvalid={errors.firstName && touched.firstName}>
-            <FormLabel>First Name</FormLabel>
-            <Field
-              name="firstName"
-              type="text"
-              as={Input}
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-            />
-          </FormControl>
+    <form onSubmit={handleSubmit}>
+      <FormControl mb={4} isInvalid={formErrors.firstName && touched.firstName}>
+        <FormLabel>First Name</FormLabel>
+        <Input
+          name="firstName"
+          type="text"
+          value={formValues.firstName}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, firstName: true })}
+          placeholder="Enter your first name"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.firstName}</FormErrorMessage>
+      </FormControl>
 
-          <FormControl id="lastName" isInvalid={errors.lastName && touched.lastName} mt={4}>
-            <FormLabel>Last Name</FormLabel>
-            <Field
-              name="lastName"
-              type="text"
-              as={Input}
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-            />
-          </FormControl>
+      <FormControl mb={4} isInvalid={formErrors.lastName && touched.lastName}>
+        <FormLabel>Last Name</FormLabel>
+        <Input
+          name="lastName"
+          type="text"
+          value={formValues.lastName}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, lastName: true })}
+          placeholder="Enter your last name"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.lastName}</FormErrorMessage>
+      </FormControl>
 
-          <FormControl id="email" isInvalid={errors.email && touched.email} mt={4}>
-            <FormLabel>Email Address</FormLabel>
-            <Field
-              name="email"
-              type="email"
-              as={Input}
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-            />
-          </FormControl>
+      <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
+        <FormLabel>Email Address</FormLabel>
+        <Input
+          name="email"
+          type="email"
+          value={formValues.email}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, email: true })}
+          placeholder="Enter your email address"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.email}</FormErrorMessage>
+      </FormControl>
 
-          <FormControl id="phoneNumber" isInvalid={errors.phoneNumber && touched.phoneNumber} mt={4}>
-            <FormLabel>
-              Phone Number <Box as="span" fontSize="sm" color="gray.500">(WhatsApp enabled)</Box>
-            </FormLabel>
-            <Field
-              name="phoneNumber"
-              type="tel"
-              as={Input}
-              _focus={{
-                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-                border: "2px solid",
-                borderColor: "green",
-                transition: "border-color 0.3s ease",
-              }}
-            />
-          </FormControl>
+      <FormControl mb={4} isInvalid={formErrors.phoneNumber && touched.phoneNumber}>
+        <FormLabel>
+          Phone Number <Box as="span" fontSize="sm" color="gray.500">(WhatsApp enabled)</Box>
+        </FormLabel>
+        <Input
+          name="phoneNumber"
+          type="tel"
+          value={formValues.phoneNumber}
+          onChange={handleChange}
+          onBlur={() => setTouched({ ...touched, phoneNumber: true })}
+          placeholder="Enter your phone number"
+          _focus={{
+            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+            border: "2px solid",
+            borderColor: "green",
+            transition: "border-color 0.3s ease",
+          }}
+        />
+        <FormErrorMessage>{formErrors.phoneNumber}</FormErrorMessage>
+      </FormControl>
 
-          <Button
-            type="submit"
-            w="full"
-            isLoading={isSubmitting || loading}
-            colorScheme="blue"
-            mt={4}
-          >
-            Register
-          </Button>
-
-          {status === "succeeded" && (
-            <Alert status="success" mt={4}>
-              <AlertIcon />
-              <AlertTitle>Success!</AlertTitle>
-              <AlertDescription>
-                Registration successful. Redirecting to login...
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {status === "failed" && (
-            <Alert status="error" mt={4}>
-              <AlertIcon />
-              <AlertTitle>Error!</AlertTitle>
-              <AlertDescription>
-                {error?.message || "An error occurred"}
-              </AlertDescription>
-            </Alert>
-          )}
-        </Form>
-      )}
-    </Formik>
+      <Button
+        type="submit"
+        w="full"
+        isLoading={loading}
+        colorScheme="blue"
+        mt={4}
+      >
+        Register
+      </Button>
+    </form>
   );
 };
 

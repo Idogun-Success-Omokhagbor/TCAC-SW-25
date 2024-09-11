@@ -1,21 +1,23 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  firstname: { type: String, required: true },
-  lastname: { type: String, required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phoneNumber: { type: String, required: true},
   password: { type: String, required: true },
+  
   role: {
     type: String,
-    enum: ["User", "Admin", "Super_Admin"],
-    default: "User",
+    default: "user",
   },
+
   userCategory: {
     type: String,
     enum: ["Student", "Alumnus", "Child", "Non-TIMSANITE"],
-    default: "user",
+    default: "Student",
   },
+
   registrationStatus: {
     type: String,
     enum: ["pending", "approved", "rejected"],
@@ -26,17 +28,29 @@ const userSchema = new mongoose.Schema({
 
   institution: { type: String },
   otherInstitution: { type: String },
+
   graduationYear: { type: Number },
+
   state: { type: String },
   otherState: { type: String },
+
   guardianName: { type: String },
   guardianPhone: { type: String },
   guardianAddress: { type: String },
+  
   nextOfKinName: { type: String },
   nextOfKinPhone: { type: String },
   nextOfKinAddress: { type: String },
+
   medicalCondition: { type: Boolean, default: false },
   conditionDetails: { type: String },
+
+   // Payment-related fields
+   paymentType: { type: String,  },
+   campType: { type: String,  },
+   amount: { type: Number,  },
+   receiptUrl: { type: String,},
+   payementNarration: { type: String,  }, 
 
   createdAt: { type: Date, default: Date.now },
 
