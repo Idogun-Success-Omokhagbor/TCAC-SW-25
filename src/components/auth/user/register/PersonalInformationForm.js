@@ -64,7 +64,7 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
     // Show success message using toast
     toast({
       title: "Success",
-      description: "Personal information saved successfully.",
+      description: "Personal information updated successfully.",
       status: "success",
       duration: 5000,
       isClosable: true,

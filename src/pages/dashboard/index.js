@@ -9,7 +9,14 @@ const DashboardPage = () => {
 
   // Get user data from all slices
   const userData = useSelector((state) => state.userAuth.user);
+  // Log authenticated user data for debugging purposes
+  console.log("Authenticated user data:", userData);
+
   const adminData = useSelector((state) => state.adminAuth.admin);
+  // Log authenticated admin data for debugging purposes
+  console.log("Authenticated admin data:", adminData);
+
+
   const superAdminData = useSelector(
     (state) => state.superAdminAuth.superAdmin
   );
@@ -31,24 +38,12 @@ const DashboardPage = () => {
     }
   }, [userData, adminData, superAdminData, router]);
 
-  const [selectedComponent, setSelectedComponent] = useState("daily-schedule");
-
-  const handleMenuClick = (menu) => {
-    setSelectedComponent(menu);
-  };
 
   return (
     <DashboardLayout
-      role={role}
-      adminFunction={adminFunction}
-      onMenuClick={handleMenuClick}
-    >
-      <SelectedComponentRenderer
-        selectedComponent={selectedComponent}
-        role={role}
-        adminFunction={adminFunction}
-      />
-    </DashboardLayout>
+    role={role}
+    adminFunction={adminFunction}
+  />
   );
 };
 

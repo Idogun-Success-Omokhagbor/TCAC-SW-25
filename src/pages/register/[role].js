@@ -83,25 +83,35 @@ const Register = () => {
   };
 
   // Calculate all previous values based on the current step
-  const getPreviousValues = () => {
-    switch (step) {
-      case 1:
-        return formValues.personalInfo;
-      case 2:
-        return {
-          ...formValues.personalInfo,
-          ...formValues.CAC,
-        };
-      case 3:
-        return {
-          ...formValues.personalInfo,
-          ...formValues.CAC,
-          ...formValues.medicalCondition,
-        };
-      default:
-        return {};
-    }
-  };
+const getPreviousValues = () => {
+  switch (step) {
+    case 0:
+      return {}; // No previous values at the first step
+    case 1:
+      return formValues.personalInfo;
+    case 2:
+      return {
+        ...formValues.personalInfo,
+        ...formValues.CAC,
+      };
+    case 3:
+      return {
+        ...formValues.personalInfo,
+        ...formValues.CAC,
+        ...formValues.medicalCondition,
+      };
+    case 4:
+      return {
+        ...formValues.personalInfo,
+        ...formValues.CAC,
+        ...formValues.medicalCondition,
+        ...formValues.payment,
+      };
+    default:
+      return {};
+  }
+};
+
 
   const renderUserRegistrationForm = () => {
     return (
@@ -163,6 +173,7 @@ const Register = () => {
                 ...formValues.medicalCondition,
               })
             }
+            prevFormValues={getPreviousValues()}
           />
         )}
         {step === 4 && (
@@ -180,6 +191,7 @@ const Register = () => {
                 ...formValues.payment,
               })
             }
+            prevFormValues={getPreviousValues()}
           />
         )}
       </>

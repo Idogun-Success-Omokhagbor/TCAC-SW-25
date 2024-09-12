@@ -32,7 +32,7 @@ const TCACUpdates = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 180000, // 3 minutes
+    autoplaySpeed: 3000,
     pauseOnHover: true,
     fade: true,
   };

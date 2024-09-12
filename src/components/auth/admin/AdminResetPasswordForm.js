@@ -1,26 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
 import {
   resetAdminPassword,
   selectAuthLoading,
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/admin/adminAuthSlice";
+} from "../../../store/slices/auth/admin/adminAuthSlice"; // Ensure path is correct
 import {
   FormControl,
   FormLabel,
+  InputGroup,
   Input,
+  InputRightElement,
   Button,
-  useToast,
   FormErrorMessage,
+  useToast,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const AdminResetPasswordForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const toast = useToast();
+
   const { role = "user" } = router.query;
 
   const loading = useSelector(selectAuthLoading);
@@ -32,58 +36,34 @@ const AdminResetPasswordForm = () => {
     password: "",
     confirmPassword: "",
   });
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-  const [formErrors, setFormErrors] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useEffect(() => {
-    dispatch(clearStatus());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (status === "succeeded") {
-      toast({
-        title: "Success!",
-        description: "Password reset successful. Redirecting to login...",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      router.push(`/login/${role}`);
-    } else if (status === "failed") {
-      toast({
-        title: "Error!",
-        description: error?.message || "An error occurred during password reset.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [status, error, router, role, toast]);
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(prev => !prev);
 
   const validateForm = () => {
     const errors = {};
     const { email, password, confirmPassword } = formValues;
 
     if (!email) {
-      errors.email = "Email is required";
+      errors.email = "Required";
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
       errors.email = "Invalid email address";
     }
-
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Required";
     } else if (password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
-
-    if (!confirmPassword) {
-      errors.confirmPassword = "Confirm password is required";
-    } else if (confirmPassword !== password) {
+    if (password !== confirmPassword) {
       errors.confirmPassword = "Passwords must match";
+    } else if (!confirmPassword) {
+      errors.confirmPassword = "Required";
     }
 
     setFormErrors(errors);
@@ -97,15 +77,32 @@ const AdminResetPasswordForm = () => {
 
     try {
       const resultAction = await dispatch(resetAdminPassword(formValues));
+      
       if (resetAdminPassword.fulfilled.match(resultAction)) {
-        // Successful reset
+        toast({
+          title: "Success!",
+          description: "Password reset successful. Redirecting to login...",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        router.push(`/login/${role}`);
+        
         setFormValues({
           email: "",
           password: "",
           confirmPassword: "",
         });
+
       } else {
-        console.log("Error: ", resultAction.payload || resultAction.error);
+        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during the password reset.";
+        toast({
+          title: "Error!",
+          description: errorMessage,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -121,19 +118,27 @@ const AdminResetPasswordForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [name]: value
+    }));
+    setTouched(prevTouched => ({
+      ...prevTouched,
+      [name]: true
+    }));
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <FormControl mb={4} isInvalid={formErrors.email}>
+      <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
         <FormLabel>Email</FormLabel>
         <Input
           name="email"
           type="email"
           value={formValues.email}
           onChange={handleChange}
-          placeholder="Enter your email"
+          onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+          // placeholder="Enter your email"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -144,39 +149,63 @@ const AdminResetPasswordForm = () => {
         <FormErrorMessage>{formErrors.email}</FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={4} isInvalid={formErrors.password}>
-        <FormLabel>New Password</FormLabel>
-        <Input
-          name="password"
-          type="password"
-          value={formValues.password}
-          onChange={handleChange}
-          placeholder="Enter your new password"
-          _focus={{
-            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-            border: "2px solid",
-            borderColor: "green",
-            transition: "border-color 0.3s ease",
-          }}
-        />
+      {/* Password */}
+      <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
+        <FormLabel>Password</FormLabel>
+        <InputGroup>
+          <Input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formValues.password}
+            onChange={handleChange}
+            // placeholder="Enter your new password"
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={togglePasswordVisibility}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
         <FormErrorMessage>{formErrors.password}</FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword}>
+      {/* Confirm Password */}
+      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
         <FormLabel>Confirm Password</FormLabel>
-        <Input
-          name="confirmPassword"
-          type="password"
-          value={formValues.confirmPassword}
-          onChange={handleChange}
-          placeholder="Confirm your new password"
-          _focus={{
-            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-            border: "2px solid",
-            borderColor: "green",
-            transition: "border-color 0.3s ease",
-          }}
-        />
+        <InputGroup>
+          <Input
+            name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={formValues.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm your new password"
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={toggleConfirmPasswordVisibility}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
         <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
       </FormControl>
 
@@ -184,7 +213,8 @@ const AdminResetPasswordForm = () => {
         type="submit"
         w="full"
         isLoading={loading}
-        colorScheme="blue"
+        loadingText="Processing..."
+        colorScheme="green"
       >
         Reset Password
       </Button>

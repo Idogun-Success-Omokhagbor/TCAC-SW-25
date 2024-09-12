@@ -5,29 +5,35 @@ import axios from 'axios';
 // Define async thunks
 export const registerSuperAdmin = createAsyncThunk(
   'superAdmin/registerSuperAdmin',
-  async (superAdminData, thunkAPI) => {
+  async ({  formValues }, thunkAPI) => {
+
+    console.log("form values:", formValues)
+
     try {
-      const response = await axios.post('/api/auth/super-admin/register', {
-        ...superAdminData,
-        registrationStatus: 'pending',
+      const response = await axios.post('/api/auth/superAdmin/register', {
+      formValues,
       });
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.response?.data?.error || 'Registration failed';
       return thunkAPI.rejectWithValue({ message: errorMessage });
     }
   }
 );
 
+
 export const loginSuperAdmin = createAsyncThunk(
   'superAdmin/login',
-  async ({ email, password }, thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/superAdmin/login', { email, password });
+      const response = await axios.post('/api/auth/superAdmin/login', formValues);
+
       localStorage.setItem('superAdminToken', response.data.token); // Save token in localStorage
-      return { user: response.data.user, token: response.data.token };
+
+      return { superAdmin: response.data.superAdmin, token: response.data.token };
+      
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.response?.data?.error || 'Login failed';
       return thunkAPI.rejectWithValue({ message: errorMessage });
     }
   }
@@ -37,7 +43,7 @@ export const verifySuperAdminEmail = createAsyncThunk(
   'superAdmin/verifySuperAdminEmail',
   async (formData, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/super-admin/verify-email', formData);
+      const response = await axios.post('/api/auth/superAdmin/verify-email', formData);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || { message: 'Verification failed' });
@@ -47,9 +53,9 @@ export const verifySuperAdminEmail = createAsyncThunk(
 
 export const resetSuperAdminPassword = createAsyncThunk(
   'superAdmin/resetSuperAdminPassword',
-  async ({ email, password, confirmPassword }, thunkAPI) => {
+  async ({ formValues }, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/super-admin/reset-password', { email, password, confirmPassword });
+      const response = await axios.post('/api/auth/superAdmin/reset-password', { formValues });
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Password reset failed';

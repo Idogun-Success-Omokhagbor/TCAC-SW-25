@@ -124,7 +124,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
     onNext(mergedValues);
     toast({
       title: "Success",
-      description: "Form submitted successfully!",
+      description: "TCAC data updated successfully!",
       status: "success",
       duration: 5000,
       isClosable: true,
@@ -152,46 +152,122 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
         {/* Conditional Fields */}
         {formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus' ? (
           <>
-            <FormControl isInvalid={!!error.institution}>
-              <FormLabel>Institution</FormLabel>
-              <ChakraSelect
-                name="institution"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setIsInstitutionOther(value === 'Other');
-                  setFormValues(prevValues => ({
-                    ...prevValues,
-                    institution: value
-                  }));
-                }}
-                value={formValues.institution}
-              >
-                <optgroup label="Federal Universities">
-                  {institutions.universities?.federal?.map((institution, index) => (
-                    <option key={index} value={institution.name}>
-                      {institution.name} - {institution.location}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="State Universities">
-                  {institutions.universities?.state?.map((institution, index) => (
-                    <option key={index} value={institution.name}>
-                      {institution.name} - {institution.location}
-                    </option>
-                  ))}
-                </optgroup>
-                {/* Add other institution groups here */}
-              </ChakraSelect>
-              {isInstitutionOther && (
-                <Input
-                  name="otherInstitution"
-                  placeholder="Enter Institution Name"
-                  value={formValues.otherInstitution}
-                  onChange={handleInputChange}
-                />
-              )}
-              <FormErrorMessage>{error.institution}</FormErrorMessage>
-            </FormControl>
+          <FormControl isInvalid={!!error.institution}>
+      <FormLabel>Institution</FormLabel>
+      <ChakraSelect
+        name="institution"
+        onChange={(e) => {
+          const value = e.target.value;
+          setIsInstitutionOther(value === 'Other');
+          setFormValues(prevValues => ({
+            ...prevValues,
+            institution: value
+          }));
+        }}
+        value={formValues.institution}
+      >
+        <option value="" disabled>Select Institution</option> {/* Default option */}
+        
+        {/* Federal Universities */}
+        <optgroup label="Federal Universities">
+          {institutions.universities?.federal?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* State Universities */}
+        <optgroup label="State Universities">
+          {institutions.universities?.state?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Private Universities */}
+        <optgroup label="Private Universities">
+          {institutions.universities?.private?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Federal Polytechnics */}
+        <optgroup label="Federal Polytechnics">
+          {institutions.polytechnics?.federal?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* State Polytechnics */}
+        <optgroup label="State Polytechnics">
+          {institutions.polytechnics?.state?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Private Polytechnics */}
+        <optgroup label="Private Polytechnics">
+          {institutions.polytechnics?.private?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Federal Colleges of Education */}
+        <optgroup label="Federal Colleges of Education">
+          {institutions.colleges_of_education?.federal?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* State Colleges of Education */}
+        <optgroup label="State Colleges of Education">
+          {institutions.colleges_of_education?.state?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Private Colleges of Education */}
+        <optgroup label="Private Colleges of Education">
+          {institutions.colleges_of_education?.private?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+
+        {/* Others */}
+        <optgroup label="Others">
+          {institutions.others?.map((institution, index) => (
+            <option key={index} value={institution.name}>
+              {institution.name} - {institution.location}
+            </option>
+          ))}
+        </optgroup>
+      </ChakraSelect>
+      {isInstitutionOther && (
+        <Input
+          name="otherInstitution"
+          placeholder="Enter Institution Name"
+          value={formValues.otherInstitution}
+          onChange={handleInputChange}
+        />
+      )}
+      <FormErrorMessage>{error.institution}</FormErrorMessage>
+    </FormControl>
 
             {formValues.userCategory === 'Alumnus' && (
               <FormControl isInvalid={!!error.graduationYear}>

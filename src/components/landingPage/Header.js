@@ -51,7 +51,8 @@ const Header = () => {
     <Box as="header" bg="green.50" p={4}>
       <Flex justify="space-between" align="center">
         <Image src="/timsan-logo.png" alt="Logo" boxSize="60px" />
-        <Flex align="center" gap={8}>
+
+        <Flex align="center" gap={4}>
           {/* <Button colorScheme="gray.500" variant="link" onClick={() => router.push(`/login/user`)}>
             Home
           </Button> */}
@@ -61,7 +62,7 @@ const Header = () => {
             <IconButton
               aria-label="News"
               icon={<FaBell />}
-              size="lg"
+              size="md"
               isRound
               colorScheme="gray"
               onClick={onOpenNewsModal}
@@ -117,6 +118,7 @@ const Header = () => {
             Register
           </Button> */}
         </Flex>
+
       </Flex>
 
       {/* Modals */}

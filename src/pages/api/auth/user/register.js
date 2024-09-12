@@ -6,44 +6,45 @@ export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === 'POST') {
-    const { role, password, ...userData } = req.body;
+    // console.log("Incoming request body:", req.body); // Log the incoming request body
+
+    // Extract mergedValues from req.body
+    const { mergedValues } = req.body;
+    console.log("Destructured form values:", mergedValues); // Log the destructured values
+
+    if (!mergedValues) {
+      return res.status(400).json({ error: 'No form values provided' });
+    }
+
+    const email = mergedValues.email;
+    const password = mergedValues.password;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
 
     try {
+      console.log(`Role: ${mergedValues.role}`);
+      console.log(`Email: ${mergedValues.email}`);
+      console.log(`User Category: ${mergedValues.userCategory}`);
 
-       // Log each field in userData for verification
-       console.log(`Role: ${userData.role}`);
-       console.log(`Email: ${userData.email}`);
-       console.log(`User Category: ${userData.userCategory}`);
-
-      // Check if user already exists
-      const existingUser = await User.findOne({ email: userData.email });
+      const existingUser = await User.findOne({ email: mergedValues.email });
       if (existingUser) {
         return res.status(400).json({ error: 'User already exists' });
       }
 
-      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 12);
+      const userID = await generateUserID(mergedValues.userCategory);
 
-      // Generate unique userID
-      const userID = await generateUserID(userData.userCategory);
-
-      // Create new user object
       const newUser = new User({
-        ...userData,
+        ...mergedValues,
         password: hashedPassword,
-        role,
         userID,
-        registrationStatus: 'pending', // default to pending
+        registrationStatus: 'pending',
       });
 
-      // Save the user to the database
       await newUser.save();
-
-      // Log the new user object for confirmation
       console.log('New User Saved:', newUser);
-
-      // Assuming appendToSheet is a function that handles spreadsheet updates
-      // await appendToSheet(newUser);
 
       return res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -54,6 +55,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 }
+
+
 
 // Function to get the category abbreviation for userID
 function getCategoryID(userCategory) {

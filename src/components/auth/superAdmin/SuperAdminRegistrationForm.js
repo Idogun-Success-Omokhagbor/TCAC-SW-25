@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
@@ -12,11 +12,14 @@ import {
   Box,
   FormControl,
   FormLabel,
+  InputGroup,
   Input,
+  InputRightElement,
   Button,
   FormErrorMessage,
   useToast,
 } from "@chakra-ui/react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SuperAdminRegistrationForm = ({ role }) => {
   const dispatch = useDispatch();
@@ -32,38 +35,35 @@ const SuperAdminRegistrationForm = ({ role }) => {
     lastName: "",
     email: "",
     phoneNumber: "",
+    password: "",
+    confirmPassword: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  useEffect(() => {
-    dispatch(clearStatus());
-  }, [dispatch]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useEffect(() => {
-    if (status === "succeeded") {
-      toast({
-        title: "Success!",
-        description: "Registration successful. Redirecting to login...",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      router.push(`/login/${role}`);
-    } else if (status === "failed") {
-      toast({
-        title: "Error!",
-        description: error?.message || "An error occurred during registration.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [status, error, router, role, toast]);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword((prev) => !prev);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+    setTouched({ ...touched, [name]: true });
+  };
 
   const validateForm = () => {
     const errors = {};
-    const { firstName, lastName, email, phoneNumber } = formValues;
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+    } = formValues;
 
     if (!firstName) {
       errors.firstName = "Required";
@@ -78,6 +78,18 @@ const SuperAdminRegistrationForm = ({ role }) => {
     }
     if (!phoneNumber) {
       errors.phoneNumber = "Required";
+    }
+
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = "Confirm password is required";
+    } else if (confirmPassword !== password) {
+      errors.confirmPassword = "Passwords must match";
     }
 
     setFormErrors(errors);
@@ -95,18 +107,33 @@ const SuperAdminRegistrationForm = ({ role }) => {
     }
 
     try {
-      const resultAction = await dispatch(registerSuperAdmin(formValues));
+      const resultAction = await dispatch(registerSuperAdmin({ formValues }));
+
       if (registerSuperAdmin.fulfilled.match(resultAction)) {
-        // Successful registration
+        toast({
+          title: "Success!",
+          description: "Registration successful. Redirecting to login...",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        router.push(`/login/${role}`);
         setFormValues({
           firstName: "",
           lastName: "",
           email: "",
           phoneNumber: "",
+          password: "",
+          confirmPassword: "",
         }); // Clear form values
       } else {
-        // Handle error from Redux
-        console.log("Error: ", resultAction.payload || resultAction.error);
+        toast({
+          title: "Error!",
+          description: resultAction.payload?.message || "An error occurred during registration.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -120,14 +147,9 @@ const SuperAdminRegistrationForm = ({ role }) => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    setTouched({ ...touched, [name]: true });
-  };
-
   return (
     <form onSubmit={handleSubmit}>
+      {/* First Name */}
       <FormControl mb={4} isInvalid={formErrors.firstName && touched.firstName}>
         <FormLabel>First Name</FormLabel>
         <Input
@@ -136,7 +158,6 @@ const SuperAdminRegistrationForm = ({ role }) => {
           value={formValues.firstName}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, firstName: true })}
-          placeholder="Enter your first name"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -147,6 +168,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         <FormErrorMessage>{formErrors.firstName}</FormErrorMessage>
       </FormControl>
 
+      {/* Last Name */}
       <FormControl mb={4} isInvalid={formErrors.lastName && touched.lastName}>
         <FormLabel>Last Name</FormLabel>
         <Input
@@ -155,7 +177,6 @@ const SuperAdminRegistrationForm = ({ role }) => {
           value={formValues.lastName}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, lastName: true })}
-          placeholder="Enter your last name"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -166,6 +187,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         <FormErrorMessage>{formErrors.lastName}</FormErrorMessage>
       </FormControl>
 
+      {/* Email */}
       <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
         <FormLabel>Email Address</FormLabel>
         <Input
@@ -174,7 +196,6 @@ const SuperAdminRegistrationForm = ({ role }) => {
           value={formValues.email}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, email: true })}
-          placeholder="Enter your email address"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -185,9 +206,16 @@ const SuperAdminRegistrationForm = ({ role }) => {
         <FormErrorMessage>{formErrors.email}</FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={4} isInvalid={formErrors.phoneNumber && touched.phoneNumber}>
+      {/* Phone Number */}
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.phoneNumber && touched.phoneNumber}
+      >
         <FormLabel>
-          Phone Number <Box as="span" fontSize="sm" color="gray.500">(WhatsApp enabled)</Box>
+          Phone Number{" "}
+          <Box as="span" fontSize="sm" color="gray.500">
+            (WhatsApp enabled)
+          </Box>
         </FormLabel>
         <Input
           name="phoneNumber"
@@ -195,7 +223,6 @@ const SuperAdminRegistrationForm = ({ role }) => {
           value={formValues.phoneNumber}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, phoneNumber: true })}
-          placeholder="Enter your phone number"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -206,11 +233,71 @@ const SuperAdminRegistrationForm = ({ role }) => {
         <FormErrorMessage>{formErrors.phoneNumber}</FormErrorMessage>
       </FormControl>
 
+      {/* Password */}
+      <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
+        <FormLabel>Password</FormLabel>
+        <InputGroup>
+          <Input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formValues.password}
+            onChange={handleChange}
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={togglePasswordVisibility}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+        <FormErrorMessage>{formErrors.password}</FormErrorMessage>
+      </FormControl>
+
+      {/* Confirm Password */}
+      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+        <FormLabel>Confirm Password</FormLabel>
+        <InputGroup>
+          <Input
+            name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={formValues.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm your password"
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={toggleConfirmPasswordVisibility}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+        <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
+      </FormControl>
+
       <Button
         type="submit"
         w="full"
         isLoading={loading}
-        colorScheme="blue"
+        loadingText="Processing..."
+        colorScheme="green"
         mt={4}
       >
         Register

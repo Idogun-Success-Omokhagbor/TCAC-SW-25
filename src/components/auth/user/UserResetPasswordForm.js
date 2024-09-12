@@ -1,26 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
 import {
-  resetUserPassword,
+  resetUserPassword, // Ensure this action is correct for user password reset
   selectAuthLoading,
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/user/userAuthSlice";
+} from "../../../store/slices/auth/user/userAuthSlice"; // Ensure path is correct
 import {
   FormControl,
   FormLabel,
+  InputGroup,
   Input,
+  InputRightElement,
   Button,
+  FormErrorMessage,
   useToast,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import * as Yup from "yup";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const UserResetPasswordForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const toast = useToast();
+
   const { role = "user" } = router.query;
 
   const loading = useSelector(selectAuthLoading);
@@ -32,52 +36,38 @@ const UserResetPasswordForm = () => {
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-  // Clear status on component mount
-  useEffect(() => {
-    dispatch(clearStatus());
-  }, [dispatch]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useEffect(() => {
-    if (status === "succeeded") {
-      toast({
-        title: "Success!",
-        description: "Password reset successful. Redirecting to login...",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      router.push(`/login/${role}`);
-    } else if (status === "failed") {
-      toast({
-        title: "Error!",
-        description: error?.message || "An error occurred",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [status, error, router, role, toast]);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword((prev) => !prev);
 
   const validateForm = () => {
-    const validationErrors = {};
+    const errors = {};
     const { email, password, confirmPassword } = formValues;
 
-    // Email validation
-    if (!email) validationErrors.email = "Required";
-    else if (!Yup.string().email().isValidSync(email)) validationErrors.email = "Invalid email address";
+    if (!email) {
+      errors.email = "Required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      errors.email = "Invalid email address";
+    }
+    if (!password) {
+      errors.password = "Required";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
+    if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords must match";
+    } else if (!confirmPassword) {
+      errors.confirmPassword = "Required";
+    }
 
-    // Password validation
-    if (!password) validationErrors.password = "Required";
-    else if (password.length < 8) validationErrors.password = "Password must be at least 8 characters";
-
-    // Confirm Password validation
-    if (!confirmPassword) validationErrors.confirmPassword = "Required";
-    else if (confirmPassword !== password) validationErrors.confirmPassword = "Passwords must match";
-
-    setErrors(validationErrors);
-    return Object.keys(validationErrors).length === 0;
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -87,12 +77,32 @@ const UserResetPasswordForm = () => {
 
     try {
       const resultAction = await dispatch(resetUserPassword(formValues));
+
       if (resetUserPassword.fulfilled.match(resultAction)) {
-        // Successful reset
-        setFormValues({ email: "", password: "", confirmPassword: "" }); // Clear form
+        toast({
+          title: "Success!",
+          description: "Password reset successful. Redirecting to login...",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        router.push(`/login/${role}`);
+
+        setFormValues({
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+
       } else {
-        // Error handled by Redux state
-        console.log("Error: ", resultAction.payload || resultAction.error);
+        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during the password reset.";
+        toast({
+          title: "Error!",
+          description: errorMessage,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -106,16 +116,28 @@ const UserResetPasswordForm = () => {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+    setTouched((prevTouched) => ({
+      ...prevTouched,
+      [name]: true,
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit}>
-      <FormControl mb={4} isInvalid={!!errors.email}>
+      <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
         <FormLabel>Email</FormLabel>
         <Input
           name="email"
           type="email"
           value={formValues.email}
-          onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
-          placeholder="Enter your email"
+          onChange={handleChange}
+          onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -123,47 +145,74 @@ const UserResetPasswordForm = () => {
             transition: "border-color 0.3s ease",
           }}
         />
+        <FormErrorMessage>{formErrors.email}</FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={4} isInvalid={!!errors.password}>
-        <FormLabel>New Password</FormLabel>
-        <Input
-          name="password"
-          type="password"
-          value={formValues.password}
-          onChange={(e) => setFormValues({ ...formValues, password: e.target.value })}
-          placeholder="Enter your new password"
-          _focus={{
-            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-            border: "2px solid",
-            borderColor: "green",
-            transition: "border-color 0.3s ease",
-          }}
-        />
+      {/* Password */}
+      <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
+        <FormLabel>Password</FormLabel>
+        <InputGroup>
+          <Input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formValues.password}
+            onChange={handleChange}
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={togglePasswordVisibility}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+        <FormErrorMessage>{formErrors.password}</FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={4} isInvalid={!!errors.confirmPassword}>
+      {/* Confirm Password */}
+      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
         <FormLabel>Confirm Password</FormLabel>
-        <Input
-          name="confirmPassword"
-          type="password"
-          value={formValues.confirmPassword}
-          onChange={(e) => setFormValues({ ...formValues, confirmPassword: e.target.value })}
-          placeholder="Confirm your new password"
-          _focus={{
-            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-            border: "2px solid",
-            borderColor: "green",
-            transition: "border-color 0.3s ease",
-          }}
-        />
+        <InputGroup>
+          <Input
+            name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={formValues.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm your new password"
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={toggleConfirmPasswordVisibility}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+        <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
       </FormControl>
 
       <Button
         type="submit"
-        colorScheme="green"
         w="full"
         isLoading={loading}
+        loadingText="Processing..."
+        colorScheme="green"
       >
         Reset Password
       </Button>

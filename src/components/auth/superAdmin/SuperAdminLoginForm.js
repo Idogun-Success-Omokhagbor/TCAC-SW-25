@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
@@ -6,16 +6,18 @@ import {
   selectAuthLoading,
   selectAuthStatus,
   selectAuthError,
-  clearStatus,
 } from "../../../store/slices/auth/superAdmin/superAdminAuthSlice";
 import {
   FormControl,
   FormLabel,
+  InputGroup,
   Input,
+  InputRightElement,
   Button,
   FormErrorMessage,
   useToast,
 } from "@chakra-ui/react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SuperAdminLoginForm = ({ role }) => {
   const dispatch = useDispatch();
@@ -26,44 +28,22 @@ const SuperAdminLoginForm = ({ role }) => {
   const status = useSelector(selectAuthStatus);
   const error = useSelector(selectAuthError);
 
-  const [formValues, setFormValues] = useState({ email: "", password: "" });
+  const [formValues, setFormValues] = useState({ emailOrID: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // Clear status on component mount
-  useEffect(() => {
-    dispatch(clearStatus());
-  }, [dispatch]);
+  const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    if (status === "succeeded") {
-      toast({
-        title: "Success!",
-        description: "Login successful. Redirecting to your dashboard...",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      router.push(`/dashboard/${role}`);
-    } else if (status === "failed") {
-      toast({
-        title: "Error!",
-        description: error?.message || "Login failed. Please try again.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [status, error, router, role, toast]);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const validateForm = () => {
     const errors = {};
-    const { email, password } = formValues;
+    const { emailOrID, password } = formValues;
 
-    if (!email) {
-      errors.email = "Required";
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-      errors.email = "Invalid email address";
+    if (!emailOrID) {
+      errors.emailOrID = "Required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrID) && emailOrID.length < 6) {
+      errors.emailOrID = "Invalid Email or ID"; // You may need more specific validation for `superAdminID`
     }
 
     if (!password) {
@@ -78,17 +58,30 @@ const SuperAdminLoginForm = ({ role }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
-      const resultAction = await dispatch(loginSuperAdmin({ ...formValues, role }));
+      const resultAction = await dispatch(loginSuperAdmin(formValues));
       if (loginSuperAdmin.fulfilled.match(resultAction)) {
-        // Successful login
-        setFormValues({ email: "", password: "" }); // Clear form values
+        toast({
+          title: "Success!",
+          description: "Login successful. Redirecting to your dashboard...",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        router.push(`/dashboard/${role}`);
+        setFormValues({ emailOrID: "", password: "" }); // Clear form values
       } else {
-        // Handle error from Redux
         console.log("Error: ", resultAction.payload || resultAction.error);
+        toast({
+          title: "Error!",
+          description: resultAction.payload?.message || "Login failed. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -110,15 +103,14 @@ const SuperAdminLoginForm = ({ role }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
-        <FormLabel>Email</FormLabel>
+      <FormControl mb={4} isInvalid={formErrors.emailOrID && touched.emailOrID}>
+        <FormLabel>Email or ID</FormLabel>
         <Input
-          name="email"
-          type="email"
-          value={formValues.email}
+          name="emailOrID"
+          type="text"
+          value={formValues.emailOrID}
           onChange={handleChange}
-          onBlur={() => setTouched({ ...touched, email: true })}
-          placeholder="Enter your email"
+          onBlur={() => setTouched({ ...touched, emailOrID: true })}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -126,25 +118,34 @@ const SuperAdminLoginForm = ({ role }) => {
             transition: "border-color 0.3s ease",
           }}
         />
-        <FormErrorMessage>{formErrors.email}</FormErrorMessage>
+        <FormErrorMessage>{formErrors.emailOrID}</FormErrorMessage>
       </FormControl>
 
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
         <FormLabel>Password</FormLabel>
-        <Input
-          name="password"
-          type="password"
-          value={formValues.password}
-          onChange={handleChange}
-          onBlur={() => setTouched({ ...touched, password: true })}
-          placeholder="Enter your password"
-          _focus={{
-            boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
-            border: "2px solid",
-            borderColor: "green",
-            transition: "border-color 0.3s ease",
-          }}
-        />
+        <InputGroup>
+          <Input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formValues.password}
+            onChange={handleChange}
+            _focus={{
+              boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
+              border: "2px solid",
+              borderColor: "green",
+              transition: "border-color 0.3s ease",
+            }}
+          />
+          <InputRightElement>
+            <Button
+              variant="link"
+              onClick={togglePasswordVisibility}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
         <FormErrorMessage>{formErrors.password}</FormErrorMessage>
       </FormControl>
 
@@ -152,7 +153,8 @@ const SuperAdminLoginForm = ({ role }) => {
         type="submit"
         w="full"
         isLoading={loading}
-        colorScheme="blue"
+        loadingText="Processing..."
+        colorScheme="green"
       >
         Login
       </Button>

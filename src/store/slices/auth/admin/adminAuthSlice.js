@@ -6,11 +6,12 @@ import axios from 'axios';
 // Define async thunks
 export const registerAdmin = createAsyncThunk(
   'admin/registerAdmin',
-  async (adminData, thunkAPI) => {
+  async ({  formValues }, thunkAPI) => {
+    console.log("form values:", formValues)
+
     try {
       const response = await axios.post('/api/auth/admin/register', {
-        ...adminData,
-        registrationStatus: 'pending',
+      formValues,
       });
       return response.data;
     } catch (error) {
@@ -22,11 +23,11 @@ export const registerAdmin = createAsyncThunk(
 
 export const loginAdmin = createAsyncThunk(
   'admin/login',
-  async ({ email, password }, thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/login', { email, password });
-      localStorage.setItem('adminToken', response.data.token); // Save token in localStorage
-      return { user: response.data.user, token: response.data.token };
+      const response = await axios.post('/api/auth/admin/login', formValues);
+      localStorage.setItem('token', response.data.token); // Save token in localStorage
+      return { admin: response.data.admin, token: response.data.token };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Login failed';
       return thunkAPI.rejectWithValue({ message: errorMessage });
@@ -36,9 +37,9 @@ export const loginAdmin = createAsyncThunk(
 
 export const verifyAdminEmail = createAsyncThunk(
   'admin/verifyAdminEmail',
-  async (formData, thunkAPI) => {
+  async ( { formValues },  thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/verify-email', formData);
+      const response = await axios.post('/api/auth/admin/verify-email',  { formValues });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || { message: 'Verification failed' });
@@ -48,9 +49,9 @@ export const verifyAdminEmail = createAsyncThunk(
 
 export const resetAdminPassword = createAsyncThunk(
   'admin/resetAdminPassword',
-  async ({ email, password, confirmPassword }, thunkAPI) => {
+  async ({ formValues }, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/reset-password', { email, password, confirmPassword });
+      const response = await axios.post('/api/auth/admin/reset-password',  { formValues });
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Password reset failed';

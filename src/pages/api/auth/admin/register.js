@@ -2,30 +2,20 @@ import connectDB from '../../../../utils/connectDB';
 import Admin from '../../../../models/Admin';
 import bcrypt from 'bcrypt';
 
-// Utility function to generate unique ID for Admin
-async function generateAdminID() {
-  try {
-    const lastAdmin = await Admin.findOne().sort({ $natural: -1 }).limit(1);
-    if (lastAdmin) {
-      const lastAdminID = lastAdmin.adminID;
-      const lastCounter = parseInt(lastAdminID.split("-")[2]);
-      const paddedCounter = (lastCounter + 1).toString().padStart(3, "0");
-      return `TCAC'24-ADM-${paddedCounter}`;
-    } else {
-      // If there are no admins in the database yet
-      return `TCAC'24-ADM-001`;
-    }
-  } catch (error) {
-    console.error("Error generating admin ID:", error);
-    throw new Error("Failed to generate admin ID for admin");
-  }
-}
+
 
 export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === 'POST') {
-    const { role, password, email, ...adminData } = req.body;
+    
+    const { formValues } = req.body;
+
+    console.log("form values:", formValues);
+
+    const email = formValues?.email;
+
+    const password = formValues?.password;
 
     // Validate required fields
     if (!email || !password) {
@@ -48,15 +38,15 @@ export default async function handler(req, res) {
 
       // Create new admin
       const newAdmin = new Admin({
-        ...adminData,
-        email,
+        ...formValues,
         password: hashedPassword,
-        role,
-        adminID, // Ensure adminID is included
+        adminID, 
       });
 
       // Save the new admin to the database
       await newAdmin.save();
+
+      console.log("Registered Super Admin Details:", newAdmin);
 
       // Respond with success message
       return res.status(201).json({ message: 'Admin registered successfully', newAdmin });
@@ -66,5 +56,27 @@ export default async function handler(req, res) {
     }
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+
+
+
+// Utility function to generate unique ID for Admin
+async function generateAdminID() {
+  try {
+    const lastAdmin = await Admin.findOne().sort({ $natural: -1 }).limit(1);
+    if (lastAdmin) {
+      const lastAdminID = lastAdmin.adminID;
+      const lastCounter = parseInt(lastAdminID.split("-")[2]);
+      const paddedCounter = (lastCounter + 1).toString().padStart(3, "0");
+      return `TCAC'24-ADM-${paddedCounter}`;
+    } else {
+      // If there are no admins in the database yet
+      return `TCAC'24-ADM-001`;
+    }
+  } catch (error) {
+    console.error("Error generating admin ID:", error);
+    throw new Error("Failed to generate admin ID for admin");
   }
 }

@@ -101,8 +101,8 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         zIndex={10}
         onClick={onClose}
       >
-        <Stack spacing={6} align="start" pl={6}>
-          <Link href="/" passHref>
+        <Stack spacing={6} align="start" pl={6} >
+          <Link href="/" passHref className="mb-6">
             <Image
               src="/images/timsan-logo.png"
               alt="Logo"

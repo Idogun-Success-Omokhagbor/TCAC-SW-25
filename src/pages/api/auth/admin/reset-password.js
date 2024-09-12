@@ -6,7 +6,10 @@ import bcrypt from "bcrypt";
 export default async function handler(req, res) {
   await connectDB();
 
+  // Check if the request method is POST
   if (req.method === "POST") {
+
+    // Extract email and password from the request body
     const { email, password, confirmPassword } = req.body;
 
     // Check if passwords match
@@ -17,6 +20,7 @@ export default async function handler(req, res) {
     try {
       // Find the admin by email
       const admin = await Admin.findOne({ email });
+
 
       if (!admin) {
         return res.status(404).json({ message: "Admin not found" });
@@ -29,6 +33,7 @@ export default async function handler(req, res) {
       admin.password = hashedPassword;
       await admin.save();
 
+      
       res.status(200).json({ message: "Password reset successful" });
     } catch (error) {
       res.status(500).json({ message: error.message });

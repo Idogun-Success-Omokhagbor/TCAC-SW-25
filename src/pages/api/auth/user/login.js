@@ -7,31 +7,40 @@ export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === 'POST') {
-    const { email, password } = req.body;
+    const { emailOrID, password } = req.body;
+
+    if (!emailOrID || !password) {
+      return res.status(400).json({ error: 'Email or ID and password are required' });
+    }
 
     try {
-      const user = await User.findOne({ email });
+      let userData;
+      if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrID)) {
+        userData = await User.findOne({ email: emailOrID });
+      } else {
+        userData = await User.findOne({ UserID: emailOrID });
+      }
 
-      if (!user) {
+      if (!userData) {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await bcrypt.compare(password, userData.password);
       if (!isPasswordValid) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       const token = jwt.sign(
         {
-          id: user._id,
-          email: user.email,
-          role: user.role,
+          id: userData._id,
+          email: userData.email,
+          role: userData.role,
         },
         process.env.JWT_SECRET_KEY,
         { expiresIn: '1h' }
       );
 
-      return res.status(200).json({ token, user });
+      return res.status(200).json({ token, user: userData }); // Change 'userData' to 'user'
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Server error' });

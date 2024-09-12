@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       // Hash the new password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Update the admin's password
+      // Update the super admin's password
       superAdmin.password = hashedPassword;
       await superAdmin.save();
 

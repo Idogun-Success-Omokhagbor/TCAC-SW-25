@@ -3,7 +3,7 @@ import { Box, Select, Text } from "@chakra-ui/react";
 
 const DailySchedule = () => {
   return (
-    <Box bg="green.50" p={4} borderRadius="md" boxShadow="md">
+    <Box bg="green.50" p={4} >
       <Text fontWeight="bold" mb={4}>Daily schedule</Text>
       <Select mb={4} placeholder="Day 1">
         <option value="day1">Day 1</option>

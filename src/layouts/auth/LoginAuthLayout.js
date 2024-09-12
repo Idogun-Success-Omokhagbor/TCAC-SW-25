@@ -1,6 +1,6 @@
 // components/LoginLayout.js
 import Link from "next/link";
-import { Box, Flex, Stack, HStack, Text, Button, Image } from "@chakra-ui/react";
+import { Box, Flex, Stack, HStack, Heading, Text, Button, Image } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 const LoginAuthLayout = ({ formHeading, loginForm, role }) => {
@@ -49,7 +49,19 @@ const LoginAuthLayout = ({ formHeading, loginForm, role }) => {
         </HStack>
       </Flex>
 
-      <Flex minH="100vh" justify="center" align="center" bg="green.50">
+      <Flex minH="100vh" flexDirection={"column"} justify="center" align="center" bg="green.50">
+      <Heading
+    as="h1" 
+    size="lg" 
+    fontWeight="bold"
+    color="green" 
+    textAlign="center" 
+    mb={4}
+
+  >
+    {formHeading}
+  </Heading>
+
         <Box
           w={{ base: "90%", md: "400px" }}
           p={8}

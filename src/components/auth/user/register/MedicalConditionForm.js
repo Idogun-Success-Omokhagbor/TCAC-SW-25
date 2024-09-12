@@ -4,7 +4,6 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
   Textarea,
   Select as ChakraSelect,
   Stack,
@@ -22,17 +21,26 @@ const MedicalConditionForm = ({
   prevFormValues,
 }) => {
   // Initialize state with passed values or default values
-  const [medicalCondition, setMedicalCondition] = useState(values?.medicalCondition || "no");
-  const [conditionDetails, setConditionDetails] = useState(values?.conditionDetails || "");
-  const [hasMedicalCondition, setHasMedicalCondition] = useState(medicalCondition === "yes");
+  const [formValues, setFormValues] = useState({
+    medicalCondition: values?.medicalCondition || "",
+    conditionDetails: values?.conditionDetails || "",
+  });
 
   // Form validation state
   const [formErrors, setFormErrors] = useState({
     medicalCondition: "",
     conditionDetails: "",
   });
-  
+
   const toast = useToast();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,13 +52,13 @@ const MedicalConditionForm = ({
       conditionDetails: "",
     };
 
-    if (!medicalCondition) {
-      validationErrors.medicalCondition = "Required";
+    if (!formValues.medicalCondition) {
+      validationErrors.medicalCondition = "Medical condition selection is required";
       isFormValid = false;
     }
 
-    if (hasMedicalCondition && !conditionDetails) {
-      validationErrors.conditionDetails = "Condition details are required when medical condition is 'yes'";
+    if (formValues.medicalCondition === "yes" && !formValues.conditionDetails) {
+      validationErrors.conditionDetails = "Condition details are required when medical condition is 'Yes'";
       isFormValid = false;
     }
 
@@ -68,16 +76,14 @@ const MedicalConditionForm = ({
     }
 
     // Proceed with form submission
-    const formValues = { medicalCondition, conditionDetails };
-    console.log("Medical Form values:", formValues);
-    const mergedValues = {role, ...values, ...prevFormValues, ...formValues };
+    const mergedValues = { role, ...values, ...prevFormValues, ...formValues };
     console.log("Registration Form merged values:", mergedValues);
     onValuesChange(mergedValues);
     onNext(mergedValues);
 
     toast({
       title: "Success",
-      description: "Form submitted successfully!",
+      description: "Medical condition data updated successfully!",
       status: "success",
       duration: 5000,
       isClosable: true,
@@ -92,11 +98,18 @@ const MedicalConditionForm = ({
         <FormControl isInvalid={!!formErrors.medicalCondition}>
           <FormLabel>Do you have any medical condition?</FormLabel>
           <ChakraSelect
-            value={medicalCondition}
+            name="medicalCondition"
+            value={formValues.medicalCondition}
             onChange={(e) => {
               const value = e.target.value;
-              setMedicalCondition(value);
-              setHasMedicalCondition(value === "yes");
+              handleInputChange(e);
+              if (value === "yes") {
+                // Ensure conditionDetails is empty if switching to "yes"
+                setFormValues((prevValues) => ({
+                  ...prevValues,
+                  conditionDetails: "",
+                }));
+              }
             }}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
@@ -105,6 +118,9 @@ const MedicalConditionForm = ({
               transition: "border-color 0.3s ease",
             }}
           >
+            <option value="" disabled>
+              Do you have any medical condition?
+            </option>
             <option value="no">No</option>
             <option value="yes">Yes</option>
           </ChakraSelect>
@@ -112,12 +128,13 @@ const MedicalConditionForm = ({
         </FormControl>
 
         {/* Conditional Field for Medical Condition Details */}
-        {hasMedicalCondition && (
+        {formValues.medicalCondition === "yes" && (
           <FormControl isInvalid={!!formErrors.conditionDetails}>
             <FormLabel>Please specify your medical condition</FormLabel>
             <Textarea
-              value={conditionDetails}
-              onChange={(e) => setConditionDetails(e.target.value)}
+              name="conditionDetails"
+              value={formValues.conditionDetails}
+              onChange={handleInputChange}
               placeholder="Enter details"
               _focus={{
                 boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
@@ -132,11 +149,7 @@ const MedicalConditionForm = ({
 
         {/* Navigation Buttons */}
         <Stack direction="row" spacing={4} mt={4}>
-          <Button
-            type="button"
-            colorScheme="gray"
-            onClick={onPrevious}
-          >
+          <Button type="button" colorScheme="gray" onClick={onPrevious}>
             Back
           </Button>
           <Button type="submit" colorScheme="green">

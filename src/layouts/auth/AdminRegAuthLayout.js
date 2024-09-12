@@ -1,6 +1,15 @@
 // layouts/auth/AdminRegAuthLayout.js
 import Link from "next/link";
-import { Box, Flex, Stack, HStack, Text, Button, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Stack,
+  HStack,
+  Heading,
+  Text,
+  Button,
+  Image,
+} from "@chakra-ui/react";
 
 import { useRouter } from "next/router";
 
@@ -20,16 +29,18 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
         py={8}
         px={12}
       >
-                 <Link href="/" passHref>
-            <Image
-              src="/images/timsan-logo.png"
-              alt="Logo"
-              className="h-12 mb-6"
-            />
-          </Link>
+        <Link href="/" passHref>
+          <Image
+            src="/images/timsan-logo.png"
+            alt="Logo"
+            className="h-12 mb-6"
+          />
+        </Link>
 
         <HStack spacing={4}>
-          <Text display={{base: "none", md:"block"}} fontWeight="medium">Already Registered?</Text>
+          <Text display={{ base: "none", md: "block" }} fontWeight="medium">
+            Already Registered?
+          </Text>
           <Button
             variant="outline"
             colorScheme="green"
@@ -50,7 +61,18 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
         </HStack>
       </Flex>
 
-      <Flex minH="100vh" justify="center" align="center" bg="green.50">
+      <Flex minH="100vh" flexDirection={"column"} justify="center" align="center" bg="green.50">
+        <Heading
+          as="h1"
+          size="lg"
+          fontWeight="bold"
+          color="green"
+          textAlign="center"
+          mb={4}
+        >
+          {formHeading}
+        </Heading>
+
         <Box
           w={{ base: "90%", md: "400px" }}
           p={8}
