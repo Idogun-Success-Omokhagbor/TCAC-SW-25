@@ -12,20 +12,20 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
 } from "@chakra-ui/react";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   HamburgerIcon,
 } from "@chakra-ui/icons";
-import { FaUser, FaEnvelope, FaHome } from "react-icons/fa";
+import { FaUser, FaEnvelope, } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
+import { MdDashboard } from 'react-icons/md';
 
-const UserSidebar = ({ onMenuClick }) => {
+const UserSidebar = ({ onMenuClick, accountData }) => {
+
+  // console.log("user account data:", accountData)
+
   // State to track the open submenu (for desktop view)
   const [activeSubMenu, setActiveSubMenu] = useState(null);
 
@@ -67,7 +67,7 @@ const UserSidebar = ({ onMenuClick }) => {
       <Text mb={8}  fontSize="md" fontWeight={"bold"}>
         {!isSidebarCollapsed && (
           <>
-            Welcome back, TCAC&apos;24
+            Welcome back, <br /> {accountData.userID}
           </>
         )}
       </Text>
@@ -95,7 +95,7 @@ const UserSidebar = ({ onMenuClick }) => {
         <Link
           display="flex"
           alignItems="center"
-          gap="4"
+          gap="6"
           _hover={{
             textDecoration: "none",
           }}
@@ -103,16 +103,9 @@ const UserSidebar = ({ onMenuClick }) => {
             textDecoration: "none",
           }}
         >
-          <FaHome />
+          <MdDashboard />
           {!isSidebarCollapsed && (
             <Text
-              ml="2"
-              _hover={{
-                textDecoration: "none",
-              }}
-              _focus={{
-                textDecoration: "none",
-              }}
             >
               Dashboard
             </Text>
@@ -147,7 +140,7 @@ const UserSidebar = ({ onMenuClick }) => {
           <Link
             display="flex"
             alignItems="center"
-            gap={4}
+            gap={6}
             _hover={{
               textDecoration: "none",
             }}
@@ -158,13 +151,6 @@ const UserSidebar = ({ onMenuClick }) => {
             <FaEnvelope />
             {!isSidebarCollapsed && (
               <Text
-                ml="2"
-                _hover={{
-                  textDecoration: "none",
-                }}
-                _focus={{
-                  textDecoration: "none",
-                }}
               >
                 Chat with us
               </Text>
@@ -212,6 +198,8 @@ const UserSidebar = ({ onMenuClick }) => {
 
       </Box>
 
+
+      {/* logout */}
       <Box
         onClick={() => onMenuClick("logout")}
         _focus={{
@@ -232,7 +220,7 @@ const UserSidebar = ({ onMenuClick }) => {
         <Link
           display="flex"
           alignItems="center"
-          gap={4}
+          gap={6}
           _hover={{
             textDecoration: "none",
           }}
@@ -243,13 +231,6 @@ const UserSidebar = ({ onMenuClick }) => {
           <FaUser />
           {!isSidebarCollapsed && (
             <Text
-              ml="2"
-              _hover={{
-                textDecoration: "none",
-              }}
-              _focus={{
-                textDecoration: "none",
-              }}
             >
               Logout
             </Text>
@@ -285,20 +266,18 @@ const UserSidebar = ({ onMenuClick }) => {
       ) : (
         /* Sidebar for larger screens */
         <Box
-          display={{ base: "none", md: "block" }}
-          position="relative"
+          display={{ base: "none", md: "flex" }}
+          flexDirection={"row-reverse"}
           className="bg-[#D9FAD4]"
         >
           {/* Sidebar toggle button for desktop view */}
           <IconButton
             icon={isSidebarCollapsed ? <FiChevronsRight /> : <FiChevronsLeft />}
+            size={"lg"}
             onClick={toggleSidebar}
             variant="ghost"
             aria-label="Toggle Sidebar"
-            position="absolute"
-            top="10px"
-            left={isSidebarCollapsed ? "70px" : "260px"}
-            zIndex="overlay"
+            // zIndex="overlay"
             transition="left 0.3s"
           />
           {/* Sidebar content */}

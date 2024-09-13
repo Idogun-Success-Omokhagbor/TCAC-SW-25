@@ -31,7 +31,6 @@ const SuperAdminLoginForm = ({ role }) => {
   const [formValues, setFormValues] = useState({ emailOrID: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
-
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
@@ -43,7 +42,7 @@ const SuperAdminLoginForm = ({ role }) => {
     if (!emailOrID) {
       errors.emailOrID = "Required";
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrID) && emailOrID.length < 6) {
-      errors.emailOrID = "Invalid Email or ID"; // You may need more specific validation for `superAdminID`
+      errors.emailOrID = "Invalid Email or ID"; // Customize if necessary
     }
 
     if (!password) {
@@ -56,6 +55,18 @@ const SuperAdminLoginForm = ({ role }) => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+    setTouched((prevTouched) => ({
+      ...prevTouched,
+      [name]: true,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,6 +74,7 @@ const SuperAdminLoginForm = ({ role }) => {
 
     try {
       const resultAction = await dispatch(loginSuperAdmin(formValues));
+
       if (loginSuperAdmin.fulfilled.match(resultAction)) {
         toast({
           title: "Success!",
@@ -70,18 +82,64 @@ const SuperAdminLoginForm = ({ role }) => {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
         router.push(`/dashboard/${role}`);
-        setFormValues({ emailOrID: "", password: "" }); // Clear form values
-      } else {
-        console.log("Error: ", resultAction.payload || resultAction.error);
-        toast({
-          title: "Error!",
-          description: resultAction.payload?.message || "Login failed. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        setFormValues({ emailOrID: "", password: "" });
+      } else if (resultAction.meta.requestStatus === 'rejected') {
+        const { statusCode, message } = resultAction.payload || {};
+
+        switch (statusCode) {
+          case 400:
+            toast({
+              title: "Bad Request",
+              description: "Email or ID and password are required.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 401:
+            toast({
+              title: "Unauthorized",
+              description: "Invalid credentials. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 404:
+            toast({
+              title: "Not Found",
+              description: "Super Admin not found. Please check your credentials.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 500:
+            toast({
+              title: "Server Error",
+              description: "An unexpected error occurred. Please try again later.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          default:
+            toast({
+              title: "Error",
+              description: message || "An error occurred. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+        }
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -95,12 +153,6 @@ const SuperAdminLoginForm = ({ role }) => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    setTouched({ ...touched, [name]: true });
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       <FormControl mb={4} isInvalid={formErrors.emailOrID && touched.emailOrID}>
@@ -110,7 +162,7 @@ const SuperAdminLoginForm = ({ role }) => {
           type="text"
           value={formValues.emailOrID}
           onChange={handleChange}
-          onBlur={() => setTouched({ ...touched, emailOrID: true })}
+          onBlur={() => setTouched((prev) => ({ ...prev, emailOrID: true }))}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",

@@ -5,61 +5,59 @@ import axios from 'axios';
 // Define async thunks
 export const registerSuperAdmin = createAsyncThunk(
   'superAdmin/registerSuperAdmin',
-  async ({  formValues }, thunkAPI) => {
-
-    console.log("form values:", formValues)
+  async (formValues, thunkAPI) => {
+    console.log("form values:", formValues);
 
     try {
-      const response = await axios.post('/api/auth/superAdmin/register', {
-      formValues,
-      });
+      const response = await axios.post('/api/auth/superAdmin/register', formValues);
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Registration failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "Registration failed";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
-
 
 export const loginSuperAdmin = createAsyncThunk(
   'superAdmin/login',
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/superAdmin/login', formValues);
-
-      localStorage.setItem('superAdminToken', response.data.token); // Save token in localStorage
-
+      localStorage.setItem('superAdminToken', response.data.token);
       return { superAdmin: response.data.superAdmin, token: response.data.token };
-      
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Login failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "Login failed";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const verifySuperAdminEmail = createAsyncThunk(
   'superAdmin/verifySuperAdminEmail',
-  async (formData, thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/superAdmin/verify-email', formData);
+      const response = await axios.post('/api/auth/superAdmin/verify-email', formValues);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || { message: 'Verification failed' });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "Email verification failed";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const resetSuperAdminPassword = createAsyncThunk(
   'superAdmin/resetSuperAdminPassword',
-  async ({ formValues }, thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/superAdmin/reset-password', { formValues });
+      const response = await axios.post('/api/auth/superAdmin/reset-password', formValues);
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password reset failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "Password reset failed";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
@@ -74,10 +72,10 @@ const superAdminAuthSlice = createSlice({
     error: null,
   },
   reducers: {
-    logout: (state) => {
+    logoutSuperAdmin: (state) => {
       state.superAdmin = null;
       state.token = null;
-      localStorage.removeItem('superAdminToken'); // Clear token on logout
+      localStorage.removeItem('superAdminToken');
     },
     setSuperAdmin: (state, action) => {
       state.superAdmin = action.payload;
@@ -118,7 +116,7 @@ const superAdminAuthSlice = createSlice({
       .addCase(loginSuperAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.superAdmin = action.payload.user;
+        state.superAdmin = action.payload.superAdmin;
         state.token = action.payload.token;
       })
       .addCase(loginSuperAdmin.rejected, (state, action) => {
@@ -158,14 +156,14 @@ const superAdminAuthSlice = createSlice({
 });
 
 // Actions
-export const { logout, setSuperAdmin, clearStatus } = superAdminAuthSlice.actions;
+export const { logoutSuperAdmin, setSuperAdmin, clearStatus } = superAdminAuthSlice.actions;
 
 // Selectors
 export const selectAuthLoading = (state) => state.superAdminAuth.loading;
 export const selectAuthStatus = (state) => state.superAdminAuth.status;
 export const selectAuthError = (state) => state.superAdminAuth.error;
-export const selectSuperAdmin= (state) => state.superAdminAuth.superAdmin;
-export const selectToken = (state) => state.superAdminAuth.token;
+export const selectSuperAdmin = (state) => state.superAdminAuth.superAdmin;
+export const selectSuperAdminToken = (state) => state.superAdminAuth.token;
 export const selectIsSuperAdminAuthenticated = (state) => !!state.superAdminAuth.token;
 
 export default superAdminAuthSlice.reducer;

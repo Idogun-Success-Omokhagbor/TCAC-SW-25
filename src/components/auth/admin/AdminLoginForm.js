@@ -61,6 +61,20 @@ const AdminLoginForm = ({ role }) => {
     return Object.keys(errors).length === 0;
   };
 
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+    setTouched((prevTouched) => ({
+      ...prevTouched,
+      [name]: true,
+    }));
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,20 +89,20 @@ const AdminLoginForm = ({ role }) => {
         if (adminData.registrationStatus === "pending") {
           toast({
             title: "Pending Approval",
-            description:
-              "Your account is pending approval. Please check back later.",
+            description: "Your account is pending approval. Please check back later.",
             status: "info",
             duration: 5000,
             isClosable: true,
+            position: "top"
           });
         } else if (adminData.registrationStatus === "rejected") {
           toast({
             title: "Registration Rejected",
-            description:
-              "Your account has been rejected. Please contact support or re-register.",
+            description: "Your account has been rejected. Please contact support or re-register.",
             status: "error",
             duration: 5000,
             isClosable: true,
+            position: "top"
           });
         } else {
           toast({
@@ -97,20 +111,66 @@ const AdminLoginForm = ({ role }) => {
             status: "success",
             duration: 5000,
             isClosable: true,
+            position: "top"
           });
           router.push(`/dashboard/${role}`);
-          setFormValues({ emailOrID: "", password: "" }); // Clear form values
+
+          setFormValues({ emailOrID: "", password: "" });
         }
-      } else {
-        toast({
-          title: "Login Failed",
-          description:
-            resultAction.payload?.message ||
-            "An error occurred. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+      } else if (resultAction.meta.requestStatus === 'rejected') {
+        const { statusCode, message } = resultAction.payload || {};
+
+        switch (statusCode) {
+          case 400:
+            toast({
+              title: "Bad Request",
+              description: "Email or ID and password are required.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 401:
+            toast({
+              title: "Unauthorized",
+              description: "Invalid credentials. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 404:
+            toast({
+              title: "Not Found",
+              description: "User not found. Please check your credentials.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          case 500:
+            toast({
+              title: "Server Error",
+              description: "An unexpected error occurred. Please try again later.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+            break;
+          default:
+            toast({
+              title: "Error",
+              description: message || "An error occurred. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top"
+            });
+        }
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -120,21 +180,12 @@ const AdminLoginForm = ({ role }) => {
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top"
       });
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-    setTouched((prevTouched) => ({
-      ...prevTouched,
-      [name]: true,
-    }));
-  };
+
 
   return (
     <form onSubmit={handleSubmit}>

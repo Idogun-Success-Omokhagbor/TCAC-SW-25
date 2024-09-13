@@ -38,7 +38,7 @@ const UserHeader = ({ onMenuClick }) => {
         p={4}
         justify="space-between"
         align="center"
-        display={{ base: 'flex', md: 'none' }} // Only show on mobile and small screens
+        // display={{ base: 'flex', md: 'none' }} // Only show on mobile and small screens
       >
         <Text fontSize="xl" fontWeight="bold">
           TCAC&apos;24

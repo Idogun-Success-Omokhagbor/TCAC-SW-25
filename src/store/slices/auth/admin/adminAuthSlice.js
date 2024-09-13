@@ -1,4 +1,4 @@
-// store/slices/auth/admin/adminAuthSlices.js
+// store/slices/auth/admin/adminAuthSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import axios from 'axios';
@@ -6,17 +6,14 @@ import axios from 'axios';
 // Define async thunks
 export const registerAdmin = createAsyncThunk(
   'admin/registerAdmin',
-  async ({  formValues }, thunkAPI) => {
-    console.log("form values:", formValues)
-
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/register', {
-      formValues,
-      });
-      return response.data;
+      const response = await axios.post('/api/auth/admin/register', formValues);
+      return response.data; // Ensure this matches your API response structure
     } catch (error) {
+      const statusCode = error.response?.status || 500;
       const errorMessage = error.response?.data?.message || 'Registration failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
@@ -26,36 +23,40 @@ export const loginAdmin = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/admin/login', formValues);
-      localStorage.setItem('token', response.data.token); // Save token in localStorage
+      localStorage.setItem('adminToken', response.data.token); // Save token in localStorage
       return { admin: response.data.admin, token: response.data.token };
     } catch (error) {
+      const statusCode = error.response?.status || 500;
       const errorMessage = error.response?.data?.message || 'Login failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const verifyAdminEmail = createAsyncThunk(
   'admin/verifyAdminEmail',
-  async ( { formValues },  thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/verify-email',  { formValues });
+      const response = await axios.post('/api/auth/admin/verify-email', formValues);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || { message: 'Verification failed' });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Email verification failed';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const resetAdminPassword = createAsyncThunk(
   'admin/resetAdminPassword',
-  async ({ formValues }, thunkAPI) => {
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/admin/reset-password',  { formValues });
+      const response = await axios.post('/api/auth/admin/reset-password', formValues);
       return response.data;
     } catch (error) {
+      const statusCode = error.response?.status || 500;
       const errorMessage = error.response?.data?.message || 'Password reset failed';
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
@@ -70,7 +71,7 @@ const adminAuthSlice = createSlice({
     error: null,
   },
   reducers: {
-    logout: (state) => {
+    logoutAdmin: (state) => {
       state.admin = null;
       state.token = null;
       localStorage.removeItem('adminToken'); // Clear token on logout
@@ -99,7 +100,7 @@ const adminAuthSlice = createSlice({
       .addCase(registerAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.admin = action.payload;
+        state.admin = action.payload.admin; // Adjust based on API response
       })
       .addCase(registerAdmin.rejected, (state, action) => {
         state.loading = false;
@@ -114,7 +115,7 @@ const adminAuthSlice = createSlice({
       .addCase(loginAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.admin = action.payload.user;
+        state.admin = action.payload.admin;
         state.token = action.payload.token;
       })
       .addCase(loginAdmin.rejected, (state, action) => {
@@ -154,14 +155,14 @@ const adminAuthSlice = createSlice({
 });
 
 // Actions
-export const { logout, setAdmin, clearStatus } = adminAuthSlice.actions;
+export const { logoutAdmin, setAdmin, clearStatus } = adminAuthSlice.actions;
 
 // Selectors
 export const selectAuthLoading = (state) => state.adminAuth.loading;
 export const selectAuthStatus = (state) => state.adminAuth.status;
 export const selectAuthError = (state) => state.adminAuth.error;
 export const selectAdmin = (state) => state.adminAuth.admin;
-export const selectToken = (state) => state.adminAuth.token;
+export const selectAdminToken = (state) => state.adminAuth.token;
 export const selectIsAdminAuthenticated = (state) => !!state.adminAuth.token;
 
 export default adminAuthSlice.reducer;

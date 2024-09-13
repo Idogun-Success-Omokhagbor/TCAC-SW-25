@@ -1,64 +1,62 @@
 // store/slices/auth/user/userAuthSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { HYDRATE } from "next-redux-wrapper";
+import { HYDRATE } from 'next-redux-wrapper';
 import axios from 'axios';
 
 // Define async thunks
 export const registerUser = createAsyncThunk(
-  "user/registerUser",
-  async (mergedValues, thunkAPI) => {
-    console.log("form values from all steps:", mergedValues);
+  'user/registerUser',
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post("/api/auth/user/register", { mergedValues });
-      return response.data;
+      const response = await axios.post('/api/auth/user/register', formValues);
+      return response.data; // Ensure this matches your API response structure
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Registration failed";
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
-
-
 export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async ( formValues , thunkAPI) => {
-    console.log("formValues for user login:", formValues);
+  'user/loginUser',
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post('/api/auth/user/login',  formValues);
-      localStorage.setItem('token', response.data.token); // Save token in localStorage
-      return { user: response.data.user, token: response.data.token }; // Return both user and token
+      const response = await axios.post('/api/auth/user/login', formValues);
+      localStorage.setItem('userToken', response.data.token); // Save token in localStorage
+      return { user: response.data.user, token: response.data.token };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const verifyUserEmail = createAsyncThunk(
-  "user/verifyUserEmail",
-  async ({  formValues }, thunkAPI) => {
+  'user/verifyUserEmail',
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post("/api/auth/user/verify-email", {  formValues },);
+      const response = await axios.post('/api/auth/user/verify-email', formValues);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || { message: "Verification failed" });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Email verification failed';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
 
 export const resetUserPassword = createAsyncThunk(
-  "user/resetUserPassword",
-  async ({  formValues }, thunkAPI) => {
+  'user/resetUserPassword',
+  async (formValues, thunkAPI) => {
     try {
-      const response = await axios.post(
-        "/api/auth/user/reset-password",
-        {  formValues },
-      );
+      const response = await axios.post('/api/auth/user/reset-password', formValues);
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Password reset failed";
-      return thunkAPI.rejectWithValue({ message: errorMessage });
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Password reset failed';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
@@ -69,14 +67,14 @@ const userAuthSlice = createSlice({
     user: null,
     token: null,
     loading: false,
-    status: 'idle', // Possible values: 'idle', 'pending', 'succeeded', 'failed'
+    status: 'idle',
     error: null,
   },
   reducers: {
-    logout: (state) => {
+    logoutUser: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('token'); // Clear token on logout
+      localStorage.removeItem('userToken'); // Clear token on logout
     },
     setUser: (state, action) => {
       state.user = action.payload;
@@ -102,7 +100,7 @@ const userAuthSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.user = action.payload;
+        state.user = action.payload.user; // Adjust based on API response
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -157,15 +155,14 @@ const userAuthSlice = createSlice({
 });
 
 // Actions
-export const { logout, setUser, clearStatus } = userAuthSlice.actions;
+export const { logoutUser, setUser, clearStatus } = userAuthSlice.actions;
 
 // Selectors
 export const selectAuthLoading = (state) => state.userAuth.loading;
 export const selectAuthStatus = (state) => state.userAuth.status;
 export const selectAuthError = (state) => state.userAuth.error;
 export const selectUser = (state) => state.userAuth.user;
-export const selectToken = (state) => state.userAuth.token;
-export const selectIsAuthenticated = (state) => !!state.userAuth.token;
-export const selectRegistrationStatus = (state) => state.userAuth.user?.registrationStatus;
+export const selectUserToken = (state) => state.userAuth.token;
+export const selectIsUserAuthenticated = (state) => !!state.userAuth.token;
 
 export default userAuthSlice.reducer;

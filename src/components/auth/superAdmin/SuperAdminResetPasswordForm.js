@@ -89,6 +89,7 @@ const SuperAdminResetPasswordForm = () => {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
         router.push(`/login/${role}`);
         
@@ -108,6 +109,7 @@ const SuperAdminResetPasswordForm = () => {
           status: "error",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
       }
     } catch (error) {
@@ -118,6 +120,7 @@ const SuperAdminResetPasswordForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top"
       });
     }
   };

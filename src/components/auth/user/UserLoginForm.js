@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import {
-  loginUser, // Ensure this action is correct for user login
+  loginUser,
   selectAuthLoading,
   selectAuthStatus,
   selectAuthError,
-} from "../../../store/slices/auth/user/userAuthSlice"; // Ensure path is correct
+} from "../../../store/slices/auth/user/userAuthSlice";
 import {
   FormControl,
   FormLabel,
@@ -61,34 +61,53 @@ const UserLoginForm = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+    setTouched((prevTouched) => ({
+      ...prevTouched,
+      [name]: true,
+    }));
+  };
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     if (!validateForm()) return;
   
     try {
-      const resultAction = await dispatch(loginUser(formValues)); 
+      const resultAction = await dispatch(loginUser(formValues));
+
+      console.log("Result action:", resultAction)
   
       if (loginUser.fulfilled.match(resultAction)) {
+        // Successful login
         const { token, user } = resultAction.payload; // Extract 'user' here
   
         console.log("Authenticated user data:", { user, token });
-
-        const role = user.role.toLowerCase();
-
-                  toast({
-            title: "Success!",
-            description: "Login successful. Redirecting to your dashboard...",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-          });
-
-
-        router.push(`/dashboard/${role}`); // Navigate to the user's role-specific dashboard
-
-        setFormValues({ emailOrID: "", password: "" }); 
   
+        const role = user.role.toLowerCase();
+  
+        toast({
+          title: "Success!",
+          description: "Login successful. Redirecting to your dashboard...",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top"
+        });
+
+
+        router.push(`/${role}/dashboard`);
+  
+        setFormValues({ emailOrID: "", password: "" });
+  
+        // Uncomment and use if you need additional checks for registration status
         // if (user.registrationStatus === "pending") {
         //   toast({
         //     title: "Pending Approval",
@@ -105,26 +124,62 @@ const UserLoginForm = () => {
         //     duration: 5000,
         //     isClosable: true,
         //   });
-        // } else {
-        //   toast({
-        //     title: "Success!",
-        //     description: "Login successful. Redirecting to your dashboard...",
-        //     status: "success",
-        //     duration: 5000,
-        //     isClosable: true,
-        //   });
-        //   const role = user.role.toLowerCase();
-        // router.push(`/dashboard/${role}`); 
-        //   setFormValues({ emailOrID: "", password: "" }); // Clear form values
         // }
-      } else {
-        toast({
-          title: "Login Failed",
-          description: resultAction.payload?.message || "An error occurred. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+      } else if (resultAction.meta.requestStatus === 'rejected') {
+        // Handle different status codes based on the meta.response object
+        const { statusCode, message } = resultAction.payload || {};
+  
+        switch (statusCode) {
+          case 400:
+            toast({
+              title: "Bad Request",
+              description: "Email or ID and password are required.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+                 position: "top"
+            });
+            break;
+          case 401:
+            toast({
+              title: "Unauthorized",
+              description: "Invalid credentials. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+                 position: "top"
+            });
+            break;
+          case 404:
+            toast({
+              title: "Not Found",
+              description: "User not found. Please check your credentials.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+                 position: "top"
+            });
+            break;
+          case 500:
+            toast({
+              title: "Server Error",
+              description: "An unexpected error occurred. Please try again later.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+                 position: "top"
+            });
+            break;
+          default:
+            toast({
+              title: "Error",
+              description: message || "An error occurred. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+                 position: "top"
+            });
+        }
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -134,22 +189,13 @@ const UserLoginForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
+           position: "top"
       });
     }
   };
   
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-    setTouched((prevTouched) => ({
-      ...prevTouched,
-      [name]: true,
-    }));
-  };
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -179,6 +225,7 @@ const UserLoginForm = () => {
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
+            onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",

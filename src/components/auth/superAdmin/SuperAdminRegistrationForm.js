@@ -116,6 +116,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
         router.push(`/login/${role}`);
         setFormValues({
@@ -133,6 +134,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
           status: "error",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
       }
     } catch (error) {
@@ -143,6 +145,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top"
       });
     }
   };

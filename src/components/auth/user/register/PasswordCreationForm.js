@@ -18,7 +18,6 @@ import {
   selectAuthLoading,
   selectAuthStatus,
   selectAuthError,
-  clearStatus,
 } from "../../../../store/slices/auth/user/userAuthSlice";
 
 const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
@@ -82,11 +81,11 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
     try {
       const mergedValues = { ...values, ...prevFormValues, ...formValues };
 
-      console.log("mergedValues from all fields:", mergedValues)
-      
+      console.log("mergedValues from all fields:", mergedValues);
+
       const resultAction = await dispatch(registerUser(mergedValues));
 
-      console.log("Registration successful:", resultAction)
+      console.log("Registration result:", resultAction);
 
       if (registerUser.fulfilled.match(resultAction)) {
         toast({
@@ -96,19 +95,74 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
           duration: 5000,
           position: "top",
           isClosable: true,
-
         });
         setFormValues({ password: "", confirmPassword: "" });
         router.push(`/login/${role}`);
-      } else {
-        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during registration.";
-        toast({
-          title: "Error!",
-          description: errorMessage,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+      } else if (resultAction.meta.requestStatus === 'rejected') {
+        // Handle different status codes based on the meta.response object
+        const { statusCode, message } = resultAction.payload || {};
+
+        switch (statusCode) {
+          case 400:
+            toast({
+              title: "Bad Request",
+              description: "Some required fields are missing or incorrect.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+            break;
+          case 401:
+            toast({
+              title: "Unauthorized",
+              description: "Unauthorized request. Please check your input.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+            break;
+          case 403:
+            toast({
+              title: "Forbidden",
+              description: "You do not have permission to perform this action.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+            break;
+          case 404:
+            toast({
+              title: "Not Found",
+              description: "User not found. Please try again.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+            break;
+          case 500:
+            toast({
+              title: "Server Error",
+              description: "An unexpected error occurred on the server.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+            break;
+          default:
+            toast({
+              title: "Error",
+              description: message || "An unexpected error occurred. Please try again.",
+              status: "error",
+              duration: 5000,
+              position: "top",
+              isClosable: true,
+            });
+        }
       }
     } catch (error) {
       console.error("Unexpected error:", error.message);
@@ -117,12 +171,11 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
         description: "An unexpected error occurred. Please try again.",
         status: "error",
         duration: 5000,
+        position: "top",
         isClosable: true,
       });
     }
   };
-
-
 
   return (
     <form onSubmit={handleSubmit}>
@@ -194,7 +247,6 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
           <Button
             type="button"
             colorScheme="gray"
-          
             onClick={() => onPrevious(formValues)}
           >
             Back
@@ -202,9 +254,8 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
           <Button
             type="submit"
             colorScheme="green"
-       
             isLoading={loading}
-              loadingText="Processing..."
+            loadingText="Processing..."
           >
             Submit
           </Button>

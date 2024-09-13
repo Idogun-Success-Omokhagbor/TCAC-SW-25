@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Stack, Select as ChakraSelect, FormErrorMessage, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Stack, FormErrorMessage, useToast } from '@chakra-ui/react';
 import { FaSchool, FaUser, FaPhoneAlt, FaAddressBook } from 'react-icons/fa';
 import { AiOutlineFieldNumber } from 'react-icons/ai';
 import NaijaStates from 'naija-state-local-government';
@@ -49,9 +49,14 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Capitalize the first letter of each word
+    const capitalizeWords = (text) => 
+      text.replace(/\b\w/g, char => char.toUpperCase());
+
     setFormValues(prevValues => ({
       ...prevValues,
-      [name]: value
+      [name]: capitalizeWords(value)
     }));
   };
 
@@ -137,7 +142,8 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
         {/* User Category Selector */}
         <FormControl id="user-category">
           <FormLabel>Register as</FormLabel>
-          <ChakraSelect
+          <Input
+            as="select"
             name="userCategory"
             onChange={handleUserCategoryChange}
             value={formValues.userCategory}
@@ -146,128 +152,30 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
             <option value="Alumnus">Alumnus (IOTB)</option>
             <option value="Child">Child</option>
             <option value="Non-TIMSANITE">Non-TIMSANITE</option>
-          </ChakraSelect>
+          </Input>
         </FormControl>
 
         {/* Conditional Fields */}
         {formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus' ? (
           <>
-          <FormControl isInvalid={!!error.institution}>
-      <FormLabel>Institution</FormLabel>
-      <ChakraSelect
-        name="institution"
-        onChange={(e) => {
-          const value = e.target.value;
-          setIsInstitutionOther(value === 'Other');
-          setFormValues(prevValues => ({
-            ...prevValues,
-            institution: value
-          }));
-        }}
-        value={formValues.institution}
-      >
-        <option value="" disabled>Select Institution</option> {/* Default option */}
-        
-        {/* Federal Universities */}
-        <optgroup label="Federal Universities">
-          {institutions.universities?.federal?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* State Universities */}
-        <optgroup label="State Universities">
-          {institutions.universities?.state?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Private Universities */}
-        <optgroup label="Private Universities">
-          {institutions.universities?.private?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Federal Polytechnics */}
-        <optgroup label="Federal Polytechnics">
-          {institutions.polytechnics?.federal?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* State Polytechnics */}
-        <optgroup label="State Polytechnics">
-          {institutions.polytechnics?.state?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Private Polytechnics */}
-        <optgroup label="Private Polytechnics">
-          {institutions.polytechnics?.private?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Federal Colleges of Education */}
-        <optgroup label="Federal Colleges of Education">
-          {institutions.colleges_of_education?.federal?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* State Colleges of Education */}
-        <optgroup label="State Colleges of Education">
-          {institutions.colleges_of_education?.state?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Private Colleges of Education */}
-        <optgroup label="Private Colleges of Education">
-          {institutions.colleges_of_education?.private?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-
-        {/* Others */}
-        <optgroup label="Others">
-          {institutions.others?.map((institution, index) => (
-            <option key={index} value={institution.name}>
-              {institution.name} - {institution.location}
-            </option>
-          ))}
-        </optgroup>
-      </ChakraSelect>
-      {isInstitutionOther && (
-        <Input
-          name="otherInstitution"
-          placeholder="Enter Institution Name"
-          value={formValues.otherInstitution}
-          onChange={handleInputChange}
-        />
-      )}
-      <FormErrorMessage>{error.institution}</FormErrorMessage>
-    </FormControl>
+            <FormControl isInvalid={!!error.institution}>
+              <FormLabel>Institution</FormLabel>
+              <Input
+                name="institution"
+                placeholder="Enter Institution"
+                value={formValues.institution}
+                onChange={handleInputChange}
+              />
+              {isInstitutionOther && (
+                <Input
+                  name="otherInstitution"
+                  placeholder="Enter Institution Name"
+                  value={formValues.otherInstitution}
+                  onChange={handleInputChange}
+                />
+              )}
+              <FormErrorMessage>{error.institution}</FormErrorMessage>
+            </FormControl>
 
             {formValues.userCategory === 'Alumnus' && (
               <FormControl isInvalid={!!error.graduationYear}>
@@ -286,7 +194,8 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
 
             <FormControl isInvalid={!!error.state}>
               <FormLabel>State</FormLabel>
-              <ChakraSelect
+              <Input
+                as="select"
                 name="state"
                 onChange={(e) => {
                   const value = e.target.value;
@@ -305,7 +214,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
                   </option>
                 ))}
                 <option value="Other">Other</option>
-              </ChakraSelect>
+              </Input>
               {isStateOther && (
                 <Input
                   name="otherState"
@@ -357,7 +266,8 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
           <>
             <FormControl>
               <FormLabel>Are you a Student?</FormLabel>
-              <ChakraSelect
+              <Input
+                as="select"
                 name="isStudent"
                 onChange={(e) => {
                   const value = e.target.value === 'yes';
@@ -371,7 +281,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
               >
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
-              </ChakraSelect>
+              </Input>
             </FormControl>
             {isStudent && (
               <>

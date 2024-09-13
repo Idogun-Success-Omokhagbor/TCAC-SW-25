@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         { expiresIn: '1h' }
       );
 
-      return res.status(200).json({ token, user: userData }); // Change 'userData' to 'user'
+      return res.status(200).json({ token, user: userData }); 
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Server error' });

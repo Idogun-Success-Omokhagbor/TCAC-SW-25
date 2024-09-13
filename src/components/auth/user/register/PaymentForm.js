@@ -30,7 +30,7 @@ const PaymentForm = ({
   const [formValues, setFormValues] = useState({
     paymentType: values?.paymentType || "",
     campType: values?.campType || "",
-    amount: values?.amount || "",
+    amount: values?.amount || "5000",
     receipt: values?.receipt || "",
     paymentNarration: values?.paymentNarration || "",
   });
@@ -73,7 +73,7 @@ const PaymentForm = ({
       validationErrors.paymentType = "Payment type is required";
     if (!formValues.campType)
       validationErrors.campType = "Camp type is required";
-    if (!formValues.amount || formValues.amount < minimumAmountRequired)
+    if (!formValues.amount || parseInt(formValues.amount) < minimumAmountRequired)
       validationErrors.amount = `Minimum amount is ₦${minimumAmountRequired}`;
     if (!formValues.receipt)
       validationErrors.receipt = "Receipt upload is required";
@@ -277,13 +277,18 @@ const PaymentForm = ({
           )}
         </FormControl>
 
-        <FormControl id="amount">
+        <FormControl id="amount" isInvalid={!!formErrors.amount}>
           <FormLabel>Amount</FormLabel>
-          <Input
-            type="number"
-            value={formValues.amount || minimumAmountRequired}
-            readOnly
-          />
+          <Select
+            value={formValues.amount}
+            onChange={(e) => setFormValues((prev) => ({ ...prev, amount: e.target.value }))}
+          >
+            <option value="5000">₦5,000</option>
+            <option value="10000">₦10,000</option>
+            <option value="15000">₦15,000</option>
+            <option value="20000">₦20,000</option>
+            <option value="25000">₦25,000</option>
+          </Select>
           {formErrors.amount && (
             <Text color="red.500" fontSize="sm">
               {formErrors.amount}
@@ -342,7 +347,6 @@ const PaymentForm = ({
             isLoading={loading} 
             loadingText="Processing..."
             colorScheme="green"
-
           >
             Next
           </Button>

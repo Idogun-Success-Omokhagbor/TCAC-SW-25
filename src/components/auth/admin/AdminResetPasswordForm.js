@@ -85,6 +85,7 @@ const AdminResetPasswordForm = () => {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
         router.push(`/login/${role}`);
         
@@ -102,6 +103,7 @@ const AdminResetPasswordForm = () => {
           status: "error",
           duration: 5000,
           isClosable: true,
+          position: "top"
         });
       }
     } catch (error) {
@@ -112,6 +114,7 @@ const AdminResetPasswordForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top"
       });
     }
   };
