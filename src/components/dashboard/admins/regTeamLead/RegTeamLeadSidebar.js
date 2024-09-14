@@ -22,8 +22,8 @@ import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
 
-const SuperAdminSidebar = ({ onMenuClick, accountData }) => {
-  // console.log("super admin account data:", accountData);
+const RegTeamLeadSidebar = ({ onMenuClick, accountData }) => {
+  // console.log("registration team lead account data:", accountData);
 
   // State to track the open submenu (for desktop view)
   const [activeSubMenu, setActiveSubMenu] = useState(null);
@@ -66,7 +66,7 @@ const SuperAdminSidebar = ({ onMenuClick, accountData }) => {
       <Text mb={8} fontSize="md" fontWeight={"bold"}>
         {!isSidebarCollapsed && (
           <>
-            Welcome back, <br /> {accountData?.superAdminID}
+            Welcome back, <br /> {accountData?.adminID}
           </>
         )}
       </Text>
@@ -108,42 +108,6 @@ const SuperAdminSidebar = ({ onMenuClick, accountData }) => {
         </Link>
       </Box>
 
-      {/* registered admins */}
-      <Box
-        onClick={() => {
-          onMenuClick("registered-admins");
-          if (sidebarVariant === "drawer") toggleDrawer(); // Close drawer
-        }}
-        _focus={{
-          size: "md",
-          border: "1px solid black",
-          boxShadow: "2px 2px 0px 0px #000000",
-          p: "4",
-        }}
-        _hover={{
-          size: "md",
-          border: "1px solid black",
-          boxShadow: "2px 2px 0px 0px #000000",
-          p: "2",
-          textDecoration: "none",
-          scale: "1",
-        }}
-      >
-        <Link
-          display="flex"
-          alignItems="center"
-          gap="6"
-          _hover={{
-            textDecoration: "none",
-          }}
-          _focus={{
-            textDecoration: "none",
-          }}
-        >
-          <FaUserCog />
-          {!isSidebarCollapsed && <Text>Registered Admins</Text>}
-        </Link>
-      </Box>
 
       {/* logout */}
       <Box
@@ -234,4 +198,4 @@ const SuperAdminSidebar = ({ onMenuClick, accountData }) => {
   );
 };
 
-export default SuperAdminSidebar;
+export default RegTeamLeadSidebar;

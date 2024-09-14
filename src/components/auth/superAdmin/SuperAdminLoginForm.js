@@ -41,7 +41,10 @@ const SuperAdminLoginForm = ({ role }) => {
 
     if (!emailOrID) {
       errors.emailOrID = "Required";
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrID) && emailOrID.length < 6) {
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailOrID) &&
+      emailOrID.length < 6
+    ) {
       errors.emailOrID = "Invalid Email or ID"; // Customize if necessary
     }
 
@@ -82,11 +85,12 @@ const SuperAdminLoginForm = ({ role }) => {
           status: "success",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
-        router.push(`/dashboard/${role}`);
+        router.push(`/${role}/dashboard`);
+
         setFormValues({ emailOrID: "", password: "" });
-      } else if (resultAction.meta.requestStatus === 'rejected') {
+      } else if (resultAction.meta.requestStatus === "rejected") {
         const { statusCode, message } = resultAction.payload || {};
 
         switch (statusCode) {
@@ -97,7 +101,7 @@ const SuperAdminLoginForm = ({ role }) => {
               status: "error",
               duration: 5000,
               isClosable: true,
-              position: "top"
+              position: "top",
             });
             break;
           case 401:
@@ -107,27 +111,29 @@ const SuperAdminLoginForm = ({ role }) => {
               status: "error",
               duration: 5000,
               isClosable: true,
-              position: "top"
+              position: "top",
             });
             break;
           case 404:
             toast({
               title: "Not Found",
-              description: "Super Admin not found. Please check your credentials.",
+              description:
+                "Super Admin not found. Please check your credentials.",
               status: "error",
               duration: 5000,
               isClosable: true,
-              position: "top"
+              position: "top",
             });
             break;
           case 500:
             toast({
               title: "Server Error",
-              description: "An unexpected error occurred. Please try again later.",
+              description:
+                "An unexpected error occurred. Please try again later.",
               status: "error",
               duration: 5000,
               isClosable: true,
-              position: "top"
+              position: "top",
             });
             break;
           default:
@@ -137,7 +143,7 @@ const SuperAdminLoginForm = ({ role }) => {
               status: "error",
               duration: 5000,
               isClosable: true,
-              position: "top"
+              position: "top",
             });
         }
       }

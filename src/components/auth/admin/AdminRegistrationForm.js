@@ -7,7 +7,7 @@ import {
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/admin/adminAuthSlice"; 
+} from "../../../store/slices/auth/admin/adminAuthSlice";
 import {
   Box,
   FormControl,
@@ -107,7 +107,7 @@ const AdminRegistrationForm = ({ role }) => {
     }
 
     try {
-      const resultAction = await dispatch(registerAdmin({ formValues }));
+      const resultAction = await dispatch(registerAdmin( formValues ));
 
       if (registerAdmin.fulfilled.match(resultAction)) {
         toast({
@@ -116,7 +116,7 @@ const AdminRegistrationForm = ({ role }) => {
           status: "success",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
         router.push(`/login/${role}`);
         setFormValues({
@@ -130,11 +130,13 @@ const AdminRegistrationForm = ({ role }) => {
       } else {
         toast({
           title: "Error!",
-          description: resultAction.payload?.message || "An error occurred during registration.",
+          description:
+            resultAction.payload?.message ||
+            "An error occurred during registration.",
           status: "error",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
       }
     } catch (error) {
@@ -145,7 +147,7 @@ const AdminRegistrationForm = ({ role }) => {
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "top"
+        position: "top",
       });
     }
   };
@@ -210,7 +212,10 @@ const AdminRegistrationForm = ({ role }) => {
       </FormControl>
 
       {/* Phone Number */}
-      <FormControl mb={4} isInvalid={formErrors.phoneNumber && touched.phoneNumber}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.phoneNumber && touched.phoneNumber}
+      >
         <FormLabel>
           Phone Number{" "}
           <Box as="span" fontSize="sm" color="gray.500">
@@ -263,7 +268,10 @@ const AdminRegistrationForm = ({ role }) => {
       </FormControl>
 
       {/* Confirm Password */}
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.confirmPassword && touched.confirmPassword}
+      >
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
@@ -283,7 +291,9 @@ const AdminRegistrationForm = ({ role }) => {
             <Button
               variant="link"
               onClick={toggleConfirmPasswordVisibility}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>

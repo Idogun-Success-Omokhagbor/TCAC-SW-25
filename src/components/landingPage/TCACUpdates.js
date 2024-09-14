@@ -7,18 +7,18 @@ import Slider from "react-slick";
 const updates = [
   {
     imgSrc: "/images/image5.png",
-    title: "First Update Title",
-    description: "First update description goes here.",
+    title: "TILETS",
+    description: "TIMSAN Southwest TILETS is... ",
   },
   {
     imgSrc: "/images/image5.png",
-    title: "Second Update Title",
-    description: "Second update description goes here.",
+    title: "Reading Club",
+    description: "TIMSAN Southwest reading club is...",
   },
   {
     imgSrc: "/images/image5.png",
-    title: "Third Update Title",
-    description: "Third update description goes here.",
+    title: "Congres",
+    description: "TIMSAN Southwest congress is...",
   },
   // Add more objects as needed
 ];
@@ -46,11 +46,9 @@ const TCACUpdates = () => {
         mb={6}
         p={2}
         border="2px solid black"
-        
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
         bg="lime.100"
         maxW="fit-content"
-
       >
         <Heading as="h2" textAlign="center" fontSize="2xl">
           TCAC Updates
@@ -86,10 +84,10 @@ const TCACUpdates = () => {
                 border="2px solid black"
                 boxShadow="lg"
               >
-                <Text fontSize="xl" fontWeight="bold"  color="gray.50">
+                <Text fontSize="xl" fontWeight="bold" color="gray.50">
                   {update.title}
                 </Text>
-                <Text fontSize="md" mt={2}  color="gray.50">
+                <Text fontSize="md" mt={2} color="gray.50">
                   {update.description}
                 </Text>
               </Box>

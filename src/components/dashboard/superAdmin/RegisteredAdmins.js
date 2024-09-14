@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { Link } from "@chakra-ui/react";
-
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Text,
   Table,
   Thead,
   Tbody,
@@ -25,37 +23,46 @@ import {
   Box,
   Flex,
   useToast,
+  Menu,
+  MenuButton,
+  MenuItems,
+  MenuItem,
+  MenuList,
+  Text,
 } from "@chakra-ui/react";
 import { FaSearch, FaDownload, FaSync } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import {
-  fetchUsers,
-  approveUser,
-  rejectUser,
-  selectUsers,
+  fetchAdmins,
+  approveAdmin,
+  rejectAdmin,
+  selectAdmins,
   selectLoading,
   selectError,
-} from "../../store/slices/userActionsSlice";
+  selectAdminById,
+} from "../../../store/slices/adminActionsSlice";
 import * as XLSX from "xlsx";
 
-const RegisteredUsers = () => {
+const RegisteredAdmins = () => {
   const dispatch = useDispatch();
-  const users = useSelector(selectUsers) || [];
+  const admins = useSelector(selectAdmins) || [];
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [newAdminFunction, setNewAdminFunction] = useState(null);
 
   const toast = useToast();
 
-  const usersPerPage = 10; // Number of users to show per page
-  const pageCount = Math.ceil(users.length / usersPerPage); // Calculate total pages
+  const adminsPerPage = 10; // Number of admins to show per page
+  const pageCount = Math.ceil(admins.length / adminsPerPage); // Calculate total pages
 
   useEffect(() => {
-    console.log("Fetching users...");
-    dispatch(fetchUsers());
+    console.log("Fetching admins...");
+    dispatch(fetchAdmins());
   }, [dispatch]);
 
   useEffect(() => {
@@ -71,18 +78,18 @@ const RegisteredUsers = () => {
     }
   }, [error, toast]);
 
-  const handleViewMore = (user) => {
-    setSelectedUser(user);
+  const handleViewMore = (admin) => {
+    setSelectedAdmin(admin);
     onOpen();
   };
 
   const handleApprove = async (id) => {
     try {
-      console.log("Approving user with ID:", id);
-      await dispatch(approveUser(id)).unwrap();
+      console.log("Approving admin with ID:", id);
+      await dispatch(approveAdmin(id)).unwrap();
       toast({
         title: "Success",
-        description: "User approved successfully!",
+        description: "Admin approved successfully!",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -95,11 +102,11 @@ const RegisteredUsers = () => {
 
   const handleReject = async (id) => {
     try {
-      console.log("Rejecting user with ID:", id);
-      await dispatch(rejectUser(id)).unwrap();
+      console.log("Rejecting admin with ID:", id);
+      await dispatch(rejectAdmin(id)).unwrap();
       toast({
         title: "Success",
-        description: "User rejected successfully!",
+        description: "Admin rejected successfully!",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -121,9 +128,9 @@ const RegisteredUsers = () => {
     // Define keys to exclude
     const excludedKeys = ["_id", "password", "__v", "updatedAt"];
 
-    // Filter and map user data
-    const filteredUsers = users.map((user) => {
-      return Object.entries(user)
+    // Filter and map admin data
+    const filteredAdmins = admins.map((admin) => {
+      return Object.entries(admin)
         .filter(([key, value]) => !excludedKeys.includes(key) && value) // Exclude specified keys and ensure values are not empty
         .reduce((acc, [key, value]) => {
           acc[key] = value;
@@ -132,12 +139,12 @@ const RegisteredUsers = () => {
     });
 
     // Create a worksheet from the filtered user data
-    const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
+    const worksheet = XLSX.utils.json_to_sheet(filteredAdmins);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Admins");
 
     // Export the file
-    XLSX.writeFile(workbook, "users_data.xlsx");
+    XLSX.writeFile(workbook, "admins_data.xlsx");
   };
 
   const handlePageChange = (direction) => {
@@ -150,22 +157,71 @@ const RegisteredUsers = () => {
 
   const handleUpdateTable = () => {
     console.log("Updating table...");
-    dispatch(fetchUsers());
+    dispatch(fetchAdmins());
   };
 
-  // Filtered users based on search term
-  const filteredUsers = users.filter(
-    (user) =>
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleUpdateAdminFunction = (newFunction) => {
+    setNewAdminFunction(newFunction);
+    setIsUpdateModalOpen(true);
+  };
+
+  const confirmUpdateAdminFunction = async () => {
+    if (selectedAdmin && newAdminFunction) {
+      try {
+        console.log("Updating admin function...");
+        const response = await fetch(
+          `/api/admin-actions/${selectedAdmin._id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "updateFunction",
+              adminFunction: newAdminFunction,
+            }),
+          }
+        );
+        const result = await response.json();
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "Admin function updated successfully!",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+          dispatch(fetchAdmins()); // Refresh the list
+          onClose(); // Close the modal
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    }
+    setIsUpdateModalOpen(false);
+  };
+
+  // Filtered admins based on search term
+  const filteredAdmins = admins.filter(
+    (admin) =>
+      admin?.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin?.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin?.adminFunction.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Users to display on the current page
-  const currentUsers = filteredUsers.slice(
-    currentPage * usersPerPage,
-    (currentPage + 1) * usersPerPage
+  // Admins to display on the current page
+  const currentAdmins = filteredAdmins.slice(
+    currentPage * adminsPerPage,
+    (currentPage + 1) * adminsPerPage
   );
 
   return (
@@ -175,7 +231,7 @@ const RegisteredUsers = () => {
         {/* search input */}
         <Flex align="center">
           <Input
-            placeholder="Search users..."
+            placeholder="Search admins..."
             value={searchTerm}
             onChange={handleSearch}
             size="sm"
@@ -208,27 +264,27 @@ const RegisteredUsers = () => {
       </Flex>
 
       <TableContainer>
-        <Table variant="striped">
+        <Table variant="simple">
           <Thead>
             <Tr>
               <Th>#</Th>
               <Th>First Name</Th>
               <Th>Last Name</Th>
               <Th>Email</Th>
-              <Th>Category</Th>
+              <Th>Function</Th>
               <Th>Action</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {currentUsers.map((user, index) => (
-              <Tr key={user._id}>
-                <Td>{index + 1 + currentPage * usersPerPage}</Td>
-                <Td>{user.firstName}</Td>
-                <Td>{user.lastName}</Td>
-                <Td>{user.email}</Td>
-                <Td>{user.userCategory}</Td>
+            {currentAdmins.map((admin, index) => (
+              <Tr key={admin._id}>
+                <Td>{index + 1 + currentPage * adminsPerPage}</Td>
+                <Td>{admin.firstName}</Td>
+                <Td>{admin.lastName}</Td>
+                <Td>{admin.email}</Td>
+                <Td>{admin.adminFunction}</Td>
                 <Td>
-                  <Button size="sm" onClick={() => handleViewMore(user)}>
+                  <Button size="sm" onClick={() => handleViewMore(admin)}>
                     View More
                   </Button>
                 </Td>
@@ -259,12 +315,12 @@ const RegisteredUsers = () => {
         </Button>
       </Flex>
 
-      {/* Modal */}
-      {selectedUser && (
+      {/* View More Modal */}
+      {selectedAdmin && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>User Details</ModalHeader>
+            <ModalHeader>Admin Details</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               {(() => {
@@ -272,7 +328,7 @@ const RegisteredUsers = () => {
 
                 return (
                   <Flex direction="column" gap={4}>
-                    {Object.entries(selectedUser)
+                    {Object.entries(selectedAdmin)
                       .filter(
                         ([key, value]) => !excludedKeys.includes(key) && value
                       ) // Filter out excluded keys and empty/null values
@@ -304,29 +360,87 @@ const RegisteredUsers = () => {
                 );
               })()}
             </ModalBody>
-
             <ModalFooter>
-              <Button
-                colorScheme="green"
-                mr={3}
-                onClick={() => handleApprove(selectedUser._id)}
-                isDisabled={selectedUser.registrationStatus === "approved"}
-              >
-                Approve
-              </Button>
-              <Button
-                colorScheme="red"
-                onClick={() => handleReject(selectedUser._id)}
-                isDisabled={selectedUser.registrationStatus === "rejected"}
-              >
-                Reject
-              </Button>
+              <Flex align={"center"} justifyContent={"space-between"} gap={8}>
+                {/* update admin function button */}
+                <Menu>
+                  <MenuButton as={Button} colorScheme="green">
+                    Update
+                  </MenuButton>
+                  <MenuList>
+                    {["admin", "reg_team_lead", "health_team_lead"].map(
+                      (func) => (
+                        <MenuItem
+                          key={func}
+                          onClick={() => handleUpdateAdminFunction(func)}
+                        >
+                          {func}
+                        </MenuItem>
+                      )
+                    )}
+                  </MenuList>
+                </Menu>
+
+                {/* approve and reject button */}
+                {/* <Flex align={"center"} gap={4}> */}
+                  {/* approve button */}
+                  <Button
+                    colorScheme="green"
+                    onClick={() => handleApprove(selectedAdmin._id)}
+                    isDisabled={selectedAdmin.registrationStatus === "approved"}
+                  >
+                    Approve
+                  </Button>
+
+                  {/* reject button */}
+                  <Button
+                    colorScheme="red"
+                    onClick={() => handleReject(selectedAdmin._id)}
+                    isDisabled={selectedAdmin.registrationStatus === "rejected"}
+                  >
+                    Reject
+                  </Button>
+                {/* </Flex> */}
+              </Flex>
             </ModalFooter>
           </ModalContent>
         </Modal>
       )}
+
+      {/* Update Admin Function Confirmation Modal */}
+      <Modal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Admin Function Update</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <p>
+              Are you sure you want to update the admin function to &quot;
+              {newAdminFunction}&quot;?
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="green"
+              mr={3}
+              onClick={confirmUpdateAdminFunction}
+            >
+              Yes
+            </Button>
+            <Button
+              colorScheme="red"
+              onClick={() => setIsUpdateModalOpen(false)}
+            >
+              No
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
 
-export default RegisteredUsers;
+export default RegisteredAdmins;

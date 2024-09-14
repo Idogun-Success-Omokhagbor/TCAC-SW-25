@@ -93,9 +93,11 @@ const UserResetPasswordForm = () => {
           password: "",
           confirmPassword: "",
         });
-
       } else {
-        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during the password reset.";
+        const errorMessage =
+          resultAction.payload?.message ||
+          resultAction.error?.message ||
+          "An error occurred during the password reset.";
         toast({
           title: "Error!",
           description: errorMessage,
@@ -178,7 +180,10 @@ const UserResetPasswordForm = () => {
       </FormControl>
 
       {/* Confirm Password */}
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.confirmPassword && touched.confirmPassword}
+      >
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
@@ -198,7 +203,9 @@ const UserResetPasswordForm = () => {
             <Button
               variant="link"
               onClick={toggleConfirmPasswordVisibility}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>

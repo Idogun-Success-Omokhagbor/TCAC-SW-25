@@ -1,5 +1,5 @@
-import { IncomingForm } from 'formidable';
-import { put } from '@vercel/blob';
+import { IncomingForm } from "formidable";
+import { put } from "@vercel/blob";
 
 // Disable body parsing to handle form data with formidable
 export const config = {
@@ -23,28 +23,32 @@ function parseForm(req) {
 }
 
 export default async function handler(req, res) {
-  if (req.method === 'PUT') {
+  if (req.method === "PUT") {
     try {
       // Parse the form data
       const { files } = await parseForm(req);
 
       // Ensure a file is present
       if (!files.file || files.file.length === 0) {
-        return res.status(400).json({ error: 'No file uploaded' });
+        return res.status(400).json({ error: "No file uploaded" });
       }
 
       const file = files.file[0]; // Formidable stores files as arrays in 'files'
 
       // Upload the file
-      const blob = await put(file.originalFilename, file.filepath, { access: 'public' });
+      const blob = await put(file.originalFilename, file.filepath, {
+        access: "public",
+      });
 
       // Send response
       return res.status(200).json(blob);
     } catch (error) {
-      return res.status(500).json({ error: 'Failed to process file', details: error.message });
+      return res
+        .status(500)
+        .json({ error: "Failed to process file", details: error.message });
     }
   } else {
-    res.setHeader('Allow', ['PUT']);
+    res.setHeader("Allow", ["PUT"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

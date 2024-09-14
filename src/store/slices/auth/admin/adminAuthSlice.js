@@ -9,10 +9,10 @@ export const registerAdmin = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/admin/register', formValues);
-      return response.data; // Ensure this matches your API response structure
+      return response.data; 
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.response?.data?.error || 'Registration failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -23,11 +23,14 @@ export const loginAdmin = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/admin/login', formValues);
-      localStorage.setItem('adminToken', response.data.token); // Save token in localStorage
-      return { admin: response.data.admin, token: response.data.token };
+
+      localStorage.setItem('adminToken', response.data.token); 
+
+      return { admin: response.data.adminData, token: response.data.token };
+      
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.response?.data?.error || 'Login failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -41,7 +44,7 @@ export const verifyAdminEmail = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Email verification failed';
+      const errorMessage = error.response?.data?.error || 'Email verification failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -55,7 +58,7 @@ export const resetAdminPassword = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Password reset failed';
+      const errorMessage = error.response?.data?.error || 'Password reset failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -100,7 +103,7 @@ const adminAuthSlice = createSlice({
       .addCase(registerAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.admin = action.payload.admin; // Adjust based on API response
+        state.admin = action.payload
       })
       .addCase(registerAdmin.rejected, (state, action) => {
         state.loading = false;

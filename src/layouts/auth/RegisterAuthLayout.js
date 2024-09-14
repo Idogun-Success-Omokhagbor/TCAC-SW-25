@@ -69,13 +69,13 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         bg="green.500"
         color="gray.50"
       >
-                  <Link href="/" passHref>
-            <Image
-              src="/images/timsan-logo.png"
-              alt="Logo"
-              className="h-12 mb-6"
-            />
-          </Link>
+        <Link href="/" passHref>
+          <Image
+            src="/images/timsan-logo.png"
+            alt="Logo"
+            className="h-12 mb-6"
+          />
+        </Link>
 
         <IconButton
           icon={<FiMenu />}
@@ -101,7 +101,7 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
         zIndex={10}
         onClick={onClose}
       >
-        <Stack spacing={6} align="start" pl={6} >
+        <Stack spacing={6} align="start" pl={6}>
           <Link href="/" passHref className="mb-6">
             <Image
               src="/images/timsan-logo.png"
@@ -174,7 +174,9 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
           </Text>
 
           <HStack spacing={4}>
-            <Text display={{base: "none", md:"block"}} fontWeight="medium">Already registered?</Text>
+            <Text display={{ base: "none", md: "block" }} fontWeight="medium">
+              Already registered?
+            </Text>
             <Button
               variant="outline"
               colorScheme="green"
@@ -200,50 +202,45 @@ const RegisterAuthLayout = ({ role, currentStep, setStep, children }) => {
           {children}
         </Box>
 
-
         <Stack spacing={4} mt={8}>
-            <Text fontSize="sm" color="gray.600">
-              Already have an account?{" "}
-              <Link href={`/login/${role}`} passHref>
-                <Button
-                  variant="link"
-                  colorScheme="green"
-                  _hover={{
-                    color: "white",
-                    bg: "green.500",
-                    borderColor: "green.500",
-                    px: "2",
-                    py: "1",
-                  }}
-                >
-                  Login
-                </Button>
-              </Link>
-            </Text>
-            <Text fontSize="sm" color="gray.600">
-              Forgot password?{" "}
-              <Link href={`/reset-password/${role}`} passHref>
-                <Button
-                  variant="link"
-                  colorScheme="green"
-                  _hover={{
-                    color: "white",
-                    bg: "green.500",
-                    borderColor: "green.500",
-                    px: "2",
-                    py: "1",
-                  }}
-                >
-                  Reset
-                </Button>
-              </Link>
-            </Text>
-          </Stack>
-
-
+          <Text fontSize="sm" color="gray.600">
+            Already have an account?{" "}
+            <Link href={`/login/${role}`} passHref>
+              <Button
+                variant="link"
+                colorScheme="green"
+                _hover={{
+                  color: "white",
+                  bg: "green.500",
+                  borderColor: "green.500",
+                  px: "2",
+                  py: "1",
+                }}
+              >
+                Login
+              </Button>
+            </Link>
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Forgot password?{" "}
+            <Link href={`/reset-password/${role}`} passHref>
+              <Button
+                variant="link"
+                colorScheme="green"
+                _hover={{
+                  color: "white",
+                  bg: "green.500",
+                  borderColor: "green.500",
+                  px: "2",
+                  py: "1",
+                }}
+              >
+                Reset
+              </Button>
+            </Link>
+          </Text>
+        </Stack>
       </Box>
-
-    
     </Flex>
   );
 };

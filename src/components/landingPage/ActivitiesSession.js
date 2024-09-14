@@ -8,7 +8,7 @@ const activities = [
   { name: "Free Medical Care", image: "/images/image24.png" },
   { name: "Skills Acquisition", image: "/images/image26.png" },
   { name: "Empowerment Programs", image: "/images/image24.png" },
-  { name: "Community Development", image: "/images/image26.png" }
+  { name: "Community Development", image: "/images/image26.png" },
 ];
 
 const ActivitiesSection = () => {
@@ -43,16 +43,15 @@ const ActivitiesSection = () => {
     <Box as="section" bg="green.50" py={12} px={8} id="activities">
       {/* Section Header */}
       <Flex
-         justifyItems={"flex-start"}
+        justifyItems={"flex-start"}
         alignItems="center"
         mb={6}
         p={2}
         border="2px solid black"
-     
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
         bg="lime.100"
         maxW="fit-content"
-         className="bg-lime-100"
+        className="bg-lime-100"
       >
         <Heading as="h2" textAlign="center" fontSize="2xl">
           TCAC Activities

@@ -12,7 +12,7 @@ export const registerUser = createAsyncThunk(
       return response.data; // Ensure this matches your API response structure
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.response?.data?.error || 'Registration failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -27,7 +27,7 @@ export const loginUser = createAsyncThunk(
       return { user: response.data.user, token: response.data.token };
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.response?.data?.error || 'Login failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -41,7 +41,7 @@ export const verifyUserEmail = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Email verification failed';
+      const errorMessage = error.response?.data?.error || 'Email verification failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -55,7 +55,7 @@ export const resetUserPassword = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Password reset failed';
+      const errorMessage = error.response?.data?.error || 'Password reset failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }

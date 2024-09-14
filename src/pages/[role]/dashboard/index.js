@@ -1,38 +1,35 @@
-import React, { useEffect, useMemo } from "react"; // React and hooks (useEffect, useMemo) for functional component and optimization
-import { useRouter } from "next/router"; // Hook to access Next.js router
-import { useSelector, useDispatch } from "react-redux"; // Hooks to access Redux store state and dispatch actions
-import { useToast } from "@chakra-ui/react"; // Hook for displaying toast notifications
-import DashboardLayout from "../../../layouts/dashboard/DashboardLayout"; // Component for dashboard layout
+import React, { useEffect, useMemo } from "react";
+import { useRouter } from "next/router";
+import { useSelector, useDispatch } from "react-redux";
+import { useToast } from "@chakra-ui/react";
+import DashboardLayout from "../../../layouts/dashboard/DashboardLayout";
 import {
   selectIsUserAuthenticated,
   selectUserToken,
   selectUser,
   logoutUser,
-} from "../../../store/slices/auth/user/userAuthSlice"; // User authentication selectors and actions
+} from "../../../store/slices/auth/user/userAuthSlice";
 import {
   selectIsAdminAuthenticated,
   selectAdminToken,
   selectAdmin,
   logoutAdmin,
-} from "../../../store/slices/auth/admin/adminAuthSlice"; // Admin authentication selectors and actions
+} from "../../../store/slices/auth/admin/adminAuthSlice";
 import {
   selectIsSuperAdminAuthenticated,
   selectSuperAdminToken,
   selectSuperAdmin,
   logoutSuperAdmin,
-} from "../../../store/slices/auth/superAdmin/superAdminAuthSlice"; // Super admin authentication selectors and actions
+} from "../../../store/slices/auth/superAdmin/superAdminAuthSlice";
 
 const DashboardPage = () => {
-  const router = useRouter(); // Access the router object for navigation
+  const router = useRouter();
+  const { role } = router.query;
 
-  const { role } = router.query; // Extract 'role' query parameter from URL
-  // console.log("role:", role)
+  const toast = useToast();
+  const dispatch = useDispatch();
 
-  const toast = useToast(); // Function to display toast notifications
-  
-  const dispatch = useDispatch(); // Access the dispatch function for Redux actions
-
-  // Memoize the selectors based on role to avoid unnecessary recalculations
+  // Memoized selector map for role-based authentication
   const selectors = useMemo(() => ({
     user: {
       isAuthenticated: selectIsUserAuthenticated,
@@ -46,7 +43,7 @@ const DashboardPage = () => {
       accountInfo: selectAdmin,
       logout: logoutAdmin,
     },
-    super_admin: {
+    "super-admin": {
       isAuthenticated: selectIsSuperAdminAuthenticated,
       token: selectSuperAdminToken,
       accountInfo: selectSuperAdmin,
@@ -54,17 +51,30 @@ const DashboardPage = () => {
     },
   }), []);
 
-  // Default to 'user' role if 'role' is not provided or is invalid
-  const currentRole = role && selectors[role] ? role : 'user';
+  // Default to 'user' if the role is undefined or invalid
+  const currentRole = selectors[role] ? role : "user";
 
+  // Extract necessary selectors
   const { isAuthenticated, token, accountInfo, logout } = selectors[currentRole];
 
-  // Use selectors to access the state from Redux store
+  // Select the current authentication and account data
   const isAuth = useSelector(isAuthenticated);
   const authToken = useSelector(token);
-  const accountData = useSelector(accountInfo); // Renamed to avoid conflict with 'accountInfo'
+  const accountData = useSelector(accountInfo);
+
+  // Debugging logs to track the flow
+  // console.log("Current role:", currentRole);
+  // console.log("Is Authenticated (from selector):", isAuth);
+  // console.log("Auth Token (from selector):", authToken);
+  // console.log("Account data (from selector):", accountData);
 
   useEffect(() => {
+    // console.log("Effect triggered");
+    // console.log("isAuth:", isAuth);
+    // console.log("authToken:", authToken);
+    // console.log("accountData:", accountData);
+
+    // Redirect if the user is not authenticated
     if (!isAuth) {
       toast({
         title: "Not authenticated",
@@ -72,18 +82,21 @@ const DashboardPage = () => {
         status: "warning",
         duration: 5000,
         isClosable: true,
+        position: "top",
       });
-      router.push(`/login/${currentRole}`); // Redirect to login page for the current role
+      router.push(`/login/${currentRole}`);
+    } else if (accountData && accountData.role) {
+      console.log("User role:", accountData.role);
+    
     } else {
-      console.log("User role:", accountData?.role);
-      // console.log("User token:", authToken);
-      // console.log("Account info:", accountData);
-      // console.log("User ID:", accountData?.id);
+      console.log("Account data or role is undefined");  // Handle this edge case
+
     }
   }, [isAuth, authToken, accountData, currentRole, router, toast]);
 
-  // Render nothing if not authenticated or role is invalid
-  if (!isAuth || !role || !selectors[role]) {
+  // Return null if not authenticated or invalid role
+  if (!isAuth || !selectors[currentRole]) {
+    console.log("Not authenticated or invalid role");
     return null;
   }
 
@@ -91,8 +104,11 @@ const DashboardPage = () => {
     <DashboardLayout
       role={accountData?.role}
       adminFunction={currentRole === 'admin' ? accountData?.adminFunction : undefined}
-      accountData={accountData} // Pass the entire accountData object
-      logout={() => dispatch(logout())}
+      accountData={accountData}
+      logout={() => {
+        console.log("Logging out");
+        dispatch(logout());
+      }}
     />
   );
 };

@@ -101,22 +101,25 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
     if (!validateForm()) return;
 
-    // Ensure the role is "Super Admin" if the role passed is "super_admin"
-    if (role === "super_admin") {
+    // Ensure the role is "Super Admin" if the role passed is "super-admin"
+    if (role === "super-admin") {
       formValues.role = "Super Admin";
     }
 
     try {
-      const resultAction = await dispatch(registerSuperAdmin({ formValues }));
+      const resultAction = await dispatch(registerSuperAdmin(formValues));
+
+      console.log("result action :", resultAction);
 
       if (registerSuperAdmin.fulfilled.match(resultAction)) {
+        const { newSuperAdmin } = resultAction.payload;
         toast({
           title: "Success!",
-          description: "Registration successful. Redirecting to login...",
+          description: `Registration successful.\n Welcome, ${newSuperAdmin.firstName}! Your ID is ${newSuperAdmin.superAdminID}. \n Redirecting you to login...`,
           status: "success",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
         router.push(`/login/${role}`);
         setFormValues({
@@ -128,13 +131,40 @@ const SuperAdminRegistrationForm = ({ role }) => {
           confirmPassword: "",
         }); // Clear form values
       } else {
+       
+
+        const { statusCode, message } = resultAction.payload || {};
+        let errorMessage = "An error occurred during registration.";
+
+        switch (statusCode) {
+          case 400:
+            errorMessage = message || "Bad request. Please check your input.";
+            break;
+          case 401:
+            errorMessage = "Unauthorized. Please log in and try again.";
+            break;
+          case 409:
+            errorMessage =
+              message || "Conflict. The super admin already exists.";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later.";
+            break;
+          case 503:
+            errorMessage = "Service unavailable. Please try again later.";
+            break;
+          default:
+            errorMessage = message || "An unexpected error occurred.";
+            break;
+        }
+
         toast({
           title: "Error!",
-          description: resultAction.payload?.message || "An error occurred during registration.",
+          description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
       }
     } catch (error) {
@@ -145,7 +175,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "top"
+        position: "top",
       });
     }
   };
@@ -266,7 +296,10 @@ const SuperAdminRegistrationForm = ({ role }) => {
       </FormControl>
 
       {/* Confirm Password */}
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.confirmPassword && touched.confirmPassword}
+      >
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
@@ -286,7 +319,9 @@ const SuperAdminRegistrationForm = ({ role }) => {
             <Button
               variant="link"
               onClick={toggleConfirmPasswordVisibility}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>

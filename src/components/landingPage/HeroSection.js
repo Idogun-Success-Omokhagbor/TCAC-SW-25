@@ -26,9 +26,9 @@ const HeroSection = () => {
   const [copiedText, setCopiedText] = useState("");
 
   const bankDetails = {
-    accountName: "TIMSAN Camp Account",
-    accountNumber: "1234567890",
-    bankName: "Green Bank",
+    accountName: "Timsan southwest",
+    accountNumber: "2283452778",
+    bankName: "UBA",
   };
 
   const handleCopy = (text) => {

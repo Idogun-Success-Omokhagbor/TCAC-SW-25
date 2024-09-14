@@ -1,16 +1,18 @@
-import connectDB from '../../../../utils/connectDB';
-import User from '../../../../models/User';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import connectDB from "../../../../utils/connectDB";
+import User from "../../../../models/User";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export default async function handler(req, res) {
   await connectDB();
 
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     const { emailOrID, password } = req.body;
 
     if (!emailOrID || !password) {
-      return res.status(400).json({ error: 'Email or ID and password are required' });
+      return res
+        .status(400)
+        .json({ error: "Email or ID and password are required" });
     }
 
     try {
@@ -22,12 +24,12 @@ export default async function handler(req, res) {
       }
 
       if (!userData) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
 
       const isPasswordValid = await bcrypt.compare(password, userData.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        return res.status(401).json({ error: "Invalid credentials" });
       }
 
       const token = jwt.sign(
@@ -37,15 +39,15 @@ export default async function handler(req, res) {
           role: userData.role,
         },
         process.env.JWT_SECRET_KEY,
-        { expiresIn: '1h' }
+        { expiresIn: "1h" }
       );
 
-      return res.status(200).json({ token, user: userData }); 
+      return res.status(200).json({ token, user: userData });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: 'Server error' });
+      return res.status(500).json({ error: "Server error" });
     }
   } else {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 }

@@ -1,6 +1,15 @@
 // components/LoginLayout.js
 import Link from "next/link";
-import { Box, Flex, Stack, HStack, Heading, Text, Button, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Stack,
+  HStack,
+  Heading,
+  Text,
+  Button,
+  Image,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
@@ -19,16 +28,18 @@ const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
         py={8}
         px={12}
       >
-                  <Link href="/" passHref>
-            <Image
-              src="/images/timsan-logo.png"
-              alt="Logo"
-              className="h-12 mb-6"
-            />
-          </Link>
+        <Link href="/" passHref>
+          <Image
+            src="/images/timsan-logo.png"
+            alt="Logo"
+            className="h-12 mb-6"
+          />
+        </Link>
 
         <HStack spacing={4}>
-          <Text display={{base: "none", md:"block"}} fontWeight="medium">Have your password now?</Text>
+          <Text display={{ base: "none", md: "block" }} fontWeight="medium">
+            Have your password now?
+          </Text>
           <Button
             variant="outline"
             colorScheme="green"
@@ -49,20 +60,24 @@ const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
         </HStack>
       </Flex>
 
-      <Flex minH="100vh" flexDirection={"column"} justify="center" align="center" bg="green.50">
+      <Flex
+        minH="100vh"
+        flexDirection={"column"}
+        justify="center"
+        align="center"
+        bg="green.50"
+      >
+        <Heading
+          as="h1"
+          size="lg"
+          fontWeight="bold"
+          color="green"
+          textAlign="center"
+          mb={4}
+        >
+          {formHeading}
+        </Heading>
 
-      <Heading
-    as="h1" 
-    size="lg" 
-    fontWeight="bold"
-    color="green" 
-    textAlign="center" 
-    mb={4}
-
-  >
-    {formHeading}
-  </Heading>
-  
         <Box
           w={{ base: "90%", md: "400px" }}
           p={8}
@@ -93,10 +108,7 @@ const ResetPasswordAuthLayout = ({ formHeading, resetPasswordForm, role }) => {
                 </Button>
               </Link>
             </Text>
-            <Text
-              fontSize="sm"
-              color="gray.600"
-            >
+            <Text fontSize="sm" color="gray.600">
               Have your password now?{" "}
               <Link href={`/login/${role}`} passHref>
                 <Button

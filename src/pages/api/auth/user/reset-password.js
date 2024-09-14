@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       user.password = await bcrypt.hash(password, 10);
       await user.save();
 
-
       res.status(200).json({ message: "Password reset successful" });
     } catch (error) {
       res.status(500).json({ message: error.message });

@@ -53,10 +53,6 @@ const Header = () => {
         <Image src="/timsan-logo.png" alt="Logo" boxSize="60px" />
 
         <Flex align="center" gap={4}>
-          {/* <Button colorScheme="gray.500" variant="link" onClick={() => router.push(`/login/user`)}>
-            Home
-          </Button> */}
-
           {/* notification/news */}
           <Flex align="center" position="relative">
             <IconButton
@@ -86,39 +82,19 @@ const Header = () => {
             )}
           </Flex>
 
-          {/* <Button
-            colorScheme="gray.500"
-            variant="link"
-            onClick={onOpenBankModal}
-          >
-            Donate
-          </Button> */}
           {/* login */}
           <Button
             colorScheme="green.500"
             variant="solid"
             px={6}
-             borderRadius="xl"
+            borderRadius="xl"
             border={"1px solid #000000"}
             boxShadow={"2px 2px 0px 0px #000000"}
             onClick={() => router.push("/login/user")}
           >
             Login
           </Button>
-
-          {/* <Button
-            colorScheme="green.500"
-            variant="solid"
-            px={6}
-            boxShadow={"2px 2px 0px 0px #000000"}
-            rounded="2xl"
-            border={"2px solid #000000"}
-            onClick={() => router.push("/register/user")}
-          >
-            Register
-          </Button> */}
         </Flex>
-
       </Flex>
 
       {/* Modals */}

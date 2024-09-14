@@ -61,7 +61,13 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
         </HStack>
       </Flex>
 
-      <Flex minH="100vh" flexDirection={"column"} justify="center" align="center" bg="green.50">
+      <Flex
+        minH="100vh"
+        flexDirection={"column"}
+        justify="center"
+        align="center"
+        bg="green.50"
+      >
         <Heading
           as="h1"
           size="lg"

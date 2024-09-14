@@ -73,62 +73,57 @@ const UserLoginForm = () => {
     }));
   };
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) return;
-  
+
     try {
       const resultAction = await dispatch(loginUser(formValues));
 
-      console.log("Result action:", resultAction)
-  
+      console.log("login result action:", resultAction);
+
       if (loginUser.fulfilled.match(resultAction)) {
         // Successful login
         const { token, user } = resultAction.payload; // Extract 'user' here
-  
+
         console.log("Authenticated user data:", { user, token });
-  
+
         const role = user.role.toLowerCase();
-  
-        toast({
-          title: "Success!",
-          description: "Login successful. Redirecting to your dashboard...",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top"
-        });
 
+        if (user.registrationStatus === "pending") {
+          toast({
+            title: "Pending Approval",
+            description: "Your account is pending approval. Please check back later.",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+          });
+        } else if (user.registrationStatus === "rejected") {
+          toast({
+            title: "Registration Rejected",
+            description: "Your account has been rejected. Please contact support or re-register.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: "Success!",
+            description: "Login successful. Redirecting to your dashboard...",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top",
+          });
+          router.push(`/${role}/dashboard`);
 
-        router.push(`/${role}/dashboard`);
-  
-        setFormValues({ emailOrID: "", password: "" });
-  
-        // Uncomment and use if you need additional checks for registration status
-        // if (user.registrationStatus === "pending") {
-        //   toast({
-        //     title: "Pending Approval",
-        //     description: "Your account is pending approval. Please check back later.",
-        //     status: "info",
-        //     duration: 5000,
-        //     isClosable: true,
-        //   });
-        // } else if (user.registrationStatus === "rejected") {
-        //   toast({
-        //     title: "Registration Rejected",
-        //     description: "Your account has been rejected. Please contact support or re-register.",
-        //     status: "error",
-        //     duration: 5000,
-        //     isClosable: true,
-        //   });
-        // }
-      } else if (resultAction.meta.requestStatus === 'rejected') {
+          setFormValues({ emailOrID: "", password: "" });
+        }
+      } else if (resultAction.meta.requestStatus === "rejected") {
         // Handle different status codes based on the meta.response object
         const { statusCode, message } = resultAction.payload || {};
-  
+
         switch (statusCode) {
           case 400:
             toast({
@@ -137,7 +132,7 @@ const UserLoginForm = () => {
               status: "error",
               duration: 5000,
               isClosable: true,
-                 position: "top"
+              position: "top",
             });
             break;
           case 401:
@@ -147,7 +142,7 @@ const UserLoginForm = () => {
               status: "error",
               duration: 5000,
               isClosable: true,
-                 position: "top"
+              position: "top",
             });
             break;
           case 404:
@@ -157,17 +152,18 @@ const UserLoginForm = () => {
               status: "error",
               duration: 5000,
               isClosable: true,
-                 position: "top"
+              position: "top",
             });
             break;
           case 500:
             toast({
               title: "Server Error",
-              description: "An unexpected error occurred. Please try again later.",
+              description:
+                "An unexpected error occurred. Please try again later.",
               status: "error",
               duration: 5000,
               isClosable: true,
-                 position: "top"
+              position: "top",
             });
             break;
           default:
@@ -177,7 +173,7 @@ const UserLoginForm = () => {
               status: "error",
               duration: 5000,
               isClosable: true,
-                 position: "top"
+              position: "top",
             });
         }
       }
@@ -189,13 +185,10 @@ const UserLoginForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
-           position: "top"
+        position: "top",
       });
     }
   };
-  
-
-
 
   return (
     <form onSubmit={handleSubmit}>

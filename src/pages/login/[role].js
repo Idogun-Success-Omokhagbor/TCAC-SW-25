@@ -19,7 +19,7 @@ const Login = () => {
   } else if (role === "admin") {
     loginForm = <AdminLoginForm role={role} />;
     formHeading = "Admin Login";
-  } else if (role === "super_admin") {
+  } else if (role === "super-admin") {
     loginForm = <SuperAdminLoginForm role={role} />;
     formHeading = "Super Admin Login";
   } else {

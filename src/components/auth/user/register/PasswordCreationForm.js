@@ -39,18 +39,19 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(prev => !prev);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword((prev) => !prev);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: value
+      [name]: value,
     }));
-    setTouched(prevTouched => ({
+    setTouched((prevTouched) => ({
       ...prevTouched,
-      [name]: true
+      [name]: true,
     }));
   };
 
@@ -59,10 +60,12 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
     const { password, confirmPassword } = formValues;
 
     if (!password) newErrors.password = "Required";
-    else if (password.length < 8) newErrors.password = "Must be at least 8 characters";
+    else if (password.length < 8)
+      newErrors.password = "Must be at least 8 characters";
 
     if (!confirmPassword) newErrors.confirmPassword = "Required";
-    else if (confirmPassword !== password) newErrors.confirmPassword = "Passwords must match";
+    else if (confirmPassword !== password)
+      newErrors.confirmPassword = "Passwords must match";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -85,7 +88,7 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
 
       const resultAction = await dispatch(registerUser(mergedValues));
 
-      console.log("Registration result:", resultAction);
+      // console.log("Registration result:", resultAction);
 
       if (registerUser.fulfilled.match(resultAction)) {
         toast({
@@ -98,7 +101,7 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
         });
         setFormValues({ password: "", confirmPassword: "" });
         router.push(`/login/${role}`);
-      } else if (resultAction.meta.requestStatus === 'rejected') {
+      } else if (resultAction.meta.requestStatus === "rejected") {
         // Handle different status codes based on the meta.response object
         const { statusCode, message } = resultAction.payload || {};
 
@@ -156,7 +159,8 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
           default:
             toast({
               title: "Error",
-              description: message || "An unexpected error occurred. Please try again.",
+              description:
+                message || "An unexpected error occurred. Please try again.",
               status: "error",
               duration: 5000,
               position: "top",
@@ -181,7 +185,10 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
     <form onSubmit={handleSubmit}>
       <Stack spacing={4}>
         {/* Password Field */}
-        <FormControl id="password" isInvalid={!!errors.password && touched.password}>
+        <FormControl
+          id="password"
+          isInvalid={!!errors.password && touched.password}
+        >
           <FormLabel>Password</FormLabel>
           <InputGroup>
             <Input
@@ -189,7 +196,7 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
               type={showPassword ? "text" : "password"}
               value={formValues.password}
               onChange={handleChange}
-              onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
               _focus={{
                 boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
                 border: "2px solid",
@@ -212,7 +219,10 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
         </FormControl>
 
         {/* Confirm Password Field */}
-        <FormControl id="confirmPassword" isInvalid={!!errors.confirmPassword && touched.confirmPassword}>
+        <FormControl
+          id="confirmPassword"
+          isInvalid={!!errors.confirmPassword && touched.confirmPassword}
+        >
           <FormLabel>Confirm Password</FormLabel>
           <InputGroup>
             <Input
@@ -220,7 +230,9 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
               type={showConfirmPassword ? "text" : "password"}
               value={formValues.confirmPassword}
               onChange={handleChange}
-              onBlur={() => setTouched(prev => ({ ...prev, confirmPassword: true }))}
+              onBlur={() =>
+                setTouched((prev) => ({ ...prev, confirmPassword: true }))
+              }
               placeholder="Re-enter your password"
               _focus={{
                 boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
@@ -233,7 +245,9 @@ const PasswordCreationForm = ({ role, values, onPrevious, prevFormValues }) => {
               <Button
                 variant="link"
                 onClick={toggleConfirmPasswordVisibility}
-                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
               >
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </Button>

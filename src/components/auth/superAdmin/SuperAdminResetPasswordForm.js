@@ -80,7 +80,7 @@ const SuperAdminResetPasswordForm = () => {
 
     try {
       const resultAction = await dispatch(resetSuperAdminPassword(formValues));
-      
+
       if (resetSuperAdminPassword.fulfilled.match(resultAction)) {
         // Success case
         toast({
@@ -89,27 +89,30 @@ const SuperAdminResetPasswordForm = () => {
           status: "success",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
+
         router.push(`/login/${role}`);
-        
+
         // Clear form values
         setFormValues({
           email: "",
           password: "",
           confirmPassword: "",
         });
-
       } else {
         // Handle error from Redux
-        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during the password reset.";
+        const errorMessage =
+          resultAction.payload?.message ||
+          resultAction.error?.message ||
+          "An error occurred during the password reset.";
         toast({
           title: "Error!",
           description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
       }
     } catch (error) {
@@ -120,7 +123,7 @@ const SuperAdminResetPasswordForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "top"
+        position: "top",
       });
     }
   };
@@ -182,7 +185,10 @@ const SuperAdminResetPasswordForm = () => {
       </FormControl>
 
       {/* Confirm Password */}
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.confirmPassword && touched.confirmPassword}
+      >
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
@@ -202,7 +208,9 @@ const SuperAdminResetPasswordForm = () => {
             <Button
               variant="link"
               onClick={toggleConfirmPasswordVisibility}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -214,7 +222,7 @@ const SuperAdminResetPasswordForm = () => {
       <Button
         type="submit"
         w="full"
-      isLoading={loading}
+        isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
       >

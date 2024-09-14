@@ -6,13 +6,11 @@ export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === "POST") {
-    const { formValues } = req.body;
+    // console.log("Incoming request body:", req.body); // Log the incoming request body
 
-    console.log("form values:", formValues);
+    const { email, password } = req.body;
 
-    const email = formValues?.email;
-
-    const password = formValues?.password;
+    console.log("Destructured form values:", email, password); // Log the destructured values
 
     // Validate required fields
     if (!email || !password) {
@@ -24,7 +22,7 @@ export default async function handler(req, res) {
       const existingSuperAdmin = await SuperAdmin.findOne({ email });
 
       if (existingSuperAdmin) {
-        return res.status(400).json({ error: "Super Admin already exists" });
+        return res.status(409).json({ error: "Super Admin already exists" });
       }
 
       // Generate unique ID for new admin
@@ -35,7 +33,7 @@ export default async function handler(req, res) {
 
       // Create new admin
       const newSuperAdmin = new SuperAdmin({
-        ...formValues,
+        ...req.body,  
         password: hashedPassword,
         superAdminID,
       });
@@ -59,7 +57,8 @@ export default async function handler(req, res) {
   }
 }
 
-// Utility function to generate unique ID for Admin
+
+
 // Utility function to generate unique ID for Admin
 async function generateSuperAdminID() {
   try {

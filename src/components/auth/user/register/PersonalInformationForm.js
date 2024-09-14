@@ -12,10 +12,10 @@ import {
 const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
   // State for form input values
   const [inputValues, setInputValues] = useState({
-    firstName: values?.firstName || '',
-    lastName: values?.lastName || '',
-    email: values?.email || '',
-    phoneNumber: values?.phoneNumber || '',
+    firstName: values?.firstName || "",
+    lastName: values?.lastName || "",
+    email: values?.email || "",
+    phoneNumber: values?.phoneNumber || "",
   });
   // State for form errors
   const [formErrors, setFormErrors] = useState({});
@@ -30,11 +30,15 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
     if (!firstName) validationErrors.firstName = "First name is required";
     if (!lastName) validationErrors.lastName = "Last name is required";
     if (!email) validationErrors.email = "Email address is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) validationErrors.email = "Invalid email address";
+    else if (!/\S+@\S+\.\S+/.test(email))
+      validationErrors.email = "Invalid email address";
     if (!phoneNumber) validationErrors.phoneNumber = "Phone number is required";
-    else if (!/^[0-9]+$/.test(phoneNumber)) validationErrors.phoneNumber = "Phone number must be digits only";
-    else if (phoneNumber.length < 10) validationErrors.phoneNumber = "Phone number must be at least 10 digits";
-    else if (phoneNumber.length > 15) validationErrors.phoneNumber = "Phone number must be at most 15 digits";
+    else if (!/^[0-9]+$/.test(phoneNumber))
+      validationErrors.phoneNumber = "Phone number must be digits only";
+    else if (phoneNumber.length < 10)
+      validationErrors.phoneNumber = "Phone number must be at least 10 digits";
+    else if (phoneNumber.length > 15)
+      validationErrors.phoneNumber = "Phone number must be at most 15 digits";
 
     setFormErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
@@ -80,7 +84,9 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
           <Input
             type="text"
             value={inputValues.firstName}
-            onChange={(e) => setInputValues({ ...inputValues, firstName: e.target.value })}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, firstName: e.target.value })
+            }
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
@@ -96,7 +102,9 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
           <Input
             type="text"
             value={inputValues.lastName}
-            onChange={(e) => setInputValues({ ...inputValues, lastName: e.target.value })}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, lastName: e.target.value })
+            }
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
@@ -112,7 +120,9 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
           <Input
             type="email"
             value={inputValues.email}
-            onChange={(e) => setInputValues({ ...inputValues, email: e.target.value })}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, email: e.target.value })
+            }
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
@@ -133,7 +143,9 @@ const PersonalInformationForm = ({ role, values, onValuesChange, onNext }) => {
           <Input
             type="tel"
             value={inputValues.phoneNumber}
-            onChange={(e) => setInputValues({ ...inputValues, phoneNumber: e.target.value })}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, phoneNumber: e.target.value })
+            }
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",

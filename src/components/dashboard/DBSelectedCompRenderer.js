@@ -3,7 +3,10 @@ import UserDashboard from "./user/UserDashboard";
 import MealSchedule from "./MealSchedule";
 import DailySchedule from "./DailySchedule";
 import PaymentHistory from "./paymentHistory";
+
+import RegisteredAdmins from "./superAdmin/RegisteredAdmins";
 import RegisteredUsers from "./RegisteredUsers";
+
 import RegTeamComponent from "./RegTeamComp";
 import HealthTeamComponent from "./HealthTeamComp";
 
@@ -28,17 +31,50 @@ const DashboardSelectedComponentRenderer = ({
     if (role === "Admin") {
       switch (adminFunction) {
         case "reg_team_lead":
-          return selectedComponent === "reg-team" ? (
-            <RegTeamComponent />
-          ) : (
-            <RegisteredUsers />
+          return (
+            <>
+              {selectedComponent === "registered-users" ? (
+                <RegisteredUsers />
+              ) : selectedComponent === "meal-schedule" ? (
+                <MealSchedule />
+              ) : (
+                <>
+                  <RegisteredUsers />
+                </>
+              )}
+            </>
           );
+          
         case "health_team_lead":
-          return selectedComponent === "health-team" ? (
-            <HealthTeamComponent />
-          ) : (
-            <MealSchedule />
+          return (
+            <>
+             { selectedComponent === "meal-schedule" ? (
+                <MealSchedule />
+              ) : selectedComponent === "daily-schedule" ? (
+                <DailySchedule />
+              ) : (
+             
+                  <DailySchedule />
+               
+              )}
+            </>
           );
+  
+        case "admin":
+          return (
+            <>
+              {selectedComponent === "registered-users" ? (
+                <RegisteredUsers />
+              ) : selectedComponent === "daily-schedule" ? (
+                <DailySchedule />
+              ) : (
+               
+                     <RegisteredUsers />
+               
+              )}
+            </>
+          );
+  
         default:
           return <RegisteredUsers />;
       }
@@ -48,8 +84,8 @@ const DashboardSelectedComponentRenderer = ({
       switch (selectedComponent) {
         case "registered-users":
           return <RegisteredUsers />;
-          // case "registered-admins":
-          //   return <RegisteredAdmins />;
+          case "registered-admins":
+            return <RegisteredAdmins />;
         default:
           return <RegisteredUsers />;
       }

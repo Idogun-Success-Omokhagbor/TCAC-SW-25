@@ -53,12 +53,14 @@ const MedicalConditionForm = ({
     };
 
     if (!formValues.medicalCondition) {
-      validationErrors.medicalCondition = "Medical condition selection is required";
+      validationErrors.medicalCondition =
+        "Medical condition selection is required";
       isFormValid = false;
     }
 
     if (formValues.medicalCondition === "yes" && !formValues.conditionDetails) {
-      validationErrors.conditionDetails = "Condition details are required when medical condition is 'Yes'";
+      validationErrors.conditionDetails =
+        "Condition details are required when medical condition is 'Yes'";
       isFormValid = false;
     }
 

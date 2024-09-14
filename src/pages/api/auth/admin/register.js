@@ -1,25 +1,19 @@
-import connectDB from '../../../../utils/connectDB';
-import Admin from '../../../../models/Admin';
-import bcrypt from 'bcrypt';
-
-
+import connectDB from "../../../../utils/connectDB";
+import Admin from "../../../../models/Admin";
+import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   await connectDB();
 
-  if (req.method === 'POST') {
-    
-    const { formValues } = req.body;
+  if (req.method === "POST") {
+    console.log("Incoming request body:", req.body);
 
-    console.log("form values:", formValues);
+    const { email, password } = req.body;
 
-    const email = formValues?.email;
-
-    const password = formValues?.password;
 
     // Validate required fields
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
     try {
@@ -27,7 +21,7 @@ export default async function handler(req, res) {
       const existingAdmin = await Admin.findOne({ email });
 
       if (existingAdmin) {
-        return res.status(400).json({ error: 'Admin already exists' });
+        return res.status(400).json({ error: "Admin already exists" });
       }
 
       // Generate unique ID for new admin
@@ -38,29 +32,28 @@ export default async function handler(req, res) {
 
       // Create new admin
       const newAdmin = new Admin({
-        ...formValues,
+         ...req.body, 
         password: hashedPassword,
-        adminID, 
+        adminID,
       });
 
       // Save the new admin to the database
       await newAdmin.save();
 
-      console.log("Registered Super Admin Details:", newAdmin);
+      console.log("Registered  Admin Details:", newAdmin);
 
       // Respond with success message
-      return res.status(201).json({ message: 'Admin registered successfully', newAdmin });
+      return res
+        .status(201)
+        .json({ message: "Admin registered successfully", newAdmin });
     } catch (error) {
-      console.error('Error during registration:', error);
-      return res.status(500).json({ error: 'Server error' });
+      console.error("Error during registration:", error);
+      return res.status(500).json({ error: "Server error" });
     }
   } else {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 }
-
-
-
 
 // Utility function to generate unique ID for Admin
 async function generateAdminID() {

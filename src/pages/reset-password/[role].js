@@ -3,22 +3,33 @@ import { useRouter } from "next/router";
 import ResetPasswordAuthLayout from "../../layouts/auth/ResetPasswordAuthLayout";
 import UserResetPasswordForm from "../../components/auth/user/UserResetPasswordForm";
 import AdminResetPasswordForm from "../../components/auth/admin/AdminResetPasswordForm";
+import SuperAdminResetPasswordForm from "../../components/auth/superAdmin/SuperAdminResetPasswordForm";
 
 const ResetPassword = () => {
   const router = useRouter();
   const { role = "user" } = router.query;
 
-  // Ensure role is either 'user' or 'admin'
+  // Determine the form to render based on the role
   const resetPasswordForm =
     role === "user" ? (
       <UserResetPasswordForm role={role} />
-    ) : (
+    ) : role === "admin" ? (
       <AdminResetPasswordForm role={role} />
+    ) : role === "super-admin" ? (
+      <SuperAdminResetPasswordForm role={role} />
+    ) : (
+      <UserResetPasswordForm role={role} />
     );
 
-  // form heading
+  // Form heading
   const formHeading =
-    role === "user" ? "Reset Password" : "Reset Admin Password";
+    role === "user"
+      ? "Reset Password"
+      : role === "admin"
+      ? "Reset Admin Password"
+      : role === "super-admin"
+      ? "Reset Super Admin Password"
+      : "Reset Password";
 
   return (
     <ResetPasswordAuthLayout

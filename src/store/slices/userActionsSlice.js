@@ -1,38 +1,67 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // Async thunk to fetch all users
-export const fetchUsers = createAsyncThunk('userActions/fetchUsers', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios.get('/api/userActions');
-    return response.data.data; // Return the list of users
-  } catch (error) {
-    return rejectWithValue(error.response.data);
+export const fetchUsers = createAsyncThunk(
+  "userActions/fetchUsers",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get("/api/user-actions"); 
+      console.log("fetch users response:", response)
+      
+      return response.data.data; // Return the list of users
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
+    }
   }
-});
+);
 
 // Async thunk to approve a user
-export const approveUser = createAsyncThunk('userActions/approveUser', async (userId, { rejectWithValue }) => {
-  try {
-    const response = await axios.put('/api/userActions', { id: userId, action: 'approve' });
-    return response.data.data; // Return the updated user
-  } catch (error) {
-    return rejectWithValue(error.response.data);
+export const approveUser = createAsyncThunk(
+  "userActions/approveUser",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await axios.put("/api/user-actions", {
+        id: userId,
+        action: "approve",
+      }); 
+
+      console.log("approve user response:", response)
+
+      return response.data.data; // Return the approve user
+
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
+    }
   }
-});
+);
 
 // Async thunk to reject a user
-export const rejectUser = createAsyncThunk('userActions/rejectUser', async (userId, { rejectWithValue }) => {
-  try {
-    const response = await axios.put('/api/userActions', { id: userId, action: 'reject' });
-    return response.data.data; // Return the updated user
-  } catch (error) {
-    return rejectWithValue(error.response.data);
+export const rejectUser = createAsyncThunk(
+  "userActions/rejectUser",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await axios.put("/api/user-actions", {
+        id: userId,
+        action: "reject",
+      }); 
+      console.log("reject user response:", response)
+      
+      return response.data.data; // Return the updated user
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
+    }
   }
-});
+);
 
 const userActionsSlice = createSlice({
-  name: 'userActions',
+  name: "userActions",
   initialState: {
     users: [],
     loading: false,
@@ -40,7 +69,14 @@ const userActionsSlice = createSlice({
     approvedUser: null,
     rejectedUser: null,
   },
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearUsers: (state) => {
+      state.users = [];
+    },
+  },
   extraReducers: (builder) => {
     // Fetch users
     builder.addCase(fetchUsers.pending, (state) => {
@@ -65,7 +101,7 @@ const userActionsSlice = createSlice({
       state.loading = false;
       state.approvedUser = action.payload;
       // Update the users list with the approved user status
-      state.users = state.users.map(user =>
+      state.users = state.users.map((user) =>
         user._id === action.payload._id ? action.payload : user
       );
     });
@@ -83,7 +119,7 @@ const userActionsSlice = createSlice({
       state.loading = false;
       state.rejectedUser = action.payload;
       // Update the users list with the rejected user status
-      state.users = state.users.map(user =>
+      state.users = state.users.map((user) =>
         user._id === action.payload._id ? action.payload : user
       );
     });
@@ -95,8 +131,14 @@ const userActionsSlice = createSlice({
 });
 
 // Selectors
-export const selectUsers = (state) => state.regTeam.users;
-export const selectLoading = (state) => state.regTeam.loading;
-export const selectError = (state) => state.regTeam.error;
+export const selectUsers = (state) => state.userActions.users;
+export const selectLoading = (state) => state.userActions.loading;
+export const selectError = (state) => state.userActions.error;
+export const selectApprovedUser = (state) => state.userActions.approvedUser;
+export const selectRejectedUser = (state) => state.userActions.rejectedUser;
+export const selectUserById = (state, userId) =>
+  state.userActions.users.find((user) => user._id === userId);
+
+export const { clearError, clearUsers } = userActionsSlice.actions;
 
 export default userActionsSlice.reducer;

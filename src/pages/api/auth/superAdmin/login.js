@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         process.env.JWT_SECRET_KEY,
         { expiresIn: "1h" }
       );
-      
+
       // Log the successful login attempt
       console.log({
         message: "Super Admin logged in successfully",
@@ -58,13 +58,11 @@ export default async function handler(req, res) {
         superAdminData,
       });
 
-      return res
-        .status(200)
-        .json({
-          message: "Super Admin logged in successfully",
-          token,
-          superAdminData,
-        });
+      return res.status(200).json({
+        message: "Super Admin logged in successfully",
+        token,
+        superAdminData,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Server error" });

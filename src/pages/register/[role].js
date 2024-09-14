@@ -83,35 +83,34 @@ const Register = () => {
   };
 
   // Calculate all previous values based on the current step
-const getPreviousValues = () => {
-  switch (step) {
-    case 0:
-      return {}; // No previous values at the first step
-    case 1:
-      return formValues.personalInfo;
-    case 2:
-      return {
-        ...formValues.personalInfo,
-        ...formValues.CAC,
-      };
-    case 3:
-      return {
-        ...formValues.personalInfo,
-        ...formValues.CAC,
-        ...formValues.medicalCondition,
-      };
-    case 4:
-      return {
-        ...formValues.personalInfo,
-        ...formValues.CAC,
-        ...formValues.medicalCondition,
-        ...formValues.payment,
-      };
-    default:
-      return {};
-  }
-};
-
+  const getPreviousValues = () => {
+    switch (step) {
+      case 0:
+        return {}; // No previous values at the first step
+      case 1:
+        return formValues.personalInfo;
+      case 2:
+        return {
+          ...formValues.personalInfo,
+          ...formValues.CAC,
+        };
+      case 3:
+        return {
+          ...formValues.personalInfo,
+          ...formValues.CAC,
+          ...formValues.medicalCondition,
+        };
+      case 4:
+        return {
+          ...formValues.personalInfo,
+          ...formValues.CAC,
+          ...formValues.medicalCondition,
+          ...formValues.payment,
+        };
+      default:
+        return {};
+    }
+  };
 
   const renderUserRegistrationForm = () => {
     return (
@@ -212,14 +211,14 @@ const getPreviousValues = () => {
         return renderUserRegistrationForm();
       case "admin":
         return renderAdminRegistrationForm();
-      case "super_admin":
+      case "super-admin":
         return renderSuperAdminRegistrationForm();
       default:
         return renderUserRegistrationForm();
     }
   };
 
-  const isAdminOrSuperAdmin = role === "admin" || role === "super_admin";
+  const isAdminOrSuperAdmin = role === "admin" || role === "super-admin";
 
   return isAdminOrSuperAdmin ? (
     <AdminRegAuthLayout

@@ -11,11 +11,13 @@ import TCACUpdates from "@/components/landingPage/TCACUpdates";
 export default function Home() {
   return (
     <>
+    
       <Head>
         <title>TCAC&apos;24</title>
         <meta name="description" content="TCAC'24 - Connecting the Community" />
         <link rel="icon" href="/timsan-logo.png" />
       </Head>
+
       <Box>
         {/* header */}
         <Box borderBottom="2px solid" borderColor="gray.100" zIndex="10">

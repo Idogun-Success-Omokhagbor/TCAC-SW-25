@@ -4,10 +4,10 @@ import { Box, Flex } from "@chakra-ui/react";
 import UserSidebar from "../../components/dashboard/user/UserSidebar";
 import AdminSidebar from "../../components/dashboard/admins/admin/AdminSidebar";
 import SuperAdminSidebar from "../../components/dashboard/superAdmin/SuperAdminSidebar";
-import RegTeamSidebar from "../../components/dashboard/admins/regTeamLead/RegTeamSidebar";
-import HealthTeamSidebar from "../../components/dashboard/admins/healthTeamLead/HealthTeamSidebar";
+import RegTeamSidebar from "../../components/dashboard/admins/regTeamLead/RegTeamLeadSidebar";
+import HealthTeamSidebar from "../../components/dashboard/admins/healthTeamLead/HealthTeamLeadSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardSelectedComponentRenderer from "@/components/dashboard/SelectedComponentRenderer";
+import DashboardSelectedComponentRenderer from "@/components/dashboard/DBSelectedCompRenderer";
 
 const DashboardLayout = ({ role, accountData, adminFunction, logout }) => {
   const router = useRouter();
@@ -18,46 +18,71 @@ const DashboardLayout = ({ role, accountData, adminFunction, logout }) => {
       logout(); // Call the logout function
       // Redirect user to login page based on role
       if (role === "User") {
-        router.push('/login/user');
+        router.push("/login/user");
       } else if (role === "Admin") {
-        router.push('/login/admin');
+        router.push("/login/admin");
       } else if (role === "Super Admin") {
-        router.push('/login/super_admin');
+        router.push("/login/super_admin");
       }
     } else {
       setSelectedComponent(component);
     }
   };
 
-
   const renderHeader = () => {
-    if (role === "User") return <DashboardHeader accountData={accountData}  onMenuClick={handleMenuClick} />;
+    if (role === "User")
+      return (
+        <DashboardHeader
+          accountData={accountData}
+          onMenuClick={handleMenuClick}
+        />
+      );
     if (role === "Super Admin")
-      return <DashboardHeader accountData={accountData}  onMenuClick={handleMenuClick} />;
+      return (
+        <DashboardHeader
+          accountData={accountData}
+          onMenuClick={handleMenuClick}
+        />
+      );
     switch (adminFunction) {
       case "reg_team_lead":
-        return <DashboardHeader accountData={accountData}  onMenuClick={handleMenuClick} />;
+        return (
+          <DashboardHeader
+            accountData={accountData}
+            onMenuClick={handleMenuClick}
+          />
+        );
       case "health_team_lead":
-        return <DashboardHeader accountData={accountData}  onMenuClick={handleMenuClick} />;
+        return (
+          <DashboardHeader
+            accountData={accountData}
+            onMenuClick={handleMenuClick}
+          />
+        );
       default:
-        return <DashboardHeader accountData={accountData}  onMenuClick={handleMenuClick} />;
+        return (
+          <DashboardHeader
+            accountData={accountData}
+            onMenuClick={handleMenuClick}
+          />
+        );
     }
   };
 
-
-
   const renderSidebar = () => {
     if (role === "User")
-      return <UserSidebar accountData={accountData} onMenuClick={handleMenuClick} />;
+      return (
+        <UserSidebar accountData={accountData} onMenuClick={handleMenuClick} />
+      );
     if (role === "Super Admin")
-      return <SuperAdminSidebar onMenuClick={handleMenuClick} />;
+      return <SuperAdminSidebar accountData={accountData} onMenuClick={handleMenuClick} />;
     switch (adminFunction) {
       case "reg_team_lead":
-        return <RegTeamSidebar onMenuClick={handleMenuClick} />;
+        return <RegTeamSidebar accountData={accountData} onMenuClick={handleMenuClick} />;
       case "health_team_lead":
-        return <HealthTeamSidebar onMenuClick={handleMenuClick} />;
+        return <HealthTeamSidebar accountData={accountData} onMenuClick={handleMenuClick} />;
       default:
-        return <AdminSidebar onMenuClick={handleMenuClick} />;
+        return <AdminSidebar accountData={accountData} onMenuClick={handleMenuClick} />;
     }
   };
 

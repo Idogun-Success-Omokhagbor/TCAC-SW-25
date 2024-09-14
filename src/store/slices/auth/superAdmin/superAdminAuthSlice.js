@@ -10,10 +10,12 @@ export const registerSuperAdmin = createAsyncThunk(
 
     try {
       const response = await axios.post('/api/auth/superAdmin/register', formValues);
+      console.log("response:", response);
       return response.data;
+      console.log("response data:", response.data);
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || "Registration failed";
+      const errorMessage = error.response?.data?.error || "Registration failed";
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -24,15 +26,18 @@ export const loginSuperAdmin = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/superAdmin/login', formValues);
+      // console.log("Login response:", response.data); // Log the entire response
       localStorage.setItem('superAdminToken', response.data.token);
-      return { superAdmin: response.data.superAdmin, token: response.data.token };
+      return { superAdmin: response.data.superAdminData, token: response.data.token };
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || "Login failed";
+      const errorMessage = error.response?.data?.error || "Login failed";
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
 );
+
+
 
 export const verifySuperAdminEmail = createAsyncThunk(
   'superAdmin/verifySuperAdminEmail',
@@ -42,7 +47,7 @@ export const verifySuperAdminEmail = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || "Email verification failed";
+      const errorMessage = error.response?.data?.error || "Email verification failed";
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -56,7 +61,7 @@ export const resetSuperAdminPassword = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || "Password reset failed";
+      const errorMessage = error.response?.data?.error || "Password reset failed";
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }
@@ -116,7 +121,7 @@ const superAdminAuthSlice = createSlice({
       .addCase(loginSuperAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.superAdmin = action.payload.superAdmin;
+        state.superAdmin = action.payload.superAdmin;  // Ensure this payload exists
         state.token = action.payload.token;
       })
       .addCase(loginSuperAdmin.rejected, (state, action) => {

@@ -73,7 +73,10 @@ const PaymentForm = ({
       validationErrors.paymentType = "Payment type is required";
     if (!formValues.campType)
       validationErrors.campType = "Camp type is required";
-    if (!formValues.amount || parseInt(formValues.amount) < minimumAmountRequired)
+    if (
+      !formValues.amount ||
+      parseInt(formValues.amount) < minimumAmountRequired
+    )
       validationErrors.amount = `Minimum amount is ₦${minimumAmountRequired}`;
     if (!formValues.receipt)
       validationErrors.receipt = "Receipt upload is required";
@@ -281,7 +284,9 @@ const PaymentForm = ({
           <FormLabel>Amount</FormLabel>
           <Select
             value={formValues.amount}
-            onChange={(e) => setFormValues((prev) => ({ ...prev, amount: e.target.value }))}
+            onChange={(e) =>
+              setFormValues((prev) => ({ ...prev, amount: e.target.value }))
+            }
           >
             <option value="5000">₦5,000</option>
             <option value="10000">₦10,000</option>
@@ -335,16 +340,12 @@ const PaymentForm = ({
         </FormControl>
 
         <Stack direction="row" spacing={4} mt={4}>
-          <Button
-            type="button"
-            colorScheme="gray"
-            onClick={onPrevious}
-          >
+          <Button type="button" colorScheme="gray" onClick={onPrevious}>
             Back
           </Button>
           <Button
             type="submit"
-            isLoading={loading} 
+            isLoading={loading}
             loadingText="Processing..."
             colorScheme="green"
           >

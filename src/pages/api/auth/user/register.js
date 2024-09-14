@@ -1,100 +1,95 @@
-import connectDB from '../../../../utils/connectDB';
-import User from '../../../../models/User';
-import bcrypt from 'bcrypt';
+import connectDB from "../../../../utils/connectDB";
+import User from "../../../../models/User";
+import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   await connectDB();
 
-  if (req.method === 'POST') {
-    // console.log("Incoming request body:", req.body); // Log the incoming request body
+  if (req.method === "POST") {
+    // console.log("Incoming request body:", req.body); 
 
-    // Extract mergedValues from req.body
-    const { mergedValues } = req.body;
-    console.log("Destructured form values:", mergedValues); // Log the destructured values
+    const { role, email, password, userCategory } = req.body;
 
-    if (!mergedValues) {
-      return res.status(400).json({ error: 'No form values provided' });
-    }
-
-    const email = mergedValues.email;
-    const password = mergedValues.password;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
     try {
-      console.log(`Role: ${mergedValues.role}`);
-      console.log(`Email: ${mergedValues.email}`);
-      console.log(`User Category: ${mergedValues.userCategory}`);
+      console.log(`Role: ${role}`);
+      console.log(`Email: ${email}`);
+      console.log(`User Category: ${userCategory}`);
 
-      const existingUser = await User.findOne({ email: mergedValues.email });
+      const existingUser = await User.findOne({  email });
       if (existingUser) {
-        return res.status(400).json({ error: 'User already exists' });
+        return res.status(400).json({ error: "User already exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
-      const userID = await generateUserID(mergedValues.userCategory);
+      const userID = await generateUserID(userCategory);
 
       const newUser = new User({
-        ...mergedValues,
+        ...req.body, 
         password: hashedPassword,
         userID,
-        registrationStatus: 'pending',
+        registrationStatus: "pending",
       });
 
       await newUser.save();
-      console.log('New User Saved:', newUser);
+      console.log("New User Saved:", newUser);
 
-      return res.status(201).json({ message: 'User registered successfully' });
+      return res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      console.error("Error:", error);
+      return res.status(500).json({ error: "Server error" });
     }
   } else {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 }
-
-
 
 // Function to get the category abbreviation for userID
 function getCategoryID(userCategory) {
   switch (userCategory.toLowerCase()) {
-    case 'student': return 'STD';
-    case 'alumnus': return 'IOTB';
-    case 'children': return 'CHLD';
-    case 'nontimsanite': return 'NTMS';
-    default: return '';
+    case "student":
+      return "STD";
+    case "alumnus":
+      return "IOTB";
+    case "children":
+      return "CHLD";
+    case "nontimsanite":
+      return "NTMS";
+    default:
+      return "";
   }
 }
 
 // Helper function to generate participant ID
 function generateParticipantID(abbreviation, counter) {
-  const paddedCounter = counter.toString().padStart(3, '0'); // Zero-padding counter
+  const paddedCounter = counter.toString().padStart(3, "0"); // Zero-padding counter
   return `${abbreviation}${paddedCounter}`;
 }
 
 // Main function to generate a unique userID
 async function generateUserID(userCategory) {
   const categoryID = getCategoryID(userCategory); // Get the category ID based on userCategory
-  const houseAbbreviations = ['ABU', 'UMR', 'UTH', 'ALI'];
+  const houseAbbreviations = ["ABU", "UMR", "UTH", "ALI"];
 
   // Fetch the most recent user from the database
   const lastUser = await User.findOne().sort({ $natural: -1 }).limit(1);
-  
+
   let participantID;
   let participantIDCounter = 1; // Default counter
 
   if (lastUser && lastUser.userID) {
-    const lastParticipantID = lastUser.userID.split('-').pop(); // Extract the ID part
+    const lastParticipantID = lastUser.userID.split("-").pop(); // Extract the ID part
     const lastAbbreviation = lastParticipantID.substring(0, 3); // Extract the house abbreviation
     const lastCounter = parseInt(lastParticipantID.substring(3), 10); // Extract and convert the counter
 
     // Determine the next participant ID
-    if (lastAbbreviation === 'ALI') {
+    if (lastAbbreviation === "ALI") {
       participantIDCounter = lastCounter + 1;
-      participantID = generateParticipantID('ABU', participantIDCounter);
+      participantID = generateParticipantID("ABU", participantIDCounter);
     } else {
       const lastIndex = houseAbbreviations.indexOf(lastAbbreviation);
       const nextIndex = (lastIndex + 1) % houseAbbreviations.length;
@@ -103,14 +98,12 @@ async function generateUserID(userCategory) {
     }
   } else {
     // Default participant ID if no last user exists
-    participantID = generateParticipantID('ABU', participantIDCounter);
+    participantID = generateParticipantID("ABU", participantIDCounter);
   }
 
   // Return the final userID
   return `TCAC'24-${categoryID}-${participantID}`;
 }
-
-
 
 // Define service account credentials for Google Sheets API
 const credentials = {
@@ -123,7 +116,8 @@ const credentials = {
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/toycac%40toycac24-419900.iam.gserviceaccount.com",
+  client_x509_cert_url:
+    "https://www.googleapis.com/robot/v1/metadata/x509/toycac%40toycac24-419900.iam.gserviceaccount.com",
 };
 
 // Append data to Google Sheets
@@ -168,4 +162,3 @@ async function appendToSheet(newUser) {
     console.error("Error appending data:", error);
   }
 }
-

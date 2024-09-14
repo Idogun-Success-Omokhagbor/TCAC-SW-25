@@ -42,9 +42,9 @@ const AdminResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const toggleConfirmPasswordVisibility = () =>
-    setShowConfirmPassword(prev => !prev);
+    setShowConfirmPassword((prev) => !prev);
 
   const validateForm = () => {
     const errors = {};
@@ -77,7 +77,7 @@ const AdminResetPasswordForm = () => {
 
     try {
       const resultAction = await dispatch(resetAdminPassword(formValues));
-      
+
       if (resetAdminPassword.fulfilled.match(resultAction)) {
         toast({
           title: "Success!",
@@ -85,25 +85,27 @@ const AdminResetPasswordForm = () => {
           status: "success",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
         router.push(`/login/${role}`);
-        
+
         setFormValues({
           email: "",
           password: "",
           confirmPassword: "",
         });
-
       } else {
-        const errorMessage = resultAction.payload?.message || resultAction.error?.message || "An error occurred during the password reset.";
+        const errorMessage =
+          resultAction.payload?.message ||
+          resultAction.error?.message ||
+          "An error occurred during the password reset.";
         toast({
           title: "Error!",
           description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
-          position: "top"
+          position: "top",
         });
       }
     } catch (error) {
@@ -114,20 +116,20 @@ const AdminResetPasswordForm = () => {
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "top"
+        position: "top",
       });
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: value
+      [name]: value,
     }));
-    setTouched(prevTouched => ({
+    setTouched((prevTouched) => ({
       ...prevTouched,
-      [name]: true
+      [name]: true,
     }));
   };
 
@@ -140,7 +142,7 @@ const AdminResetPasswordForm = () => {
           type="email"
           value={formValues.email}
           onChange={handleChange}
-          onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+          onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
           // placeholder="Enter your email"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
@@ -183,7 +185,10 @@ const AdminResetPasswordForm = () => {
       </FormControl>
 
       {/* Confirm Password */}
-      <FormControl mb={4} isInvalid={formErrors.confirmPassword && touched.confirmPassword}>
+      <FormControl
+        mb={4}
+        isInvalid={formErrors.confirmPassword && touched.confirmPassword}
+      >
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
@@ -203,7 +208,9 @@ const AdminResetPasswordForm = () => {
             <Button
               variant="link"
               onClick={toggleConfirmPasswordVisibility}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword ? "Hide password" : "Show password"
+              }
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>

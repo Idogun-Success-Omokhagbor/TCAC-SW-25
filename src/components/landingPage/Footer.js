@@ -27,11 +27,16 @@ const Footer = () => {
         TIMSAN CAMP AND CONFERENCE, SOUTHWEST ZONE
       </Text>
 
-      <Flex flexDirection={{base: "column", md: "row"}} justify="center" align="center" mb={4}>
+      <Flex
+        flexDirection={{ base: "column", md: "row" }}
+        justify="center"
+        align="center"
+        mb={4}
+      >
         <Link href="mailto:timsan.swcampandconference@gmail.com" isExternal>
           timsan.swcampandconference@gmail.com
         </Link>
-        <Text mx={2} color="gray.50" display={{base: "none", md: "block"}}>
+        <Text mx={2} color="gray.50" display={{ base: "none", md: "block" }}>
           |
         </Text>
         <Link href="tel:+2347061097219" isExternal>
@@ -77,7 +82,7 @@ const Footer = () => {
       </Flex>
 
       <Text fontSize="sm" color="gray.50" mt={4}>
-        © 2024. Powered by TIMSAN. All Rights Reserved.
+        © 2024. Powered by TIMSAN Southwest. <br /> All Rights Reserved.
       </Text>
     </Box>
   );

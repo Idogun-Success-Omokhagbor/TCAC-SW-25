@@ -1,30 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Stack, FormErrorMessage, useToast } from '@chakra-ui/react';
-import { FaSchool, FaUser, FaPhoneAlt, FaAddressBook } from 'react-icons/fa';
-import { AiOutlineFieldNumber } from 'react-icons/ai';
-import NaijaStates from 'naija-state-local-government';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+  FormErrorMessage,
+  useToast,
+} from "@chakra-ui/react";
+import { FaSchool, FaUser, FaPhoneAlt, FaAddressBook } from "react-icons/fa";
+import { AiOutlineFieldNumber } from "react-icons/ai";
+import NaijaStates from "naija-state-local-government";
 
 // Load all states from NaijaStates
 const allStates = NaijaStates.states();
 
-const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormValues }) => {
-
+const CACForm = ({
+  role,
+  values,
+  onValuesChange,
+  onNext,
+  onPrevious,
+  prevFormValues,
+}) => {
   const [institutions, setInstitutions] = useState([]);
   const [formValues, setFormValues] = useState({
-    userCategory: values?.userCategory || 'Student',
-    institution: values?.institution || '',
-    otherInstitution: values?.otherInstitution || '',
-    graduationYear: values?.graduationYear || '',
-    state: values?.state || '',
-    otherState: values?.otherState || '',
-    guardianName: values?.guardianName || '',
-    guardianPhone: values?.guardianPhone || '',
-    guardianAddress: values?.guardianAddress || '',
-    nonTimsaniteInstitution: values?.nonTimsaniteInstitution || '',
-    nonTimsaniteState: values?.nonTimsaniteState || '',
-    nextOfKinName: values?.nextOfKinName || '',
-    nextOfKinPhone: values?.nextOfKinPhone || '',
-    nextOfKinAddress: values?.nextOfKinAddress || '',
+    userCategory: values?.userCategory || "Student",
+    institution: values?.institution || "",
+    otherInstitution: values?.otherInstitution || "",
+    graduationYear: values?.graduationYear || "",
+    state: values?.state || "",
+    otherState: values?.otherState || "",
+    guardianName: values?.guardianName || "",
+    guardianPhone: values?.guardianPhone || "",
+    guardianAddress: values?.guardianAddress || "",
+    nonTimsaniteInstitution: values?.nonTimsaniteInstitution || "",
+    nonTimsaniteState: values?.nonTimsaniteState || "",
+    nextOfKinName: values?.nextOfKinName || "",
+    nextOfKinPhone: values?.nextOfKinPhone || "",
+    nextOfKinAddress: values?.nextOfKinAddress || "",
     isStudent: values?.isStudent || false,
   });
   const [isInstitutionOther, setIsInstitutionOther] = useState(false);
@@ -34,16 +49,16 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
   const toast = useToast();
 
   useEffect(() => {
-    fetch('/institutions.json')
-      .then(response => response.json())
-      .then(data => setInstitutions(data.institutions))
-      .catch(error => console.error('Error fetching institutions:', error));
+    fetch("/institutions.json")
+      .then((response) => response.json())
+      .then((data) => setInstitutions(data.institutions))
+      .catch((error) => console.error("Error fetching institutions:", error));
   }, []);
 
   useEffect(() => {
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
-      ...prevFormValues
+      ...prevFormValues,
     }));
   }, [prevFormValues]);
 
@@ -51,58 +66,67 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
     const { name, value } = e.target;
 
     // Capitalize the first letter of each word
-    const capitalizeWords = (text) => 
-      text.replace(/\b\w/g, char => char.toUpperCase());
+    const capitalizeWords = (text) =>
+      text.replace(/\b\w/g, (char) => char.toUpperCase());
 
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: capitalizeWords(value)
+      [name]: capitalizeWords(value),
     }));
   };
 
   const handleUserCategoryChange = (e) => {
     const category = e.target.value;
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
       userCategory: category,
-      institution: '',
-      state: '',
-      otherInstitution: '',
-      otherState: '',
+      institution: "",
+      state: "",
+      otherInstitution: "",
+      otherState: "",
     }));
-    setIsInstitutionOther(category === 'Other');
-    setIsStateOther(category === 'Other');
+    setIsInstitutionOther(category === "Other");
+    setIsStateOther(category === "Other");
     setIsStudent(false); // Reset isStudent when category changes
   };
 
   const validateForm = () => {
     const errors = {};
-    if (formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus') {
+    if (
+      formValues.userCategory === "Student" ||
+      formValues.userCategory === "Alumnus"
+    ) {
       if (!formValues.institution && !formValues.otherInstitution) {
-        errors.institution = 'Institution is required';
+        errors.institution = "Institution is required";
       }
-      if (formValues.userCategory === 'Alumnus' && !formValues.graduationYear) {
-        errors.graduationYear = 'Graduation Year is required';
+      if (formValues.userCategory === "Alumnus" && !formValues.graduationYear) {
+        errors.graduationYear = "Graduation Year is required";
       }
-      if (formValues.state === 'Other' && !formValues.otherState) {
-        errors.otherState = 'State is required';
+      if (formValues.state === "Other" && !formValues.otherState) {
+        errors.otherState = "State is required";
       }
     }
-    if (formValues.userCategory === 'Child') {
-      if (!formValues.guardianName) errors.guardianName = 'Guardian Name is required';
-      if (!formValues.guardianPhone) errors.guardianPhone = 'Guardian Phone is required';
-      if (!formValues.guardianAddress) errors.guardianAddress = 'Guardian Address is required';
+    if (formValues.userCategory === "Child") {
+      if (!formValues.guardianName)
+        errors.guardianName = "Guardian Name is required";
+      if (!formValues.guardianPhone)
+        errors.guardianPhone = "Guardian Phone is required";
+      if (!formValues.guardianAddress)
+        errors.guardianAddress = "Guardian Address is required";
     }
-    if (formValues.userCategory === 'Non-TIMSANITE') {
+    if (formValues.userCategory === "Non-TIMSANITE") {
       if (formValues.isStudent && !formValues.nonTimsaniteInstitution) {
-        errors.nonTimsaniteInstitution = 'Institution is required';
+        errors.nonTimsaniteInstitution = "Institution is required";
       }
       if (formValues.isStudent && !formValues.nonTimsaniteState) {
-        errors.nonTimsaniteState = 'State is required';
+        errors.nonTimsaniteState = "State is required";
       }
-      if (!formValues.nextOfKinName) errors.nextOfKinName = 'Next of Kin Name is required';
-      if (!formValues.nextOfKinPhone) errors.nextOfKinPhone = 'Next of Kin Phone is required';
-      if (!formValues.nextOfKinAddress) errors.nextOfKinAddress = 'Next of Kin Address is required';
+      if (!formValues.nextOfKinName)
+        errors.nextOfKinName = "Next of Kin Name is required";
+      if (!formValues.nextOfKinPhone)
+        errors.nextOfKinPhone = "Next of Kin Phone is required";
+      if (!formValues.nextOfKinAddress)
+        errors.nextOfKinAddress = "Next of Kin Address is required";
     }
     setError(errors);
     return Object.keys(errors).length === 0;
@@ -123,8 +147,8 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
       return;
     }
     const mergedValues = { role, ...values, ...prevFormValues, ...formValues };
-    console.log('merged values:', mergedValues);
-    
+    console.log("merged values:", mergedValues);
+
     onValuesChange(mergedValues);
     onNext(mergedValues);
     toast({
@@ -156,7 +180,8 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
         </FormControl>
 
         {/* Conditional Fields */}
-        {formValues.userCategory === 'Student' || formValues.userCategory === 'Alumnus' ? (
+        {formValues.userCategory === "Student" ||
+        formValues.userCategory === "Alumnus" ? (
           <>
             <FormControl isInvalid={!!error.institution}>
               <FormLabel>Institution</FormLabel>
@@ -177,7 +202,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
               <FormErrorMessage>{error.institution}</FormErrorMessage>
             </FormControl>
 
-            {formValues.userCategory === 'Alumnus' && (
+            {formValues.userCategory === "Alumnus" && (
               <FormControl isInvalid={!!error.graduationYear}>
                 <FormLabel>Year of Graduation</FormLabel>
                 <Input
@@ -199,10 +224,10 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
                 name="state"
                 onChange={(e) => {
                   const value = e.target.value;
-                  setIsStateOther(value === 'Other');
-                  setFormValues(prevValues => ({
+                  setIsStateOther(value === "Other");
+                  setFormValues((prevValues) => ({
                     ...prevValues,
-                    state: value
+                    state: value,
                   }));
                 }}
                 value={formValues.state}
@@ -226,7 +251,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
               <FormErrorMessage>{error.state}</FormErrorMessage>
             </FormControl>
           </>
-        ) : formValues.userCategory === 'Child' ? (
+        ) : formValues.userCategory === "Child" ? (
           <>
             <FormControl isInvalid={!!error.guardianName}>
               <FormLabel>Guardian Name</FormLabel>
@@ -262,7 +287,7 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
               <FormErrorMessage>{error.guardianAddress}</FormErrorMessage>
             </FormControl>
           </>
-        ) : formValues.userCategory === 'Non-TIMSANITE' ? (
+        ) : formValues.userCategory === "Non-TIMSANITE" ? (
           <>
             <FormControl>
               <FormLabel>Are you a Student?</FormLabel>
@@ -270,14 +295,14 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
                 as="select"
                 name="isStudent"
                 onChange={(e) => {
-                  const value = e.target.value === 'yes';
+                  const value = e.target.value === "yes";
                   setIsStudent(value);
-                  setFormValues(prevValues => ({
+                  setFormValues((prevValues) => ({
                     ...prevValues,
-                    isStudent: value
+                    isStudent: value,
                   }));
                 }}
-                value={formValues.isStudent ? 'yes' : 'no'}
+                value={formValues.isStudent ? "yes" : "no"}
               >
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
@@ -294,7 +319,9 @@ const CACForm = ({ role, values, onValuesChange, onNext, onPrevious, prevFormVal
                     onChange={handleInputChange}
                     leftIcon={<FaSchool />}
                   />
-                  <FormErrorMessage>{error.nonTimsaniteInstitution}</FormErrorMessage>
+                  <FormErrorMessage>
+                    {error.nonTimsaniteInstitution}
+                  </FormErrorMessage>
                 </FormControl>
                 <FormControl isInvalid={!!error.nonTimsaniteState}>
                   <FormLabel>State</FormLabel>
