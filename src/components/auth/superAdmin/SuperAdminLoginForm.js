@@ -162,14 +162,14 @@ const SuperAdminLoginForm = ({ role }) => {
   return (
     <form onSubmit={handleSubmit}>
       <FormControl mb={4} isInvalid={formErrors.emailOrID && touched.emailOrID}>
-        <FormLabel color={"white"}>Email or ID</FormLabel>
+        <FormLabel color={"black"}>Email or ID</FormLabel>
         <Input
           name="emailOrID"
           type="text"
           value={formValues.emailOrID}
           onChange={handleChange}
-          color={"white"}
           onBlur={() => setTouched((prev) => ({ ...prev, emailOrID: true }))}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -181,7 +181,7 @@ const SuperAdminLoginForm = ({ role }) => {
       </FormControl>
 
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel color={"white"}>Password</FormLabel>
+        <FormLabel color={"black"}>Password</FormLabel>
         <InputGroup>
           <Input
             name="password"

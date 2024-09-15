@@ -163,10 +163,11 @@ const AdminRegistrationForm = ({ role }) => {
           value={formValues.firstName}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, firstName: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -182,10 +183,11 @@ const AdminRegistrationForm = ({ role }) => {
           value={formValues.lastName}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, lastName: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -201,10 +203,11 @@ const AdminRegistrationForm = ({ role }) => {
           value={formValues.email}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, email: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -218,7 +221,7 @@ const AdminRegistrationForm = ({ role }) => {
       >
         <FormLabel>
           Phone Number{" "}
-          <Box as="span" fontSize="sm" color="gray.500">
+          <Box as="span" fontSize="sm" color="black">
             (WhatsApp enabled)
           </Box>
         </FormLabel>
@@ -228,10 +231,11 @@ const AdminRegistrationForm = ({ role }) => {
           value={formValues.phoneNumber}
           onChange={handleChange}
           onBlur={() => setTouched({ ...touched, phoneNumber: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -247,10 +251,11 @@ const AdminRegistrationForm = ({ role }) => {
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -259,6 +264,15 @@ const AdminRegistrationForm = ({ role }) => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -280,10 +294,15 @@ const AdminRegistrationForm = ({ role }) => {
             value={formValues.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm your password"
+            _placeholder={{
+              color: "white",
+
+            }}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -294,6 +313,15 @@ const AdminRegistrationForm = ({ role }) => {
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -309,9 +337,12 @@ const AdminRegistrationForm = ({ role }) => {
         loadingText="Processing..."
         colorScheme="green"
         mt={4}
+        bg="#D9FAD4" 
+        color={"black"} 
       >
         Register
       </Button>
+      
     </form>
   );
 };

@@ -184,14 +184,15 @@ const SuperAdminRegistrationForm = ({ role }) => {
     <form onSubmit={handleSubmit}>
       {/* First Name */}
       <FormControl mb={4} isInvalid={formErrors.firstName && touched.firstName}>
-        <FormLabel color={"white"}>First Name</FormLabel>
+        <FormLabel color={"black"}>First Name</FormLabel>
         <Input
           name="firstName"
           type="text"
           value={formValues.firstName}
           onChange={handleChange}
-          color={"white"}
+        
           onBlur={() => setTouched({ ...touched, firstName: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -204,7 +205,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Last Name */}
       <FormControl mb={4} isInvalid={formErrors.lastName && touched.lastName}>
-        <FormLabel color={"white"}>Last Name</FormLabel>
+        <FormLabel color={"black"}>Last Name</FormLabel>
         <Input
           name="lastName"
           type="text"
@@ -224,7 +225,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Email */}
       <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
-        <FormLabel color={"white"}>Email Address</FormLabel>
+        <FormLabel color={"black"}>Email Address</FormLabel>
         <Input
           name="email"
           type="email"
@@ -247,9 +248,9 @@ const SuperAdminRegistrationForm = ({ role }) => {
         mb={4}
         isInvalid={formErrors.phoneNumber && touched.phoneNumber}
       >
-        <FormLabel color={"white"}>
+        <FormLabel color={"black"}>
           Phone Number{" "}
-          <Box as="span" fontSize="sm" color="gray.500">
+          <Box as="span" fontSize="sm" color={"black"}>
             (WhatsApp enabled)
           </Box>
         </FormLabel>
@@ -272,7 +273,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Password */}
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel color={"white"}>Password</FormLabel>
+        <FormLabel color={"black"}>Password</FormLabel>
         <InputGroup>
           <Input
             name="password"
@@ -314,7 +315,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         mb={4}
         isInvalid={formErrors.confirmPassword && touched.confirmPassword}
       >
-        <FormLabel color={"white"}>Confirm Password</FormLabel>
+        <FormLabel color={"black"}>Confirm Password</FormLabel>
         <InputGroup>
           <Input
             name="confirmPassword"

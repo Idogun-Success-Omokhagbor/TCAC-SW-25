@@ -200,10 +200,11 @@ const UserLoginForm = () => {
           value={formValues.emailOrID}
           onChange={handleChange}
           onBlur={() => setTouched((prev) => ({ ...prev, emailOrID: true }))}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -219,10 +220,11 @@ const UserLoginForm = () => {
             value={formValues.password}
             onChange={handleChange}
             onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -231,6 +233,15 @@ const UserLoginForm = () => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -245,6 +256,8 @@ const UserLoginForm = () => {
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
+        bg="#D9FAD4" 
+        color={"black"}  
       >
         Login
       </Button>

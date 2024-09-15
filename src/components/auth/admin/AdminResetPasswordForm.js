@@ -7,7 +7,7 @@ import {
   selectAuthStatus,
   selectAuthError,
   clearStatus,
-} from "../../../store/slices/auth/admin/adminAuthSlice"; // Ensure path is correct
+} from "../../../store/slices/auth/admin/adminAuthSlice";
 import {
   FormControl,
   FormLabel,
@@ -143,11 +143,11 @@ const AdminResetPasswordForm = () => {
           value={formValues.email}
           onChange={handleChange}
           onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-          // placeholder="Enter your email"
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -163,11 +163,11 @@ const AdminResetPasswordForm = () => {
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
-            // placeholder="Enter your new password"
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -176,6 +176,15 @@ const AdminResetPasswordForm = () => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
+              color={"white"}
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800",
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800",
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -197,10 +206,13 @@ const AdminResetPasswordForm = () => {
             value={formValues.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm your new password"
+            _placeholder={{
+              color: "white",
+            }}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -211,6 +223,15 @@ const AdminResetPasswordForm = () => {
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
+              color={"white"}
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800",
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800",
+              }}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -225,6 +246,8 @@ const AdminResetPasswordForm = () => {
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
+        bg="#D9FAD4"
+        color={"black"}
       >
         Reset Password
       </Button>

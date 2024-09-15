@@ -73,13 +73,11 @@ const SuperAdminResetPasswordForm = () => {
     return Object.keys(errors).length === 0;
   };
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
     setTouched({ ...touched, [name]: true });
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,19 +134,17 @@ const SuperAdminResetPasswordForm = () => {
     }
   };
 
-
-
   return (
     <form onSubmit={handleSubmit}>
       <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
-        <FormLabel  color={"white"}>Email</FormLabel>
+        <FormLabel color={"black"}>Email</FormLabel>
         <Input
           name="email"
           type="email"
           value={formValues.email}
           onChange={handleChange}
-          color={"white"}
           onBlur={() => setTouched({ ...touched, email: true })}
+          color={"white"}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
@@ -161,7 +157,7 @@ const SuperAdminResetPasswordForm = () => {
 
       {/* Password */}
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel  color={"white"}>New Password</FormLabel>
+        <FormLabel color={"black"}>New Password</FormLabel>
         <InputGroup>
           <Input
             name="password"
@@ -181,14 +177,14 @@ const SuperAdminResetPasswordForm = () => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
-              color={"white"}  
+              color={"white"}
               _hover={{
                 bg: "#D9FAD4",
-                color: "gray.800" 
+                color: "gray.800",
               }}
               _focus={{
                 bg: "#D9FAD4",
-                color: "gray.800" 
+                color: "gray.800",
               }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -203,7 +199,7 @@ const SuperAdminResetPasswordForm = () => {
         mb={4}
         isInvalid={formErrors.confirmPassword && touched.confirmPassword}
       >
-        <FormLabel  color={"white"}>Confirm Password</FormLabel>
+        <FormLabel color={"black"}>Confirm Password</FormLabel>
         <InputGroup>
           <Input
             name="confirmPassword"
@@ -229,14 +225,14 @@ const SuperAdminResetPasswordForm = () => {
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
-              color={"white"}  
+              color={"white"}
               _hover={{
                 bg: "#D9FAD4",
-                color: "gray.800" 
+                color: "gray.800",
               }}
               _focus={{
                 bg: "#D9FAD4",
-                color: "gray.800" 
+                color: "gray.800",
               }}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
@@ -252,8 +248,8 @@ const SuperAdminResetPasswordForm = () => {
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
-        bg="#D9FAD4" 
-        color={"black"}  
+        bg="#D9FAD4"
+        color={"black"}
       >
         Reset Password
       </Button>

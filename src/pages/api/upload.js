@@ -9,57 +9,58 @@ export const config = {
   },
 };
 
-// Helper function to parse form data with `formidable`
-function parseForm(req) {
-  return new Promise((resolve, reject) => {
-    const form = new IncomingForm({
-      uploadDir: './tmp', // Ensure this directory exists
-      keepExtensions: true, // Keep file extensions
+// Helper function to parse form data with `formidable`function parseForm(req) {
+  function parseForm(req) {
+    return new Promise((resolve, reject) => {
+      const form = new IncomingForm({
+        keepExtensions: true,
+        uploadDir: null // Don't use a disk-based directory
+      });
+      form.parse(req, (err, fields, files) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ fields, files });
+        }
+      });
     });
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ fields, files });
-      }
-    });
-  });
-}
-
-export default async function handler(req, res) {
-  if (req.method === 'PUT') {
-    try {
-      // Parse the form data
-      const { files } = await parseForm(req);
-
-      // Ensure a file is present
-      if (!files.file || files.file.length === 0) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
-
-      const file = files.file[0]; // Formidable stores files as arrays in 'files'
-      const filePath = file.filepath;
-
-      // Read the file into memory
-      const fileBuffer = fs.readFileSync(filePath);
-
-      // Upload the file to Vercel Blob
-      const blob = await put(file.originalFilename, fileBuffer, { access: 'public' });
-
-      // Remove the file after uploading
-      fs.unlinkSync(filePath);
-
-      // Send response with blob information
-      return res.status(200).json(blob);
-    } catch (error) {
-      console.error('Upload error:', error); // Log errors for debugging
-      return res.status(500).json({ error: 'Failed to process file', details: error.message });
-    }
-  } else {
-    res.setHeader('Allow', ['PUT']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+
+  export default async function handler(req, res) {
+    if (req.method === 'PUT') {
+      try {
+        // console.log('Received file upload request');
+  
+        const { files } = await parseForm(req);
+        // console.log('Files received:', files);
+  
+        if (!files.file || files.file.length === 0) {
+          return res.status(400).json({ error: 'No file uploaded' });
+        }
+  
+        const file = files.file[0];
+        // console.log('Processing file:', file);
+  
+        const fileBuffer = file.filepath ? fs.readFileSync(file.filepath) : file; // Handle in-memory files
+  
+        // console.log('File buffer size:', fileBuffer.length);
+  
+        // Upload to Vercel Blob
+        const blob = await put(file.originalFilename, fileBuffer, { access: 'public' });
+        console.log('File uploaded successfully:', blob);
+  
+        return res.status(200).json(blob);
+      } catch (error) {
+        console.error('Upload error:', error);
+        return res.status(500).json({ error: 'Failed to process file', details: error.message });
+      }
+    } else {
+      res.setHeader('Allow', ['PUT']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+  }
+  
+  
 
 
 
