@@ -42,7 +42,7 @@ const HeroSection = () => {
         as="section"
         className="hero-section"
         bg="green.50"
-        p={4}
+        p={{base: 8, md: 12}}
         display="flex"
         flexDirection="column"
         alignItems="center"
@@ -74,15 +74,14 @@ const HeroSection = () => {
           </Button>
 
           <Button
-            className="shadow-md shadow-green-800"
-            colorScheme="green"
+           bg="#D9FAD4" 
+           color={"gray.800"}  
             size="md"
             borderRadius="xl"
             border="1px solid black"
             boxShadow={"2px 2px 0px 0px #000000"}
             px={8}
             py={4}
-            onClick={onOpen} // Open the modal when Donate is clicked
           >
             Donate
           </Button>

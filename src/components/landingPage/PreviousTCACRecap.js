@@ -81,9 +81,9 @@ const PrevTCACRecap = () => {
         p={"2"}
         border="2px solid black"
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
-        className="bg-lime-100"
+        className="bg-[#E1EDDF]"
       >
-        <Heading as="h2" textAlign="center">
+        <Heading as="h2" textAlign="center" >
           Previous TCAC Recap
         </Heading>
       </Flex>

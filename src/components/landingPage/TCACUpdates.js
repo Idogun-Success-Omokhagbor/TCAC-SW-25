@@ -38,7 +38,7 @@ const TCACUpdates = () => {
   };
 
   return (
-    <Box as="section" bg="green.50" py={12} px={8} id="tcac-updates">
+    <Box as="section"  py={12} px={8} id="tcac-updates" className="bg-[#DFFBA4]">
       {/* Section Header */}
       <Flex
         justifyContent="flex-start"
@@ -47,7 +47,7 @@ const TCACUpdates = () => {
         p={2}
         border="2px solid black"
         boxShadow="4px 4px 12px rgba(0, 0, 0, 0.8)"
-        bg="lime.100"
+        bg="green.500"
         maxW="fit-content"
       >
         <Heading as="h2" textAlign="center" fontSize="2xl">

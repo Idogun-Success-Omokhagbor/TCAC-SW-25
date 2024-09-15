@@ -162,17 +162,18 @@ const SuperAdminLoginForm = ({ role }) => {
   return (
     <form onSubmit={handleSubmit}>
       <FormControl mb={4} isInvalid={formErrors.emailOrID && touched.emailOrID}>
-        <FormLabel>Email or ID</FormLabel>
+        <FormLabel color={"white"}>Email or ID</FormLabel>
         <Input
           name="emailOrID"
           type="text"
           value={formValues.emailOrID}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched((prev) => ({ ...prev, emailOrID: true }))}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -180,17 +181,18 @@ const SuperAdminLoginForm = ({ role }) => {
       </FormControl>
 
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel>Password</FormLabel>
+        <FormLabel color={"white"}>Password</FormLabel>
         <InputGroup>
           <Input
             name="password"
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -198,7 +200,16 @@ const SuperAdminLoginForm = ({ role }) => {
             <Button
               variant="link"
               onClick={togglePasswordVisibility}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? "Hide password" : "Show password"}  
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -213,6 +224,8 @@ const SuperAdminLoginForm = ({ role }) => {
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
+        bg="#D9FAD4" 
+        color={"black"}  
       >
         Login
       </Button>

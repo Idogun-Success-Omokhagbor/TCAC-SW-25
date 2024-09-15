@@ -44,11 +44,12 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
           <Button
             variant="outline"
             colorScheme="green"
+            bg={"green.500"}
+            color={"black"}
             p={4}
             borderRadius="xl"
             border="1px solid black"
             boxShadow={"2px 2px 0px 0px #000000"}
-            color={"black"}
             _hover={{
               color: "white",
               bg: "green.500",
@@ -67,6 +68,7 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
         justify="center"
         align="center"
         bg="green.50"
+        mt={8}
       >
         <Heading
           as="h1"
@@ -82,24 +84,26 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
         <Box
           w={{ base: "90%", md: "400px" }}
           p={8}
-          boxShadow="lg"
           borderRadius="lg"
-          bg="green.100"
-          color="green.900"
+          bg=" #38A926"
+          color="black"
+          border="1px solid black"
+          boxShadow={"4px 4px 0px 0px #000000"}
         >
           {/* Registration form component */}
           {registrationForm}
 
           <Stack spacing={4} mt={6}>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="black">
               Already have an account?{" "}
               <Link href={`/login/${role}`} passHref>
                 <Button
                   variant="link"
                   colorScheme="green"
+                            color="white"
                   _hover={{
-                    color: "white",
-                    bg: "green.500",
+                    color: "black",
+                    bg: "#D9FAD4",
                     borderColor: "green.500",
                     px: "2",
                     py: "1",
@@ -109,15 +113,16 @@ const AdminRegAuthLayout = ({ formHeading, registrationForm, role }) => {
                 </Button>
               </Link>
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="black">
               Forgot password?{" "}
               <Link href={`/reset-password/${role}`} passHref>
                 <Button
                   variant="link"
                   colorScheme="green"
+                  color="white"
                   _hover={{
-                    color: "white",
-                    bg: "green.500",
+                    color: "black",
+                    bg: "#D9FAD4",
                     borderColor: "green.500",
                     px: "2",
                     py: "1",

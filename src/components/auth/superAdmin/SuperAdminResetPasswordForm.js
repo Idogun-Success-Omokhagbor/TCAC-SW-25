@@ -73,6 +73,14 @@ const SuperAdminResetPasswordForm = () => {
     return Object.keys(errors).length === 0;
   };
 
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+    setTouched({ ...touched, [name]: true });
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,27 +136,23 @@ const SuperAdminResetPasswordForm = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    setTouched({ ...touched, [name]: true });
-  };
+
 
   return (
     <form onSubmit={handleSubmit}>
       <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
-        <FormLabel>Email</FormLabel>
+        <FormLabel  color={"white"}>Email</FormLabel>
         <Input
           name="email"
           type="email"
           value={formValues.email}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched({ ...touched, email: true })}
-          // placeholder="Enter your email"
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -157,17 +161,18 @@ const SuperAdminResetPasswordForm = () => {
 
       {/* Password */}
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel>New Password</FormLabel>
+        <FormLabel  color={"white"}>New Password</FormLabel>
         <InputGroup>
           <Input
             name="password"
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -176,6 +181,15 @@ const SuperAdminResetPasswordForm = () => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -189,7 +203,7 @@ const SuperAdminResetPasswordForm = () => {
         mb={4}
         isInvalid={formErrors.confirmPassword && touched.confirmPassword}
       >
-        <FormLabel>Confirm Password</FormLabel>
+        <FormLabel  color={"white"}>Confirm Password</FormLabel>
         <InputGroup>
           <Input
             name="confirmPassword"
@@ -197,10 +211,14 @@ const SuperAdminResetPasswordForm = () => {
             value={formValues.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm password"
+            color={"white"}
+            _placeholder={{
+              color: "white",
+            }}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -211,6 +229,15 @@ const SuperAdminResetPasswordForm = () => {
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -225,6 +252,8 @@ const SuperAdminResetPasswordForm = () => {
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
+        bg="#D9FAD4" 
+        color={"black"}  
       >
         Reset Password
       </Button>

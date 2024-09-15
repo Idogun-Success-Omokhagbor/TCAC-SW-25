@@ -184,17 +184,18 @@ const SuperAdminRegistrationForm = ({ role }) => {
     <form onSubmit={handleSubmit}>
       {/* First Name */}
       <FormControl mb={4} isInvalid={formErrors.firstName && touched.firstName}>
-        <FormLabel>First Name</FormLabel>
+        <FormLabel color={"white"}>First Name</FormLabel>
         <Input
           name="firstName"
           type="text"
           value={formValues.firstName}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched({ ...touched, firstName: true })}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -203,17 +204,18 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Last Name */}
       <FormControl mb={4} isInvalid={formErrors.lastName && touched.lastName}>
-        <FormLabel>Last Name</FormLabel>
+        <FormLabel color={"white"}>Last Name</FormLabel>
         <Input
           name="lastName"
           type="text"
           value={formValues.lastName}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched({ ...touched, lastName: true })}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -222,17 +224,18 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Email */}
       <FormControl mb={4} isInvalid={formErrors.email && touched.email}>
-        <FormLabel>Email Address</FormLabel>
+        <FormLabel color={"white"}>Email Address</FormLabel>
         <Input
           name="email"
           type="email"
           value={formValues.email}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched({ ...touched, email: true })}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -244,7 +247,7 @@ const SuperAdminRegistrationForm = ({ role }) => {
         mb={4}
         isInvalid={formErrors.phoneNumber && touched.phoneNumber}
       >
-        <FormLabel>
+        <FormLabel color={"white"}>
           Phone Number{" "}
           <Box as="span" fontSize="sm" color="gray.500">
             (WhatsApp enabled)
@@ -255,11 +258,12 @@ const SuperAdminRegistrationForm = ({ role }) => {
           type="tel"
           value={formValues.phoneNumber}
           onChange={handleChange}
+          color={"white"}
           onBlur={() => setTouched({ ...touched, phoneNumber: true })}
           _focus={{
             boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
             border: "2px solid",
-            borderColor: "green",
+            borderColor: "#D9FAD4",
             transition: "border-color 0.3s ease",
           }}
         />
@@ -268,17 +272,18 @@ const SuperAdminRegistrationForm = ({ role }) => {
 
       {/* Password */}
       <FormControl mb={4} isInvalid={formErrors.password && touched.password}>
-        <FormLabel>Password</FormLabel>
+        <FormLabel color={"white"}>Password</FormLabel>
         <InputGroup>
           <Input
             name="password"
             type={showPassword ? "text" : "password"}
             value={formValues.password}
             onChange={handleChange}
+            color={"white"}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -287,6 +292,15 @@ const SuperAdminRegistrationForm = ({ role }) => {
               variant="link"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Hide password" : "Show password"}
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -300,18 +314,22 @@ const SuperAdminRegistrationForm = ({ role }) => {
         mb={4}
         isInvalid={formErrors.confirmPassword && touched.confirmPassword}
       >
-        <FormLabel>Confirm Password</FormLabel>
+        <FormLabel color={"white"}>Confirm Password</FormLabel>
         <InputGroup>
           <Input
             name="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
             value={formValues.confirmPassword}
             onChange={handleChange}
+            color={"white"}
             placeholder="Confirm your password"
+            _placeholder={{
+              color: "white",
+            }}
             _focus={{
               boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.2)",
               border: "2px solid",
-              borderColor: "green",
+              borderColor: "#D9FAD4",
               transition: "border-color 0.3s ease",
             }}
           />
@@ -322,6 +340,15 @@ const SuperAdminRegistrationForm = ({ role }) => {
               aria-label={
                 showConfirmPassword ? "Hide password" : "Show password"
               }
+              color={"white"}  
+              _hover={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
+              _focus={{
+                bg: "#D9FAD4",
+                color: "gray.800" 
+              }}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </Button>
@@ -333,10 +360,14 @@ const SuperAdminRegistrationForm = ({ role }) => {
       <Button
         type="submit"
         w="full"
+        mt={4}
+        bg="#D9FAD4" 
+        color={"black"} 
         isLoading={loading}
         loadingText="Processing..."
         colorScheme="green"
-        mt={4}
+      
+         
       >
         Register
       </Button>

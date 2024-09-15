@@ -40,7 +40,7 @@ const ActivitiesSection = () => {
   };
 
   return (
-    <Box as="section" bg="green.50" py={12} px={8} id="activities">
+    <Box as="section" py={12} px={8} id="activities" className="bg-[#E1EDDF]">
       {/* Section Header */}
       <Flex
         justifyItems={"flex-start"}
