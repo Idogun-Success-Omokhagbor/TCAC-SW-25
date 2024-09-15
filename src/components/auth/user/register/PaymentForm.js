@@ -43,9 +43,9 @@ const PaymentForm = ({
   const toast = useToast();
 
   const bankAccountDetails = {
-    accountName: "John Doe",
-    accountNumber: "1234567890",
-    bank: "Example Bank",
+    accountName: "Timsan southwest",
+    accountNumber: "2283452778",
+    bank: "UBA",
   };
 
   const handlePaymentAmountChange = (paymentType, campType) => {
@@ -110,6 +110,7 @@ const PaymentForm = ({
       });
 
       if (!response.ok) {
+        setLoading(false);
         throw new Error("File upload failed");
       }
 

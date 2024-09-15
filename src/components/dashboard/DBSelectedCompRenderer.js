@@ -20,11 +20,11 @@ const DashboardSelectedComponentRenderer = ({
     if (role === "User") {
       switch (selectedComponent) {
         case "dashboard":
-          return <UserDashboard />;
+          return <UserDashboard accountData={accountData}/>;
         case "payment-history":
           return <PaymentHistory />;
         default:
-          return <UserDashboard />;
+          return <UserDashboard accountData={accountData}/>;
       }
     }
 
@@ -34,12 +34,12 @@ const DashboardSelectedComponentRenderer = ({
           return (
             <>
               {selectedComponent === "registered-users" ? (
-                <RegisteredUsers />
+                <RegisteredUsers accountData={accountData}/>
               ) : selectedComponent === "meal-schedule" ? (
                 <MealSchedule />
               ) : (
                 <>
-                  <RegisteredUsers />
+                  <RegisteredUsers accountData={accountData}/>
                 </>
               )}
             </>
@@ -64,12 +64,12 @@ const DashboardSelectedComponentRenderer = ({
           return (
             <>
               {selectedComponent === "registered-users" ? (
-                <RegisteredUsers />
+                <RegisteredUsers accountData={accountData}/>
               ) : selectedComponent === "daily-schedule" ? (
                 <DailySchedule />
               ) : (
                
-                     <RegisteredUsers />
+                     <RegisteredUsers accountData={accountData}/>
                
               )}
             </>
@@ -83,11 +83,11 @@ const DashboardSelectedComponentRenderer = ({
     if (role === "Super Admin") {
       switch (selectedComponent) {
         case "registered-users":
-          return <RegisteredUsers />;
+          return <RegisteredUsers accountData={accountData}/>;
           case "registered-admins":
-            return <RegisteredAdmins />;
+            return <RegisteredAdmins accountData={accountData}/>;
         default:
-          return <RegisteredUsers />;
+          return <RegisteredUsers accountData={accountData}/>;
       }
     }
   };

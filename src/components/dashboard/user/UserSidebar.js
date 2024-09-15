@@ -115,8 +115,8 @@ const UserSidebar = ({ onMenuClick, accountData }) => {
 
 
       {/* chat menu */}
-      <Box>
-        <Box
+      {/* <Box> */}
+        {/* <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
@@ -171,10 +171,10 @@ const UserSidebar = ({ onMenuClick, accountData }) => {
               aria-label="Toggle Submenu"
             />
           )}
-        </Box>
+        </Box> */}
 
         {/* chat sub menu */}
-        <Collapse in={activeSubMenu === "livechat"}>
+        {/* <Collapse in={activeSubMenu === "livechat"}>
           <VStack align="start" pl="6" mt="2">
             {[
               "TCAC Convocation",
@@ -194,9 +194,9 @@ const UserSidebar = ({ onMenuClick, accountData }) => {
               </Box>
             ))}
           </VStack>
-        </Collapse>
+        </Collapse> */}
 
-      </Box>
+      {/* </Box> */}
 
 
       {/* logout */}
