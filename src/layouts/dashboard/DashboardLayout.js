@@ -22,7 +22,7 @@ const DashboardLayout = ({ role, accountData, adminFunction, logout }) => {
       } else if (role === "Admin") {
         router.push("/login/admin");
       } else if (role === "Super Admin") {
-        router.push("/login/super_admin");
+        router.push("/login/super-admin");
       }
     } else {
       setSelectedComponent(component);
