@@ -55,7 +55,7 @@ export const resetUserPassword = createAsyncThunk(
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.error || 'Password reset failed';
+      const errorMessage = error.response?.data?.message || 'Password reset failed';
       return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
     }
   }

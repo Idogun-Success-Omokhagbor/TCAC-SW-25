@@ -1,6 +1,6 @@
 import connectDB from "../../../../utils/connectDB";
 import Admin from "../../../../models/Admin";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 
 export default async function handler(req, res) {
   await connectDB();
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       const adminID = await generateAdminID();
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const hashedPassword = await bcryptjs.hash(password, 12);
 
       // Create new admin
       const newAdmin = new Admin({

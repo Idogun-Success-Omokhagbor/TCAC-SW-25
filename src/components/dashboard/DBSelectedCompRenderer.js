@@ -3,12 +3,11 @@ import UserDashboard from "./user/UserDashboard";
 import MealSchedule from "./MealSchedule";
 import DailySchedule from "./DailySchedule";
 import PaymentHistory from "./paymentHistory";
-
 import RegisteredAdmins from "./superAdmin/RegisteredAdmins";
 import RegisteredUsers from "./RegisteredUsers";
-
 import RegTeamComponent from "./RegTeamComp";
 import HealthTeamComponent from "./HealthTeamComp";
+import MealManagement from "./admins/admin/MealManagement";
 
 const DashboardSelectedComponentRenderer = ({
   role,
@@ -38,28 +37,22 @@ const DashboardSelectedComponentRenderer = ({
               ) : selectedComponent === "meal-schedule" ? (
                 <MealSchedule />
               ) : (
-                <>
-                  <RegisteredUsers accountData={accountData}/>
-                </>
+                <RegisteredUsers accountData={accountData}/>
               )}
             </>
           );
-          
         case "health_team_lead":
           return (
             <>
-             { selectedComponent === "meal-schedule" ? (
+              {selectedComponent === "meal-schedule" ? (
                 <MealSchedule />
               ) : selectedComponent === "daily-schedule" ? (
                 <DailySchedule />
               ) : (
-             
-                  <DailySchedule />
-               
+                <DailySchedule />
               )}
             </>
           );
-  
         case "admin":
           return (
             <>
@@ -67,14 +60,13 @@ const DashboardSelectedComponentRenderer = ({
                 <RegisteredUsers accountData={accountData}/>
               ) : selectedComponent === "daily-schedule" ? (
                 <DailySchedule />
+              ) : selectedComponent === "meal-management" ? (
+                <MealManagement />
               ) : (
-               
-                     <RegisteredUsers accountData={accountData}/>
-               
+                <RegisteredUsers accountData={accountData}/>
               )}
             </>
           );
-  
         default:
           return <RegisteredUsers />;
       }
@@ -84,8 +76,8 @@ const DashboardSelectedComponentRenderer = ({
       switch (selectedComponent) {
         case "registered-users":
           return <RegisteredUsers accountData={accountData}/>;
-          case "registered-admins":
-            return <RegisteredAdmins accountData={accountData}/>;
+        case "registered-admins":
+          return <RegisteredAdmins accountData={accountData}/>;
         default:
           return <RegisteredUsers accountData={accountData}/>;
       }

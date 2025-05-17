@@ -1,6 +1,6 @@
 import connectDB from "../../../../utils/connectDB";
 import User from "../../../../models/User";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 
 export default async function handler(req, res) {
   await connectDB();
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "User already exists" });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const hashedPassword = await bcryptjs.hash(password, 12);
       const userID = await generateUserID(userCategory);
 
       const newUser = new User({
