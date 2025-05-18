@@ -1,5 +1,6 @@
 import React from "react";
 import UserDashboard from "./user/UserDashboard";
+import ActivitiesManagement from "./admins/admin/ActivitiesManagement";
 import MealSchedule from "./MealSchedule";
 import DailySchedule from "./DailySchedule";
 import PaymentHistory from "./paymentHistory";
@@ -8,6 +9,7 @@ import RegisteredUsers from "./RegisteredUsers";
 import RegTeamComponent from "./RegTeamComp";
 import HealthTeamComponent from "./HealthTeamComp";
 import MealManagement from "./admins/admin/MealManagement";
+import DaysManagement from "./admins/admin/DaysManagement";
 
 const DashboardSelectedComponentRenderer = ({
   role,
@@ -62,6 +64,10 @@ const DashboardSelectedComponentRenderer = ({
                 <DailySchedule />
               ) : selectedComponent === "meal-management" ? (
                 <MealManagement />
+              ) : selectedComponent === "activities-management" ? (
+                <ActivitiesManagement />
+              ) : selectedComponent === "days-management" ? (
+                <DaysManagement />
               ) : (
                 <RegisteredUsers accountData={accountData}/>
               )}

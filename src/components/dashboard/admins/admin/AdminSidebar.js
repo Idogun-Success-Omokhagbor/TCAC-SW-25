@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/icons";
 import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
-import { MdDashboard, MdRestaurantMenu } from "react-icons/md";
+import { MdDashboard, MdRestaurantMenu, MdToday } from "react-icons/md";
 
 const AdminSidebar = ({ onMenuClick, accountData }) => {
   const [activeSubMenu, setActiveSubMenu] = useState(null);
@@ -95,7 +95,41 @@ const AdminSidebar = ({ onMenuClick, accountData }) => {
           {!isSidebarCollapsed && <Text>Registered Users</Text>}
         </Link>
       </Box>
-
+      <Box
+        onClick={() => {
+          onMenuClick("days-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap="6"
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <MdToday />
+          {!isSidebarCollapsed && <Text>Days Management</Text>}
+        </Link>
+      </Box>
       <Box
         onClick={() => {
           onMenuClick("meal-management");
@@ -129,6 +163,42 @@ const AdminSidebar = ({ onMenuClick, accountData }) => {
         >
           <MdRestaurantMenu />
           {!isSidebarCollapsed && <Text>Meal Management</Text>}
+        </Link>
+      </Box>
+
+      <Box
+        onClick={() => {
+          onMenuClick("activities-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap="6"
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <MdDashboard />
+          {!isSidebarCollapsed && <Text>Activities Management</Text>}
         </Link>
       </Box>
 

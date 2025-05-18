@@ -20,9 +20,11 @@ import {
   Stack,
   IconButton,
   Tag,
+  Center,
 } from "@chakra-ui/react";
 import { AddIcon, EditIcon } from "@chakra-ui/icons";
-import { Empty } from "antd";
+import { Spin, Empty } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 
 const getStatusTag = (meal) => {
@@ -40,6 +42,10 @@ const getStatusTag = (meal) => {
   }
 };
 
+const greenSpinner = (
+  <LoadingOutlined style={{ fontSize: 32, color: "#38A169" }} spin />
+);
+
 const MealManagement = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [mealName, setMealName] = useState("");
@@ -52,19 +58,35 @@ const MealManagement = () => {
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [editMealId, setEditMealId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [days, setDays] = useState([]);
   const toast = useToast();
 
   useEffect(() => {
     fetchMeals();
+    fetchDays();
   }, []);
 
   const fetchMeals = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/meal");
       const data = await res.json();
       setMeals(Array.isArray(data) ? data : []);
     } catch {
       setMeals([]);
+    }
+    setLoading(false);
+  };
+
+  const fetchDays = async () => {
+    try {
+      const res = await fetch("/api/days");
+      const data = await res.json();
+      if (data.success) setDays(data.data);
+      else setDays([]);
+    } catch {
+      setDays([]);
     }
   };
 
@@ -255,7 +277,11 @@ const MealManagement = () => {
       </Box>
 
       <Box>
-        {meals.length === 0 ? (
+        {loading ? (
+          <Center py={10}>
+            <Spin indicator={greenSpinner} />
+          </Center>
+        ) : meals.length === 0 ? (
           <Empty description="No data" />
         ) : (
           <Stack spacing={3}>
@@ -330,13 +356,11 @@ const MealManagement = () => {
                   value={mealDay}
                   onChange={(e) => setMealDay(e.target.value)}
                 >
-                  <option value="day1">Day 1</option>
-                  <option value="day2">Day 2</option>
-                  <option value="day3">Day 3</option>
-                  <option value="day4">Day 4</option>
-                  <option value="day5">Day 5</option>
-                  <option value="day6">Day 6</option>
-                  <option value="day7">Day 7</option>
+                  {days.map((d) => (
+                    <option key={d._id} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl mb={3} isRequired>
@@ -402,13 +426,11 @@ const MealManagement = () => {
                   value={mealDay}
                   onChange={(e) => setMealDay(e.target.value)}
                 >
-                  <option value="day1">Day 1</option>
-                  <option value="day2">Day 2</option>
-                  <option value="day3">Day 3</option>
-                  <option value="day4">Day 4</option>
-                  <option value="day5">Day 5</option>
-                  <option value="day6">Day 6</option>
-                  <option value="day7">Day 7</option>
+                  {days.map((d) => (
+                    <option key={d._id} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl mb={3} isRequired>

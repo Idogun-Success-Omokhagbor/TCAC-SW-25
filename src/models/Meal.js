@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const MealSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -10,4 +10,4 @@ const MealSchema = new mongoose.Schema({
   description: { type: String }
 });
 
-export default mongoose.models.Meal || mongoose.model("Meal", MealSchema);
+module.exports = mongoose.models.Meal || mongoose.model("Meal", MealSchema);
