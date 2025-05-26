@@ -114,23 +114,26 @@ const PaymentFormPopout = ({
         body: JSON.stringify({
           userId,
           paymentType: formValues.paymentType,
+          campType: formValues.campType,
           amount: formValues.amount,
           receiptUrl: url,
+          paymentNarration: formValues.paymentNarration,
+          status: "pending"
         }),
       });
       if (!paymentRes.ok) {
         setLoading(false);
-        throw new Error("Payment update failed");
+        throw new Error("Payment submission failed");
       }
       if (refreshUserData) refreshUserData();
       toast({
-        title: "Success",
-        description: "Payment data updated successfully!",
+        title: "Payment Submitted",
+        description: "Your payment receipt has been submitted and is pending verification. You will be notified once it is reviewed.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
-        setFormValues({
+      setFormValues({
         paymentType: "Full Payment",
         campType: "Conference Only",
         amount: balance?.toString() || "35000",
@@ -142,7 +145,7 @@ const PaymentFormPopout = ({
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to upload file or update payment. Please try again.",
+        description: "Failed to upload file or submit payment. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,

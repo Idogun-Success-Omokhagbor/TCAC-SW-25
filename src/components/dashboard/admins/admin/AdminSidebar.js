@@ -19,14 +19,16 @@ import {
   ChevronRightIcon,
   HamburgerIcon,
 } from "@chakra-ui/icons";
-import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt, FaMoneyCheckAlt } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import { MdDashboard, MdRestaurantMenu, MdToday } from "react-icons/md";
+import { useRouter } from "next/router";
 
 const AdminSidebar = ({ onMenuClick, accountData }) => {
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const router = useRouter();
 
   const toggleSubMenu = (menu) => {
     setActiveSubMenu(activeSubMenu === menu ? null : menu);
@@ -199,6 +201,42 @@ const AdminSidebar = ({ onMenuClick, accountData }) => {
         >
           <MdDashboard />
           {!isSidebarCollapsed && <Text>Activities Management</Text>}
+        </Link>
+      </Box>
+
+      <Box
+        onClick={() => {
+          onMenuClick("payment-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap={6}
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <FaMoneyCheckAlt />
+          {!isSidebarCollapsed && <Text>Payment Management</Text>}
         </Link>
       </Box>
 

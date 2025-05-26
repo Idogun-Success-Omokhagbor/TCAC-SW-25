@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Box, Heading, Text, SimpleGrid, Select, Flex } from "@chakra-ui/react";
+import { Box, Heading, Text, SimpleGrid, Select, Flex, Button } from "@chakra-ui/react";
 import { Empty } from "antd";
 import "antd/dist/reset.css";
 import PaymentFormPopout from "./PaymentFormPopout";
+import PaymentHistoryTable from "./PaymentHistoryTable";
 import { useDisclosure } from "@chakra-ui/react";
 
 const mealTypes = [
@@ -11,6 +12,8 @@ const mealTypes = [
   { label: "Dinner", value: "evening", color: "#e6efe3" },
 ];
 
+const ITEMS_PER_PAGE = 5;
+
 const UserDashboard = ({ accountData: initialData }) => {
   const [accountData, setAccountData] = useState(initialData);
   const [days, setDays] = useState([]);
@@ -18,6 +21,8 @@ const UserDashboard = ({ accountData: initialData }) => {
   const [selectedScheduleDay, setSelectedScheduleDay] = useState("");
   const [meals, setMeals] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [page, setPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const refreshUserData = async () => {
@@ -26,6 +31,18 @@ const UserDashboard = ({ accountData: initialData }) => {
     if (!res.ok) return;
     const data = await res.json();
     setAccountData(data);
+    fetchPaymentHistory(data._id);
+  };
+
+  const fetchPaymentHistory = async (userId) => {
+    if (!userId) return;
+    const res = await fetch(`/api/paymenthistory?userId=${userId}`);
+    if (!res.ok) {
+      setPaymentHistory([]);
+      return;
+    }
+    const data = await res.json();
+    setPaymentHistory(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {
@@ -62,6 +79,12 @@ const UserDashboard = ({ accountData: initialData }) => {
       });
   }, []);
 
+  useEffect(() => {
+    if (accountData?._id) {
+      fetchPaymentHistory(accountData._id);
+    }
+  }, [accountData?._id]);
+
   const getMealName = type => {
     const meal = meals.find(m => m.day === selectedMealDay && m.type === type);
     return meal && meal.name ? meal.name : "-";
@@ -70,6 +93,12 @@ const UserDashboard = ({ accountData: initialData }) => {
   const filteredActivities = activities
     .filter(a => a.day === selectedScheduleDay)
     .sort((a, b) => (a.startTime < b.startTime ? -1 : a.startTime > b.startTime ? 1 : 0));
+
+  const totalPages = Math.ceil(paymentHistory.length / ITEMS_PER_PAGE);
+  const paginatedPayments = paymentHistory.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   return (
     <Box bg="#e6efe3" minH="100vh" p={8}>
@@ -143,6 +172,33 @@ const UserDashboard = ({ accountData: initialData }) => {
           </Box>
         </Flex>
       )}
+
+      <Box mb={4}>
+        <PaymentHistoryTable paymentHistory={paginatedPayments} />
+        {paymentHistory.length > ITEMS_PER_PAGE && (
+          <Flex justify="center" align="center" mt={2} gap={2}>
+            <Button
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              variant="outline"
+            >
+              {"<"}
+            </Button>
+            <Text fontSize="md">
+              {page} / {totalPages}
+            </Text>
+            <Button
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              variant="outline"
+            >
+              {">"}
+            </Button>
+          </Flex>
+        )}
+      </Box>
 
       <Text fontSize="xl" mb={8}>
         We are not just a camp, we are family.

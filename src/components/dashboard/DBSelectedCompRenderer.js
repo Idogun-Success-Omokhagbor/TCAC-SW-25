@@ -10,6 +10,7 @@ import RegTeamComponent from "./RegTeamComp";
 import HealthTeamComponent from "./HealthTeamComp";
 import MealManagement from "./admins/admin/MealManagement";
 import DaysManagement from "./admins/admin/DaysManagement";
+import AdminPaymentApprovalTable from "./admins/admin/AdminPaymentApprovalTable";
 
 const DashboardSelectedComponentRenderer = ({
   role,
@@ -68,6 +69,8 @@ const DashboardSelectedComponentRenderer = ({
                 <ActivitiesManagement />
               ) : selectedComponent === "days-management" ? (
                 <DaysManagement />
+              ) : selectedComponent === "payment-management" ? (
+                <AdminPaymentApprovalTable />
               ) : (
                 <RegisteredUsers accountData={accountData}/>
               )}
