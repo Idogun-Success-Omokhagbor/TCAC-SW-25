@@ -53,6 +53,8 @@ const userSchema = new mongoose.Schema(
     receiptUrl: { type: String },
     payementNarration: { type: String },
 
+    balance: { type: Number, default: 35000 }, 
+
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

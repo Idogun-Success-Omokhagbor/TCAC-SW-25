@@ -1,15 +1,41 @@
-// store/slices/auth/user/userAuthSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import axios from 'axios';
 
-// Define async thunks
+export const sendResetCode = createAsyncThunk(
+  'user/sendResetCode',
+  async ({ email }, thunkAPI) => {
+    try {
+      const response = await axios.post('/api/auth/user/send-reset-code', { email });
+      return response.data;
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Failed to send reset code';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
+    }
+  }
+);
+
+export const verifyResetCodeAndChangePassword = createAsyncThunk(
+  'user/verifyResetCodeAndChangePassword',
+  async ({ email, code, password }, thunkAPI) => {
+    try {
+      const response = await axios.post('/api/auth/user/verify-reset-code', { email, code, password });
+      return response.data;
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const errorMessage = error.response?.data?.message || 'Failed to reset password';
+      return thunkAPI.rejectWithValue({ message: errorMessage, statusCode });
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   'user/registerUser',
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/user/register', formValues);
-      return response.data; // Ensure this matches your API response structure
+      return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 500;
       const errorMessage = error.response?.data?.error || 'Registration failed';
@@ -23,7 +49,7 @@ export const loginUser = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/user/login', formValues);
-      localStorage.setItem('userToken', response.data.token); // Save token in localStorage
+      localStorage.setItem('userToken', response.data.token);
       return { user: response.data.user, token: response.data.token };
     } catch (error) {
       const statusCode = error.response?.status || 500;
@@ -74,7 +100,7 @@ const userAuthSlice = createSlice({
     logoutUser: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('userToken'); // Clear token on logout
+      localStorage.removeItem('userToken');
     },
     setUser: (state, action) => {
       state.user = action.payload;
@@ -92,7 +118,6 @@ const userAuthSlice = createSlice({
           state.token = action.payload.userAuth.token;
         }
       })
-      // Register Reducers
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.status = 'pending';
@@ -100,14 +125,13 @@ const userAuthSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.user = action.payload.user; // Adjust based on API response
+        state.user = action.payload.user;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload;
       })
-      // Login Reducers
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.status = 'pending';
@@ -123,7 +147,6 @@ const userAuthSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // Verify User Email Reducers
       .addCase(verifyUserEmail.pending, (state) => {
         state.loading = true;
         state.status = 'pending';
@@ -137,7 +160,6 @@ const userAuthSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // Password Reset Reducers
       .addCase(resetUserPassword.pending, (state) => {
         state.loading = true;
         state.status = 'pending';
@@ -150,19 +172,41 @@ const userAuthSlice = createSlice({
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(sendResetCode.pending, (state) => {
+        state.loading = true;
+        state.status = 'pending';
+      })
+      .addCase(sendResetCode.fulfilled, (state) => {
+        state.loading = false;
+        state.status = 'succeeded';
+      })
+      .addCase(sendResetCode.rejected, (state, action) => {
+        state.loading = false;
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(verifyResetCodeAndChangePassword.pending, (state) => {
+        state.loading = true;
+        state.status = 'pending';
+      })
+      .addCase(verifyResetCodeAndChangePassword.fulfilled, (state) => {
+        state.loading = false;
+        state.status = 'succeeded';
+      })
+      .addCase(verifyResetCodeAndChangePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.status = 'failed';
+        state.error = action.payload;
       });
   },
 });
 
-// Actions
 export const { logoutUser, setUser, clearStatus } = userAuthSlice.actions;
-
-// Selectors
 export const selectAuthLoading = (state) => state.userAuth.loading;
 export const selectAuthStatus = (state) => state.userAuth.status;
 export const selectAuthError = (state) => state.userAuth.error;
 export const selectUser = (state) => state.userAuth.user;
 export const selectUserToken = (state) => state.userAuth.token;
 export const selectIsUserAuthenticated = (state) => !!state.userAuth.token;
-
 export default userAuthSlice.reducer;

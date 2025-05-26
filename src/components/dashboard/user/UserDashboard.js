@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Heading, Text, SimpleGrid, Select, Flex } from "@chakra-ui/react";
 import { Empty } from "antd";
 import "antd/dist/reset.css";
+import PaymentFormPopout from "./PaymentFormPopout";
+import { useDisclosure } from "@chakra-ui/react";
 
 const mealTypes = [
   { label: "Breakfast", value: "breakfast", color: "#b6eabf" },
@@ -9,12 +11,22 @@ const mealTypes = [
   { label: "Dinner", value: "evening", color: "#e6efe3" },
 ];
 
-const UserDashboard = ({ accountData }) => {
+const UserDashboard = ({ accountData: initialData }) => {
+  const [accountData, setAccountData] = useState(initialData);
   const [days, setDays] = useState([]);
   const [selectedMealDay, setSelectedMealDay] = useState("");
   const [selectedScheduleDay, setSelectedScheduleDay] = useState("");
   const [meals, setMeals] = useState([]);
   const [activities, setActivities] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const refreshUserData = async () => {
+    if (!initialData?._id) return;
+    const res = await fetch(`/api/user/${initialData._id}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    setAccountData(data);
+  };
 
   useEffect(() => {
     fetch("/api/days")
@@ -50,20 +62,14 @@ const UserDashboard = ({ accountData }) => {
       });
   }, []);
 
-  const getMealName = (type) => {
-    const meal = meals.find(
-      m => m.day === selectedMealDay && m.type === type
-    );
+  const getMealName = type => {
+    const meal = meals.find(m => m.day === selectedMealDay && m.type === type);
     return meal && meal.name ? meal.name : "-";
   };
 
   const filteredActivities = activities
     .filter(a => a.day === selectedScheduleDay)
-    .sort((a, b) => {
-      if (a.startTime < b.startTime) return -1;
-      if (a.startTime > b.startTime) return 1;
-      return 0;
-    });
+    .sort((a, b) => (a.startTime < b.startTime ? -1 : a.startTime > b.startTime ? 1 : 0));
 
   return (
     <Box bg="#e6efe3" minH="100vh" p={8}>
@@ -86,9 +92,62 @@ const UserDashboard = ({ accountData }) => {
           {accountData?.firstName || accountData?.userID}!
         </Box>
       </Heading>
+
+      {accountData?.balance > 0 && (
+        <Flex
+          align="center"
+          alignItems="center"
+          bg="#32b432"
+          borderRadius="md"
+          border="3px solid #000"
+          p={2}
+          mb={10}
+          mt={10}
+          maxW="900px"
+          minW="320px"
+          justify="space-between"
+          boxShadow="4px 4px 0 #000"
+          width="100%"
+        >
+          <Text fontSize="lg" color="#222" display="flex" alignItems="center">
+            You are{" "}
+            <Box
+              as="span"
+              fontWeight="bold"
+              display="inline"
+              fontSize="xl"
+              ml={1}
+              mr={1}
+              verticalAlign="middle"
+            >
+              {accountData?.balance?.toLocaleString()} NGN
+            </Box>
+            away from completing your TCAC payment
+          </Text>
+          <Box
+            as="button"
+            bg="#eaffe0"
+            color="#222"
+            fontWeight="bold"
+            fontSize="lg"
+            px={7}
+            py={2}
+            borderRadius="xl"
+            border="2px solid #222"
+            ml={4}
+            boxShadow="2px 2px 0 #222"
+            _hover={{ bg: "#d6f5c2", color: "#222" }}
+            onClick={onOpen}
+          >
+            Balance payment
+          </Box>
+        </Flex>
+      )}
+
       <Text fontSize="xl" mb={8}>
         We are not just a camp, we are family.
       </Text>
+
       <Flex
         align="center"
         bg="#eaffad"
@@ -152,7 +211,9 @@ const UserDashboard = ({ accountData }) => {
               >
                 {mt.label}
               </Box>
-              <Text fontSize="2xl" mt={4}>{getMealName(mt.value)}</Text>
+              <Text fontSize="2xl" mt={4}>
+                {getMealName(mt.value)}
+              </Text>
             </Box>
           ))}
         </SimpleGrid>
@@ -223,10 +284,10 @@ const UserDashboard = ({ accountData }) => {
               Activities
             </Box>
             {filteredActivities.length === 0 ? (
-              <Box py={12}></Box>
+              <Box py={12} />
             ) : (
-              filteredActivities.map((item, idx) => (
-                <Text fontSize="xl" mt={idx === 0 ? 8 : 8} key={item._id}>
+              filteredActivities.map(item => (
+                <Text fontSize="xl" mt={8} key={item._id}>
                   {item.name}
                 </Text>
               ))
@@ -252,8 +313,8 @@ const UserDashboard = ({ accountData }) => {
                 <Empty description="No data" />
               </Box>
             ) : (
-              filteredActivities.map((item, idx) => (
-                <Text fontSize="xl" mt={idx === 0 ? 8 : 8} key={item._id}>
+              filteredActivities.map(item => (
+                <Text fontSize="xl" mt={8} key={item._id}>
                   {item.startTime} - {item.endTime}
                 </Text>
               ))
@@ -275,10 +336,10 @@ const UserDashboard = ({ accountData }) => {
               Facilitator
             </Box>
             {filteredActivities.length === 0 ? (
-              <Box py={12}></Box>
+              <Box py={12} />
             ) : (
-              filteredActivities.map((item, idx) => (
-                <Text fontSize="xl" mt={idx === 0 ? 8 : 8} key={item._id}>
+              filteredActivities.map(item => (
+                <Text fontSize="xl" mt={8} key={item._id}>
                   {item.facilitator}
                 </Text>
               ))
@@ -286,6 +347,13 @@ const UserDashboard = ({ accountData }) => {
           </Box>
         </SimpleGrid>
       </Box>
+      <PaymentFormPopout
+        isOpen={isOpen}
+        onClose={onClose}
+        userId={accountData?._id}
+        balance={accountData?.balance}
+        refreshUserData={refreshUserData}
+      />
     </Box>
   );
 };

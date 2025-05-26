@@ -9,7 +9,6 @@ import {
   InputRightElement,
   Input,
   Stack,
-  Select,
   Text,
   IconButton,
   Textarea,
@@ -28,16 +27,16 @@ const PaymentForm = ({
   prevFormValues,
 }) => {
   const [formValues, setFormValues] = useState({
-    paymentType: values?.paymentType || "",
-    campType: values?.campType || "",
-    amount: values?.amount || "5000",
-    receipt: values?.receipt || "",
-    paymentNarration: values?.paymentNarration || "",
+    paymentType: "Full Payment",
+    campType: "Camp Only",
+    amount: "7000",
+    receipt: "",
+    paymentNarration: "",
   });
-  const [minimumAmountRequired, setMinimumAmountRequired] = useState(5000); // Default to ₦5000
+  const [minimumAmountRequired, setMinimumAmountRequired] = useState(7000);
   const [formErrors, setFormErrors] = useState({});
   const [blobDetails, setBlobDetails] = useState({});
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const inputFileRef = useRef(null);
   const toast = useToast();
@@ -46,16 +45,6 @@ const PaymentForm = ({
     accountName: "Timsan southwest",
     accountNumber: "2283452778",
     bank: "UBA",
-  };
-
-  const handlePaymentAmountChange = (paymentType, campType) => {
-    if (campType === "Camp Only") {
-      setMinimumAmountRequired(paymentType === "Full Payment" ? 5000 : 3000);
-    } else if (campType === "Conference Only") {
-      setMinimumAmountRequired(paymentType === "Full Payment" ? 15000 : 5000);
-    } else if (campType === "Camp and Conference") {
-      setMinimumAmountRequired(paymentType === "Full Payment" ? 20000 : 5000);
-    }
   };
 
   const handleCopyToClipboard = (text, label) => {
@@ -89,21 +78,18 @@ const PaymentForm = ({
     e.preventDefault();
     if (!validateForm()) return;
 
-    setLoading(true); // Set loading to true when starting the submission
+    setLoading(true);
 
     try {
       const file = inputFileRef.current.files[0];
       if (!file) {
-        console.error("No file selected");
-        setLoading(false); // Set loading to false if no file is selected
+        setLoading(false);
         return;
       }
 
-      // Create form data
       const formData = new FormData();
       formData.append("file", file);
 
-      // Upload the file using Vercel Blob API
       const response = await fetch("/api/upload", {
         method: "PUT",
         body: formData,
@@ -118,9 +104,7 @@ const PaymentForm = ({
       const { url } = result;
 
       setBlobDetails({ url });
-      console.log("File uploaded successfully:", result);
 
-      // Merge previous values and the current form values
       const mergedValues = {
         role,
         ...values,
@@ -128,8 +112,6 @@ const PaymentForm = ({
         ...formValues,
         receiptUrl: url,
       };
-
-      console.log("merged values:", mergedValues);
 
       onValuesChange(mergedValues);
       onNext(mergedValues);
@@ -141,7 +123,6 @@ const PaymentForm = ({
         isClosable: true,
       });
     } catch (error) {
-      console.error("File upload failed", error);
       toast({
         title: "Error",
         description: "Failed to upload file. Please try again.",
@@ -150,14 +131,17 @@ const PaymentForm = ({
         isClosable: true,
       });
     } finally {
-      setLoading(false); // Set loading to false when submission is complete
+      setLoading(false);
     }
+  };
+
+  const handleChooseFileClick = () => {
+    inputFileRef.current.click();
   };
 
   return (
     <form onSubmit={handleFormSubmit}>
       <Box display={"flex"} flexDirection={"column"} gap={6}>
-        {/* Bank Account Details */}
         <Flex
           flexDirection={"column"}
           gap={4}
@@ -233,23 +217,9 @@ const PaymentForm = ({
           </Stack>
         </Flex>
 
-        {/* Payment Form Fields */}
         <FormControl id="paymentType" isInvalid={!!formErrors.paymentType}>
           <FormLabel>Mode of Payment</FormLabel>
-          <Select
-            value={formValues.paymentType}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormValues((prev) => {
-                const updatedValues = { ...prev, paymentType: value };
-                handlePaymentAmountChange(value, formValues.campType);
-                return updatedValues;
-              });
-            }}
-          >
-            <option value="Full Payment">Full Payment</option>
-            <option value="Installmental Payment">Installmental Payment</option>
-          </Select>
+          <Input value="Full Payment" readOnly />
           {formErrors.paymentType && (
             <Text color="red.500" fontSize="sm">
               {formErrors.paymentType}
@@ -259,21 +229,7 @@ const PaymentForm = ({
 
         <FormControl id="campType" isInvalid={!!formErrors.campType}>
           <FormLabel>What part of the Camp/Conference?</FormLabel>
-          <Select
-            value={formValues.campType}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormValues((prev) => {
-                const updatedValues = { ...prev, campType: value };
-                handlePaymentAmountChange(formValues.paymentType, value);
-                return updatedValues;
-              });
-            }}
-          >
-            <option value="Camp Only">Camp Only</option>
-            <option value="Conference Only">Conference Only</option>
-            <option value="Camp and Conference">Camp and Conference</option>
-          </Select>
+          <Input value="Camp Only" readOnly />
           {formErrors.campType && (
             <Text color="red.500" fontSize="sm">
               {formErrors.campType}
@@ -283,18 +239,7 @@ const PaymentForm = ({
 
         <FormControl id="amount" isInvalid={!!formErrors.amount}>
           <FormLabel>Amount</FormLabel>
-          <Select
-            value={formValues.amount}
-            onChange={(e) =>
-              setFormValues((prev) => ({ ...prev, amount: e.target.value }))
-            }
-          >
-            <option value="5000">₦5,000</option>
-            <option value="10000">₦10,000</option>
-            <option value="15000">₦15,000</option>
-            <option value="20000">₦20,000</option>
-            <option value="25000">₦25,000</option>
-          </Select>
+          <Input value="7000" readOnly />
           {formErrors.amount && (
             <Text color="red.500" fontSize="sm">
               {formErrors.amount}
@@ -306,8 +251,17 @@ const PaymentForm = ({
           <FormLabel>Upload Payment Receipt</FormLabel>
           <InputGroup>
             <Input
+              type="text"
+              value={formValues.receipt ? formValues.receipt.name : ""}
+              placeholder="No file chosen"
+              readOnly
+              bg="white"
+              cursor="pointer"
+            />
+            <input
               type="file"
               ref={inputFileRef}
+              style={{ display: "none" }}
               onChange={(e) =>
                 setFormValues((prev) => ({
                   ...prev,
@@ -315,8 +269,16 @@ const PaymentForm = ({
                 }))
               }
             />
-            <InputRightElement>
-              <MdAttachFile onClick={() => inputFileRef.current.click()} />
+            <InputRightElement width="auto" pr={2}>
+              <Button
+                leftIcon={<MdAttachFile />}
+                colorScheme="green"
+                size="sm"
+                onClick={handleChooseFileClick}
+                borderRadius="md"
+              >
+                Choose File
+              </Button>
             </InputRightElement>
           </InputGroup>
           {formErrors.receipt && (

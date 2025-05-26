@@ -46,6 +46,7 @@ const RegisteredUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [deleteModal, setDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const toast = useToast();
@@ -54,13 +55,11 @@ const RegisteredUsers = () => {
   const pageCount = Math.ceil(users.length / usersPerPage); // Calculate total pages
 
   useEffect(() => {
-    console.log("Fetching users...");
     dispatch(fetchUsers());
   }, [dispatch]);
 
   useEffect(() => {
     if (error) {
-      console.log("Error:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -78,7 +77,6 @@ const RegisteredUsers = () => {
 
   const handleApprove = async (id) => {
     try {
-      console.log("Approving user with ID:", id);
       await dispatch(approveUser(id)).unwrap();
       toast({
         title: "Success",
@@ -95,7 +93,6 @@ const RegisteredUsers = () => {
 
   const handleReject = async (id) => {
     try {
-      console.log("Rejecting user with ID:", id);
       await dispatch(rejectUser(id)).unwrap();
       toast({
         title: "Success",
@@ -110,33 +107,64 @@ const RegisteredUsers = () => {
     onClose();
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch("/api/user-actions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({
+          title: "Success",
+          description: "User deleted successfully!",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        dispatch(fetchUsers()); // Refresh the user list
+        setDeleteModal(false); // Close the delete modal
+        onClose(); // Close the user details modal
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to delete user.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(0); // Reset to first page when searching
   };
 
   const handleExportToExcel = () => {
-    // console.log("Exporting to Excel...");
-
-    // Define keys to exclude
     const excludedKeys = ["_id", "password", "__v", "updatedAt"];
-
-    // Filter and map user data
     const filteredUsers = users.map((user) => {
       return Object.entries(user)
-        .filter(([key, value]) => !excludedKeys.includes(key) && value) // Exclude specified keys and ensure values are not empty
+        .filter(([key, value]) => !excludedKeys.includes(key) && value)
         .reduce((acc, [key, value]) => {
           acc[key] = value;
           return acc;
         }, {});
     });
 
-    // Create a worksheet from the filtered user data
     const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-
-    // Export the file
     XLSX.writeFile(workbook, "users_data.xlsx");
   };
 
@@ -149,11 +177,9 @@ const RegisteredUsers = () => {
   };
 
   const handleUpdateTable = () => {
-    console.log("Updating table...");
     dispatch(fetchUsers());
   };
 
-  // Filtered users based on search term
   const filteredUsers = users.filter(
     (user) =>
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,7 +188,6 @@ const RegisteredUsers = () => {
       user.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Users to display on the current page
   const currentUsers = filteredUsers.slice(
     currentPage * usersPerPage,
     (currentPage + 1) * usersPerPage
@@ -170,9 +195,7 @@ const RegisteredUsers = () => {
 
   return (
     <Box>
-      {/* search, update and download component */}
       <Flex mb={8} justify="space-between" align="center">
-        {/* search input */}
         <Flex align="center">
           <Input
             placeholder="Search users..."
@@ -186,7 +209,6 @@ const RegisteredUsers = () => {
           </Button>
         </Flex>
 
-        {/* update and download buttons */}
         <Flex align="center" gap={4}>
           <Button
             size="sm"
@@ -238,7 +260,6 @@ const RegisteredUsers = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination Controls */}
       <Flex mt={8} justify="center" align="center">
         <Button
           onClick={() => handlePageChange("prev")}
@@ -259,7 +280,6 @@ const RegisteredUsers = () => {
         </Button>
       </Flex>
 
-      {/* Modal */}
       {selectedUser && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
@@ -268,19 +288,17 @@ const RegisteredUsers = () => {
             <ModalCloseButton />
             <ModalBody>
               {(() => {
-                const excludedKeys = ["_id", "password", "updatedAt", "__v"]; // Define excluded keys here
-
+                const excludedKeys = ["_id", "password", "updatedAt", "__v"];
                 return (
                   <Flex direction="column" gap={4}>
                     {Object.entries(selectedUser)
                       .filter(
                         ([key, value]) => !excludedKeys.includes(key) && value
-                      ) // Filter out excluded keys and empty/null values
+                      )
                       .map(([key, value]) => (
                         <Flex key={key} align="center">
                           <Text fontWeight="bold" mr={2}>
                             {key
-
                               .replace(/([A-Z])/g, " $1")
                               .replace(/^./, (str) => str.toUpperCase())}
                             :
@@ -316,10 +334,47 @@ const RegisteredUsers = () => {
               </Button>
               <Button
                 colorScheme="red"
+                mr={3}
                 onClick={() => handleReject(selectedUser._id)}
                 isDisabled={selectedUser.registrationStatus === "rejected"}
               >
                 Reject
+              </Button>
+              <Button
+                colorScheme="red"
+                bg="red.500"
+                onClick={() => setDeleteModal(true)}
+              >
+                Delete
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {deleteModal && (
+        <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Delete User</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              Are you sure you want to delete this user{" "}
+              <b>
+                {selectedUser?.firstName} {selectedUser?.lastName}
+              </b>
+              ?
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={() => setDeleteModal(false)} mr={3}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                bg="red.500"
+                onClick={() => handleDelete(selectedUser._id)}
+              >
+                Delete
               </Button>
             </ModalFooter>
           </ModalContent>
