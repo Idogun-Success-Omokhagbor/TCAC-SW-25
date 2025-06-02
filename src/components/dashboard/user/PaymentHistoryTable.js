@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Box,
@@ -10,6 +11,8 @@ import {
   Text,
   Link,
   Badge,
+  Button,
+  Flex,
 } from "@chakra-ui/react";
 
 const statusColor = {
@@ -18,7 +21,7 @@ const statusColor = {
   rejected: "red",
 };
 
-const PaymentHistoryTable = ({ paymentHistory = [] }) => {
+const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip }) => {
   return (
     <Box
       bg="white"
@@ -30,9 +33,25 @@ const PaymentHistoryTable = ({ paymentHistory = [] }) => {
       mx="auto"
       border="1px solid #e2e8f0"
     >
-      <Text fontWeight="bold" fontSize="xl" mb={4}>
-        Payment History
-      </Text>
+      <Flex align="center" justify="space-between" mb={4}>
+        <Text fontWeight="bold" fontSize="xl">
+          Payment History
+        </Text>
+        {balance === 0 && (
+          <Button
+            colorScheme="blue"
+            size="sm"
+            onClick={onPrintSlip}
+            borderRadius="md"
+            fontWeight="semibold"
+            px={5}
+            py={2}
+            boxShadow="sm"
+          >
+            Print Slip
+          </Button>
+        )}
+      </Flex>
       <Table variant="simple" size="md">
         <Thead>
           <Tr>

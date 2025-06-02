@@ -241,6 +241,41 @@ const AdminSidebar = ({ onMenuClick, accountData }) => {
       </Box>
 
       <Box
+        onClick={() => {
+          onMenuClick("slip-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap={6}
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <FaUserCog />
+          {!isSidebarCollapsed && <Text>Slip Management</Text>}
+        </Link>
+      </Box>
+      <Box
         onClick={() => onMenuClick("logout")}
         _focus={{
           size: "md",

@@ -1,5 +1,6 @@
 import Head from "next/head";
 import "@/styles/globals.css";
+import "@/styles/paymentslip.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "../themes/theme";
 import store from "../store";

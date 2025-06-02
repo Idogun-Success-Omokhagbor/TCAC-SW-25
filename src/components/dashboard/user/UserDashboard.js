@@ -5,13 +5,15 @@ import "antd/dist/reset.css";
 import PaymentFormPopout from "./PaymentFormPopout";
 import PaymentHistoryTable from "./PaymentHistoryTable";
 import { useDisclosure } from "@chakra-ui/react";
+import PaymentSlip from "./PaymentSlip";
+import { Modal, ModalOverlay, ModalContent, ModalBody, ModalFooter } from "@chakra-ui/react";
+import { useRef } from "react";
 
 const mealTypes = [
   { label: "Breakfast", value: "breakfast", color: "#b6eabf" },
   { label: "Lunch", value: "afternoon", color: "#f6ffb3" },
   { label: "Dinner", value: "evening", color: "#e6efe3" },
 ];
-
 const ITEMS_PER_PAGE = 5;
 
 const UserDashboard = ({ accountData: initialData }) => {
@@ -24,6 +26,35 @@ const UserDashboard = ({ accountData: initialData }) => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [page, setPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  
+  const [showSlip, setShowSlip] = useState(false);
+  const [slipCode, setSlipCode] = useState("");
+  const slipRef = useRef();
+  const printSlip = async () => {
+    const res = await fetch("/api/slip", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: accountData._id }),
+    });
+    const data = await res.json();
+    setSlipCode(data.slipCode);
+    setShowSlip(true);
+  };
+
+const handlePrint = () => {
+  const printContents = slipRef.current.innerHTML;
+  const win = window.open("", "", "width=900,height=700");
+  win.document.write(`<html><head><title>Print Slip</title></head><body>${printContents}</body></html>`);
+  Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
+    .forEach(node => win.document.head.appendChild(node.cloneNode(true)));
+  win.document.close();
+  win.onload = () => {
+    win.focus();
+    win.print();
+    win.close();
+  };
+};
 
   const refreshUserData = async () => {
     if (!initialData?._id) return;
@@ -173,32 +204,34 @@ const UserDashboard = ({ accountData: initialData }) => {
         </Flex>
       )}
 
-      <Box mb={4}>
-        <PaymentHistoryTable paymentHistory={paginatedPayments} />
-        {paymentHistory.length > ITEMS_PER_PAGE && (
-          <Flex justify="center" align="center" mt={2} gap={2}>
-            <Button
-              size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              variant="outline"
-            >
-              {"<"}
-            </Button>
-            <Text fontSize="md">
-              {page} / {totalPages}
-            </Text>
-            <Button
-              size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              variant="outline"
-            >
-              {">"}
-            </Button>
-          </Flex>
-        )}
-      </Box>
+            {paymentHistory.length > 0 && (
+        <Box mb={4}>
+          <PaymentHistoryTable paymentHistory={paginatedPayments} balance={accountData?.balance} onPrintSlip={printSlip} />
+          {paymentHistory.length > ITEMS_PER_PAGE && (
+            <Flex justify="center" align="center" mt={2} gap={2}>
+              <Button
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                variant="outline"
+              >
+                {"<"}
+              </Button>
+              <Text fontSize="md">
+                {page} / {totalPages}
+              </Text>
+              <Button
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                variant="outline"
+              >
+                {">"}
+              </Button>
+            </Flex>
+          )}
+        </Box>
+      )}
 
       <Text fontSize="xl" mb={8}>
         We are not just a camp, we are family.
@@ -410,6 +443,24 @@ const UserDashboard = ({ accountData: initialData }) => {
         balance={accountData?.balance}
         refreshUserData={refreshUserData}
       />
+    <Modal isOpen={showSlip} onClose={() => setShowSlip(false)} size="xl">
+  <ModalOverlay />
+  <ModalContent>
+    <ModalBody>
+      <div ref={slipRef}>
+        <PaymentSlip user={accountData} payments={paymentHistory} slipCode={slipCode} />
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <Button colorScheme="green" mr={3} onClick={handlePrint}>
+        Print
+      </Button>
+      <Button variant="ghost" onClick={() => setShowSlip(false)}>
+        Close
+      </Button>
+    </ModalFooter>
+  </ModalContent>
+</Modal>
     </Box>
   );
 };
