@@ -6,6 +6,7 @@ const PaymentSchema = new mongoose.Schema(
     paymentType: { type: String, required: true },
     campType: { type: String, required: true },
     amount: { type: Number, required: true },
+    transactionDate: { type: Date, required: true },
     receiptUrl: { type: String, required: true },
     paymentNarration: { type: String },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },

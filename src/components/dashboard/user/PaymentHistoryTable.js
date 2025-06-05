@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Box,
@@ -56,6 +55,7 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
         <Thead>
           <Tr>
             <Th>Date</Th>
+            <Th>Transaction Date</Th>
             <Th>Amount</Th>
             <Th>Receipt</Th>
             <Th>Status</Th>
@@ -65,7 +65,7 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
         <Tbody>
           {paymentHistory.length === 0 ? (
             <Tr>
-              <Td colSpan={5}>
+              <Td colSpan={6}>
                 <Text textAlign="center" color="gray.500">
                   No payment history yet.
                 </Text>
@@ -75,22 +75,17 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
             paymentHistory.map((item, idx) => (
               <Tr key={item._id || idx}>
                 <Td>
-                  {item.createdAt
-                    ? new Date(item.createdAt).toLocaleDateString()
-                    : "-"}
+                  {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}
+                </Td>
+                <Td>
+                  {item.transactionDate ? new Date(item.transactionDate).toLocaleString() : "-"}
                 </Td>
                 <Td>
                   ₦{item.amount ? Number(item.amount).toLocaleString() : "-"}
                 </Td>
                 <Td>
                   {item.receiptUrl ? (
-                    <Link
-                      href={item.receiptUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="blue.500"
-                      textDecoration="underline"
-                    >
+                    <Link href={item.receiptUrl} target="_blank" rel="noopener noreferrer" color="blue.500" textDecoration="underline">
                       View
                     </Link>
                   ) : (
