@@ -49,7 +49,10 @@ export const loginUser = createAsyncThunk(
   async (formValues, thunkAPI) => {
     try {
       const response = await axios.post('/api/auth/user/login', formValues);
-      localStorage.setItem('userToken', response.data.token);
+      sessionStorage.setItem('userData', JSON.stringify({
+        user: response.data.user,
+        token: response.data.token
+      }));
       return { user: response.data.user, token: response.data.token };
     } catch (error) {
       const statusCode = error.response?.status || 500;
@@ -87,23 +90,36 @@ export const resetUserPassword = createAsyncThunk(
   }
 );
 
+const initialState = {
+  user: null,
+  token: null,
+  loading: false,
+  status: 'idle',
+  error: null,
+};
+
+// Try to get initial state from sessionStorage
+if (typeof window !== 'undefined') {
+  const userData = sessionStorage.getItem('userData');
+  if (userData) {
+    const { user, token } = JSON.parse(userData);
+    initialState.user = user;
+    initialState.token = token;
+  }
+}
+
 const userAuthSlice = createSlice({
   name: 'userAuth',
-  initialState: {
-    user: null,
-    token: null,
-    loading: false,
-    status: 'idle',
-    error: null,
-  },
+  initialState,
   reducers: {
     logoutUser: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('userToken');
+      sessionStorage.removeItem('userData');
     },
     setUser: (state, action) => {
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
     },
     clearStatus: (state) => {
       state.status = 'idle';

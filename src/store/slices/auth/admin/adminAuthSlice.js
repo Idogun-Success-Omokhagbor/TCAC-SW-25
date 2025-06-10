@@ -68,7 +68,7 @@ const adminAuthSlice = createSlice({
   name: 'adminAuth',
   initialState: {
     admin: null,
-    token: null,
+    token: typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null,
     loading: false,
     status: 'idle',
     error: null,
@@ -77,10 +77,12 @@ const adminAuthSlice = createSlice({
     logoutAdmin: (state) => {
       state.admin = null;
       state.token = null;
-      localStorage.removeItem('adminToken'); // Clear token on logout
+      localStorage.removeItem('adminToken');
+      sessionStorage.removeItem('adminData');
     },
     setAdmin: (state, action) => {
       state.admin = action.payload;
+      state.token = localStorage.getItem('adminToken');
     },
     clearStatus: (state) => {
       state.status = 'idle';

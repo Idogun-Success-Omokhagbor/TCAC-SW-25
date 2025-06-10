@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -56,11 +56,7 @@ const DaysManagement = () => {
   const [selectedDay, setSelectedDay] = useState(null);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchDays();
-  }, []);
-
-  const fetchDays = async () => {
+  const fetchDays = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/days");
@@ -72,7 +68,11 @@ const DaysManagement = () => {
       toast({ title: "Failed to fetch days", status: "error" });
     }
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchDays();
+  }, [fetchDays]);
 
   const handleChange = (e) => {
     setDay({ ...day, [e.target.name]: e.target.value });

@@ -90,4 +90,6 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
   );
 });
 
+PaymentSlip.displayName = 'PaymentSlip';
+
 export default PaymentSlip;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -62,12 +62,7 @@ const ActivitiesManagement = () => {
   const [days, setDays] = useState([]);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchActivities();
-    fetchDays();
-  }, []);
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/activities");
@@ -79,9 +74,9 @@ const ActivitiesManagement = () => {
       toast({ title: "Failed to fetch activities", status: "error" });
     }
     setLoading(false);
-  };
+  }, [toast]);
 
-  const fetchDays = async () => {
+  const fetchDays = useCallback(async () => {
     try {
       const res = await fetch("/api/days");
       const data = await res.json();
@@ -90,7 +85,12 @@ const ActivitiesManagement = () => {
     } catch {
       setDays([]);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchActivities();
+    fetchDays();
+  }, [fetchActivities, fetchDays]);
 
   const handleChange = (e) => {
     setActivity({ ...activity, [e.target.name]: e.target.value });

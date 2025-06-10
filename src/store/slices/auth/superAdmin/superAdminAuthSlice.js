@@ -71,7 +71,7 @@ const superAdminAuthSlice = createSlice({
   name: 'superAdminAuth',
   initialState: {
     superAdmin: null,
-    token: null,
+    token: typeof window !== 'undefined' ? localStorage.getItem('superAdminToken') : null,
     loading: false,
     status: 'idle',
     error: null,
@@ -81,9 +81,11 @@ const superAdminAuthSlice = createSlice({
       state.superAdmin = null;
       state.token = null;
       localStorage.removeItem('superAdminToken');
+      sessionStorage.removeItem('superAdminData');
     },
     setSuperAdmin: (state, action) => {
       state.superAdmin = action.payload;
+      state.token = localStorage.getItem('superAdminToken');
     },
     clearStatus: (state) => {
       state.status = 'idle';

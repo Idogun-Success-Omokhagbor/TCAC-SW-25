@@ -1,5 +1,5 @@
-const connectDB = require("../../utils/connectDB");
-const Day = require("../../models/Day");
+import connectDB from "../../utils/connectDB";
+import Day from "../../models/Day";
 
 export default async function handler(req, res) {
   await connectDB();

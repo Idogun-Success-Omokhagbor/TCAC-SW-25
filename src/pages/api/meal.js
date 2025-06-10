@@ -1,5 +1,5 @@
 import Meal from "@/models/Meal";
-const connectDB = require("@/utils/connectDB");
+import connectDB from "@/utils/connectDB";
 
 export default async function handler(req, res) {
   await connectDB();
