@@ -92,5 +92,5 @@ async function generateUserID(userCategory) {
     participantID = generateParticipantID("ABU", participantIDCounter);
   }
 
-  return `TCAC'24-${categoryID}-${participantID}`;
+  return `TCAC'25-${categoryID}-${participantID}`;
 }

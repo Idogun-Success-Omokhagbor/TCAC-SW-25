@@ -135,7 +135,7 @@ const UserDashboard = ({ accountData: initialData }) => {
     <Box className={styles.container}>
       <Box className={styles.welcomeSection}>
         <Heading className={styles.welcomeHeadingOneLine}>
-          Welcome back to TCAC &apos;24,{' '}
+          Welcome back to TCAC &apos;25,{' '}
           <Box as="span" className={styles.welcomeName}>
             {accountData?.firstName || accountData?.userID}!
           </Box>

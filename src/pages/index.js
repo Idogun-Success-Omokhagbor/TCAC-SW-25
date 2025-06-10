@@ -13,8 +13,8 @@ export default function Home() {
     <>
     
       <Head>
-        <title>TCAC&apos;24</title>
-        <meta name="description" content="TCAC'24 - Connecting the Community" />
+        <title>TCAC&apos;25</title>
+        <meta name="description" content="TCAC'25 - Connecting the Community" />
         <link rel="icon" href="/timsan-logo.png" />
       </Head>
 

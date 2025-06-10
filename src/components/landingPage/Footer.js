@@ -82,7 +82,7 @@ const Footer = () => {
       </Flex>
 
       <Text fontSize="sm" color="gray.50" mt={4}>
-        © 2024. Powered by TIMSAN Southwest. <br /> All Rights Reserved.
+        © 2025. Powered by TIMSAN Southwest. <br /> All Rights Reserved.
       </Text>
     </Box>
   );

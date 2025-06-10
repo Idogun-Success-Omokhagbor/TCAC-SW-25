@@ -27,7 +27,7 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
             mr={3}
           />
           <Heading size="lg" textAlign="center">
-            TIMSAN Camp and Conference 2024 (TCAC &apos;24)
+            TIMSAN Camp and Conference 2025 (TCAC &apos;25)
           </Heading>
         </Flex>
         <Text textAlign="center" fontWeight="bold" mb={4}>
@@ -83,7 +83,7 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
         </Box>
         <Divider my={4} />
         <Text fontSize="sm" textAlign="center" mt={8}>
-          &copy; 2024, TIMSAN Southwest. All rights reserved.
+          &copy; 2025, TIMSAN Southwest. All rights reserved.
         </Text>
       </Box>
     </Box>

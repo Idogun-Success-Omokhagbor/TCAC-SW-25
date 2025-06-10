@@ -69,10 +69,10 @@ async function generateSuperAdminID() {
       const lastSuperAdminID = lastSuperAdmin.superAdminID;
       const lastCounter = parseInt(lastSuperAdminID.split("-")[2]);
       const paddedCounter = (lastCounter + 1).toString().padStart(3, "0");
-      return `TCAC'24-SADM-${paddedCounter}`;
+      return `TCAC'25-SADM-${paddedCounter}`;
     } else {
       // If there are no admins in the database yet
-      return `TCAC'24-SADM-001`;
+      return `TCAC'25-SADM-001`;
     }
   } catch (error) {
     console.error("Error generating super admin ID:", error);

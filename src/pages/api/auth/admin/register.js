@@ -63,10 +63,10 @@ async function generateAdminID() {
       const lastAdminID = lastAdmin.adminID;
       const lastCounter = parseInt(lastAdminID.split("-")[2]);
       const paddedCounter = (lastCounter + 1).toString().padStart(3, "0");
-      return `TCAC'24-ADM-${paddedCounter}`;
+      return `TCAC'25-ADM-${paddedCounter}`;
     } else {
       // If there are no admins in the database yet
-      return `TCAC'24-ADM-001`;
+      return `TCAC'25-ADM-001`;
     }
   } catch (error) {
     console.error("Error generating admin ID:", error);

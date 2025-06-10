@@ -50,7 +50,7 @@ const HeroSection = () => {
         textAlign="center"
       >
         <Heading as="h1" size="xl" fontWeight="bold" mb={4}>
-          TIMSAN Camp and Conference 2024 (TCAC &apos;24)
+          TIMSAN Camp and Conference 2025 (TCAC &apos;25)
         </Heading>
         <Text fontSize="lg" mb={8} maxW="2xl" mx="auto">
           Participate in an extraordinary experience while delving into the
