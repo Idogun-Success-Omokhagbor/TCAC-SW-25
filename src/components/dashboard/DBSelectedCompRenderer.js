@@ -90,6 +90,16 @@ const DashboardSelectedComponentRenderer = ({
           return <RegisteredUsers accountData={accountData}/>;
         case "registered-admins":
           return <RegisteredAdmins accountData={accountData}/>;
+        case "activities-management":
+          return <ActivitiesManagement />;
+        case "meal-management":
+          return <MealManagement />;
+        case "days-management":
+          return <DaysManagement />;
+        case "payment-management":
+          return <AdminPaymentApprovalTable />;
+        case "slip-management":
+          return <SlipManagement />;
         default:
           return <RegisteredUsers accountData={accountData}/>;
       }

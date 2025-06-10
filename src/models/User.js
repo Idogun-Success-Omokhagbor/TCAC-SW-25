@@ -53,7 +53,12 @@ const userSchema = new mongoose.Schema(
     receiptUrl: { type: String },
     payementNarration: { type: String },
 
-    balance: { type: Number, default: 35000 }, 
+    balance: { 
+      type: Number, 
+      default: function() {
+        return this.userCategory === "Child" ? 0 : 35000;
+      }
+    },
 
     createdAt: { type: Date, default: Date.now },
   },

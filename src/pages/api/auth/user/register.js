@@ -21,12 +21,15 @@ export default async function handler(req, res) {
       const hashedPassword = await bcryptjs.hash(password, 12);
       const userID = await generateUserID(userCategory);
 
+      
+      const balance = userCategory === "Child" ? 0 : 35000;
+
       const newUser = new User({
         ...req.body,
         password: hashedPassword,
         userID,
         registrationStatus: "pending",
-        balance: 35000, // Set default balance
+        balance, 
       });
 
       await newUser.save();

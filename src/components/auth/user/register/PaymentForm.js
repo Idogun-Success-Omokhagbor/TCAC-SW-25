@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -46,6 +46,22 @@ const PaymentForm = ({
     accountNumber: "2283452778",
     bank: "UBA",
   };
+
+  useEffect(() => {
+    if (prevFormValues?.userCategory === "Child") {
+      setFormValues(prev => ({
+        ...prev,
+        amount: "3500"
+      }));
+      setMinimumAmountRequired(3500);
+    } else {
+      setFormValues(prev => ({
+        ...prev,
+        amount: "7000"
+      }));
+      setMinimumAmountRequired(7000);
+    }
+  }, [prevFormValues?.userCategory]);
 
   const handleCopyToClipboard = (text, label) => {
     toast({
@@ -239,7 +255,7 @@ const PaymentForm = ({
 
         <FormControl id="amount" isInvalid={!!formErrors.amount}>
           <FormLabel>Amount</FormLabel>
-          <Input value="7000" readOnly />
+          <Input value={formValues.amount} readOnly />
           {formErrors.amount && (
             <Text color="red.500" fontSize="sm">
               {formErrors.amount}
