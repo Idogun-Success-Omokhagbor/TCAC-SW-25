@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Heading, Text, SimpleGrid, Select, Flex, Button } from "@chakra-ui/react";
 import { Empty } from "antd";
 import "antd/dist/reset.css";
+import styles from "@/styles/userDashboard.module.css";
 import PaymentFormPopout from "./PaymentFormPopout";
 import PaymentHistoryTable from "./PaymentHistoryTable";
 import { useDisclosure } from "@chakra-ui/react";
@@ -27,7 +28,6 @@ const UserDashboard = ({ accountData: initialData }) => {
   const [page, setPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  
   const [showSlip, setShowSlip] = useState(false);
   const [slipCode, setSlipCode] = useState("");
   const slipRef = useRef();
@@ -42,19 +42,19 @@ const UserDashboard = ({ accountData: initialData }) => {
     setShowSlip(true);
   };
 
-const handlePrint = () => {
-  const printContents = slipRef.current.innerHTML;
-  const win = window.open("", "", "width=900,height=700");
-  win.document.write(`<html><head><title>Print Slip</title></head><body>${printContents}</body></html>`);
-  Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
-    .forEach(node => win.document.head.appendChild(node.cloneNode(true)));
-  win.document.close();
-  win.onload = () => {
-    win.focus();
-    win.print();
-    win.close();
+  const handlePrint = () => {
+    const printContents = slipRef.current.innerHTML;
+    const win = window.open("", "", "width=900,height=700");
+    win.document.write(`<html><head><title>Print Slip</title></head><body>${printContents}</body></html>`);
+    Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
+      .forEach(node => win.document.head.appendChild(node.cloneNode(true)));
+    win.document.close();
+    win.onload = () => {
+      win.focus();
+      win.print();
+      win.close();
+    };
   };
-};
 
   const refreshUserData = async () => {
     if (!initialData?._id) return;
@@ -111,10 +111,10 @@ const handlePrint = () => {
   }, []);
 
   useEffect(() => {
-    if (accountData?._id) {
-      fetchPaymentHistory(accountData._id);
+    if (initialData?._id) {
+      refreshUserData();
     }
-  }, [accountData?._id]);
+  }, [initialData?._id]);
 
   const getMealName = type => {
     const meal = meals.find(m => m.day === selectedMealDay && m.type === type);
@@ -132,71 +132,28 @@ const handlePrint = () => {
   );
 
   return (
-    <Box bg="#e6efe3" minH="100vh" p={8}>
-      <Heading
-        fontSize={{ base: "md", md: "lg", lg: "xl", xl: "3xl" }}
-        mb={2}
-        fontWeight="hairline"
-        whiteSpace="nowrap"
-        overflow="hidden"
-        textOverflow="ellipsis"
-      >
-        Welcome back to TCAC ‘24,{" "}
-        <Box
-          as="span"
-          fontWeight="extrabold"
-          fontSize={{ base: "lg", md: "xl", lg: "2xl", xl: "3xl" }}
-          letterSpacing="wide"
-          display="inline"
-        >
-          {accountData?.firstName || accountData?.userID}!
-        </Box>
-      </Heading>
+    <Box className={styles.container}>
+      <Box className={styles.welcomeSection}>
+        <Heading className={styles.welcomeHeadingOneLine}>
+          Welcome back to TCAC '24,{' '}
+          <Box as="span" className={styles.welcomeName}>
+            {accountData?.firstName || accountData?.userID}!
+          </Box>
+        </Heading>
+      </Box>
 
       {accountData?.balance > 0 && (
-        <Flex
-          align="center"
-          alignItems="center"
-          bg="#32b432"
-          borderRadius="md"
-          border="3px solid #000"
-          p={2}
-          mb={10}
-          mt={10}
-          maxW="900px"
-          minW="320px"
-          justify="space-between"
-          boxShadow="4px 4px 0 #000"
-          width="100%"
-        >
-          <Text fontSize="lg" color="#222" display="flex" alignItems="center">
+        <Flex className={styles.balancePaymentSection}>
+          <Text className={styles.balanceText}>
             You are{" "}
-            <Box
-              as="span"
-              fontWeight="bold"
-              display="inline"
-              fontSize="xl"
-              ml={1}
-              mr={1}
-              verticalAlign="middle"
-            >
+            <Box as="span" className={styles.balanceAmount}>
               {accountData?.balance?.toLocaleString()} NGN
             </Box>
             away from completing your TCAC payment
           </Text>
           <Box
             as="button"
-            bg="#eaffe0"
-            color="#222"
-            fontWeight="bold"
-            fontSize="lg"
-            px={7}
-            py={2}
-            borderRadius="xl"
-            border="2px solid #222"
-            ml={4}
-            boxShadow="2px 2px 0 #222"
-            _hover={{ bg: "#d6f5c2", color: "#222" }}
+            className={styles.balanceButton}
             onClick={onOpen}
           >
             Balance payment
@@ -204,13 +161,15 @@ const handlePrint = () => {
         </Flex>
       )}
 
-            {paymentHistory.length > 0 && (
-        <Box mb={4}>
-          <PaymentHistoryTable paymentHistory={paginatedPayments} balance={accountData?.balance} onPrintSlip={printSlip} />
+      {paymentHistory.length > 0 && (
+        <Box className={styles.paymentHistorySection}>
+          <Box className={styles.paymentHistoryTable}>
+            <PaymentHistoryTable paymentHistory={paginatedPayments} balance={accountData?.balance} onPrintSlip={printSlip} />
+          </Box>
           {paymentHistory.length > ITEMS_PER_PAGE && (
-            <Flex justify="center" align="center" mt={2} gap={2}>
+            <Flex className={styles.paginationSection}>
               <Button
-                size="sm"
+                className={styles.paginationButton}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 variant="outline"
@@ -221,7 +180,7 @@ const handlePrint = () => {
                 {page} / {totalPages}
               </Text>
               <Button
-                size="sm"
+                className={styles.paginationButton}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 variant="outline"
@@ -232,6 +191,8 @@ const handlePrint = () => {
           )}
         </Box>
       )}
+
+      <Box mb={{ base: 4, md: 10 }} />
 
       <Text fontSize="xl" mb={8}>
         We are not just a camp, we are family.
@@ -285,7 +246,7 @@ const handlePrint = () => {
       >
         <SimpleGrid columns={3} spacing={10}>
           {mealTypes.map(mt => (
-            <Box textAlign="center" key={mt.value}>
+            <Box textAlign="center" key={mt.value} className={styles.mealBoxWrapper}>
               <Box
                 bg={mt.color}
                 color="#222"
@@ -297,10 +258,11 @@ const handlePrint = () => {
                 mb={6}
                 display="inline-block"
                 border="1px solid #000"
+                className={styles.mealBox}
               >
                 {mt.label}
               </Box>
-              <Text fontSize="2xl" mt={4}>
+              <Text fontSize="2xl" mt={4} className={styles.mealValue}>
                 {getMealName(mt.value)}
               </Text>
             </Box>
@@ -357,7 +319,7 @@ const handlePrint = () => {
         mt={4}
       >
         <SimpleGrid columns={3} spacing={10}>
-          <Box textAlign="center">
+          <Box textAlign="center" className={styles.activitiesBoxWrapper}>
             <Box
               bg="#e6efe3"
               color="#222"
@@ -369,6 +331,7 @@ const handlePrint = () => {
               mb={6}
               display="inline-block"
               border="1px solid #000"
+              className={styles.activitiesBox}
             >
               Activities
             </Box>
@@ -376,13 +339,13 @@ const handlePrint = () => {
               <Box py={12} />
             ) : (
               filteredActivities.map(item => (
-                <Text fontSize="xl" mt={8} key={item._id}>
+                <Text fontSize="xl" mt={8} key={item._id} className={styles.activitiesValue}>
                   {item.name}
                 </Text>
               ))
             )}
           </Box>
-          <Box textAlign="center">
+          <Box textAlign="center" className={styles.durationBoxWrapper}>
             <Box
               bg="#eaffe0"
               color="#222"
@@ -394,22 +357,21 @@ const handlePrint = () => {
               mb={6}
               display="inline-block"
               border="1px solid #000"
+              className={styles.durationBox}
             >
               Duration
             </Box>
             {filteredActivities.length === 0 ? (
-              <Box py={12} display="flex" alignItems="center" justifyContent="center" height="100%">
-                <Empty description="No data" />
-              </Box>
+              <Box py={12} display="flex" alignItems="center" justifyContent="center" height="100%" />
             ) : (
               filteredActivities.map(item => (
-                <Text fontSize="xl" mt={8} key={item._id}>
+                <Text fontSize="xl" mt={8} key={item._id} className={styles.durationValue}>
                   {item.startTime} - {item.endTime}
                 </Text>
               ))
             )}
           </Box>
-          <Box textAlign="center">
+          <Box textAlign="center" className={styles.facilitatorBoxWrapper}>
             <Box
               bg="#3cb43c"
               color="#fff"
@@ -421,6 +383,7 @@ const handlePrint = () => {
               mb={6}
               display="inline-block"
               border="1px solid #000"
+              className={styles.facilitatorBox}
             >
               Facilitator
             </Box>
@@ -428,7 +391,7 @@ const handlePrint = () => {
               <Box py={12} />
             ) : (
               filteredActivities.map(item => (
-                <Text fontSize="xl" mt={8} key={item._id}>
+                <Text fontSize="xl" mt={8} key={item._id} className={styles.facilitatorValue}>
                   {item.facilitator}
                 </Text>
               ))

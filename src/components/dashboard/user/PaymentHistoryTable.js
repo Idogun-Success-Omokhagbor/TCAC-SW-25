@@ -12,7 +12,9 @@ import {
   Badge,
   Button,
   Flex,
+  useBreakpointValue,
 } from "@chakra-ui/react";
+import styles from "@/styles/userDashboard.module.css";
 
 const statusColor = {
   pending: "yellow",
@@ -20,91 +22,116 @@ const statusColor = {
   rejected: "red",
 };
 
+const getStatusColor = (status) => {
+  const colors = {
+    pending: "#ecc94b",
+    approved: "#48bb78",
+    rejected: "#f56565",
+  };
+  return colors[status] || "#a0aec0";
+};
+
 const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip }) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   return (
-    <Box
-      bg="white"
-      borderRadius="md"
-      boxShadow="md"
-      p={6}
-      mb={8}
-      maxW="900px"
-      mx="auto"
-      border="1px solid #e2e8f0"
-    >
-      <Flex align="center" justify="space-between" mb={4}>
-        <Text fontWeight="bold" fontSize="xl">
-          Payment History
-        </Text>
-        {balance === 0 && (
-          <Button
-            colorScheme="blue"
-            size="sm"
-            onClick={onPrintSlip}
-            borderRadius="md"
-            fontWeight="semibold"
-            px={5}
-            py={2}
-            boxShadow="sm"
-          >
-            Print Slip
-          </Button>
-        )}
-      </Flex>
-      <Table variant="simple" size="md">
-        <Thead>
-          <Tr>
-            <Th>Date</Th>
-            <Th>Transaction Date</Th>
-            <Th>Amount</Th>
-            <Th>Receipt</Th>
-            <Th>Status</Th>
-            <Th>Admin Comment</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {paymentHistory.length === 0 ? (
-            <Tr>
-              <Td colSpan={6}>
-                <Text textAlign="center" color="gray.500">
-                  No payment history yet.
-                </Text>
-              </Td>
-            </Tr>
-          ) : (
-            paymentHistory.map((item, idx) => (
-              <Tr key={item._id || idx}>
-                <Td>
-                  {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}
-                </Td>
-                <Td>
-                  {item.transactionDate ? new Date(item.transactionDate).toLocaleString() : "-"}
-                </Td>
-                <Td>
-                  ₦{item.amount ? Number(item.amount).toLocaleString() : "-"}
-                </Td>
-                <Td>
-                  {item.receiptUrl ? (
-                    <Link href={item.receiptUrl} target="_blank" rel="noopener noreferrer" color="blue.500" textDecoration="underline">
-                      View
-                    </Link>
-                  ) : (
-                    "-"
-                  )}
-                </Td>
-                <Td>
-                  <Badge colorScheme={statusColor[item.status] || "gray"}>
-                    {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : "-"}
-                  </Badge>
-                </Td>
-                <Td>
-                  {item.adminComment || "-"}
-                </Td>
+    <Box className={styles.paymentHistorySection}>
+      <Box className={styles.paymentHistoryTable}>
+        {isMobile ? (
+          <div className={styles.mobilePaymentCard}>
+            {paymentHistory.map((payment, index) => (
+              <div key={index} className={styles.mobilePaymentItem}>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Date</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {new Date(payment.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Amount</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {payment.amount?.toLocaleString()} NGN
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Type</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {payment.paymentType}
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Status</span>
+                  <span className={styles.mobilePaymentStatus} style={{ backgroundColor: `${getStatusColor(payment.status)}20`, color: getStatusColor(payment.status) }}>
+                    {payment.status}
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Admin Comment</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {payment.adminComment || "-"}
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Receipt</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {payment.receiptUrl ? (
+                      <Link href={payment.receiptUrl} target="_blank" rel="noopener noreferrer" className={styles.receiptLink}>
+                        View
+                      </Link>
+                    ) : "-"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Table variant="simple" size="md" className={styles.desktopTable}>
+            <Thead>
+              <Tr>
+                <Th className={styles.tableHeader}>Date</Th>
+                <Th className={styles.tableHeader}>Transaction Date</Th>
+                <Th className={styles.tableHeader}>Amount</Th>
+                <Th className={styles.tableHeader}>Receipt</Th>
+                <Th className={styles.tableHeader}>Status</Th>
+                <Th className={styles.tableHeader}>Admin Comment</Th>
               </Tr>
-            ))
-          )}
-        </Tbody>
-      </Table>
+            </Thead>
+            <Tbody>
+              {paymentHistory.length === 0 ? (
+                <Tr>
+                  <Td colSpan={6} className={styles.emptyState}>
+                    <Text textAlign="center" color="gray.500">No payment history yet.</Text>
+                  </Td>
+                </Tr>
+              ) : (
+                paymentHistory.map((item, idx) => (
+                  <Tr key={item._id || idx} className={styles.tableRow}>
+                    <Td className={styles.tableCell}>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}</Td>
+                    <Td className={styles.tableCell}>{item.transactionDate ? new Date(item.transactionDate).toLocaleString() : "-"}</Td>
+                    <Td className={styles.tableCell}>₦{item.amount ? Number(item.amount).toLocaleString() : "-"}</Td>
+                    <Td className={styles.tableCell}>
+                      {item.receiptUrl ? (
+                        <Link href={item.receiptUrl} target="_blank" rel="noopener noreferrer" className={styles.receiptLink}>View</Link>
+                      ) : "-"}
+                    </Td>
+                    <Td className={styles.tableCell}>
+                      <Badge colorScheme={statusColor[item.status] || "gray"} className={styles.statusBadge}>
+                        {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : "-"}
+                      </Badge>
+                    </Td>
+                    <Td className={styles.tableCell}>{item.adminComment || "-"}</Td>
+                  </Tr>
+                ))
+              )}
+            </Tbody>
+          </Table>
+        )}
+      </Box>
+      {balance === 0 && (
+        <Flex justify="center" mt={4}>
+          <Button colorScheme="blue" size="sm" onClick={onPrintSlip} className={styles.printButton}>Print Slip</Button>
+        </Flex>
+      )}
     </Box>
   );
 };
