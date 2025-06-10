@@ -114,7 +114,7 @@ const UserDashboard = ({ accountData: initialData }) => {
     if (initialData?._id) {
       refreshUserData();
     }
-  }, [initialData?._id]);
+  }, [initialData?._id, refreshUserData]);
 
   const getMealName = type => {
     const meal = meals.find(m => m.day === selectedMealDay && m.type === type);
@@ -135,7 +135,7 @@ const UserDashboard = ({ accountData: initialData }) => {
     <Box className={styles.container}>
       <Box className={styles.welcomeSection}>
         <Heading className={styles.welcomeHeadingOneLine}>
-          Welcome back to TCAC '24,{' '}
+          Welcome back to TCAC &apos;24,{' '}
           <Box as="span" className={styles.welcomeName}>
             {accountData?.firstName || accountData?.userID}!
           </Box>
