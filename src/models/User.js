@@ -60,6 +60,16 @@ const userSchema = new mongoose.Schema(
       }
     },
 
+    // Payment access control
+    paymentAccessGranted: { type: Boolean, default: false },
+    paymentRequestMessage: { type: String },
+    paymentRequestDate: { type: Date },
+    paymentRequestStatus: { 
+      type: String, 
+      enum: ["pending", "approved", "rejected", "revoked"], 
+      default: "pending" 
+    },
+
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

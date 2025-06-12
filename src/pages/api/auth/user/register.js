@@ -1,5 +1,6 @@
 import connectDB from "../../../../utils/connectDB";
 import User from "../../../../models/User";
+import Settings from "../../../../models/Settings";
 import bcryptjs from "bcryptjs";
 
 export default async function handler(req, res) {
@@ -13,6 +14,18 @@ export default async function handler(req, res) {
     }
 
     try {
+      // Check if this is a user registration (not admin or super admin)
+      if (role === "User" || role === "user") {
+        // Check portal registration status
+        const settings = await Settings.findOne().sort({ createdAt: -1 });
+        
+        if (settings && !settings.portalRegistrationOpen) {
+          return res.status(403).json({ 
+            error: settings.registrationMessage || "Portal Has Been Closed For Registration" 
+          });
+        }
+      }
+
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });

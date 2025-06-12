@@ -12,6 +12,8 @@ import MealManagement from "./admins/admin/MealManagement";
 import DaysManagement from "./admins/admin/DaysManagement";
 import AdminPaymentApprovalTable from "./admins/admin/AdminPaymentApprovalTable";
 import SlipManagement from "./admins/admin/SlipManagement";
+import Settings from "./superAdmin/Settings";
+import PaymentRequestManagement from "./superAdmin/PaymentRequestManagement";
 
 const DashboardSelectedComponentRenderer = ({
   role,
@@ -100,6 +102,10 @@ const DashboardSelectedComponentRenderer = ({
           return <AdminPaymentApprovalTable />;
         case "slip-management":
           return <SlipManagement />;
+        case "settings":
+          return <Settings accountData={accountData} />;
+        case "payment-requests":
+          return <PaymentRequestManagement />;
         default:
           return <RegisteredUsers accountData={accountData}/>;
       }
