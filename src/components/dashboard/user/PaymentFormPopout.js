@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box, Flex, Button, FormControl, FormLabel, InputGroup, InputRightElement, Input, Stack, Text, IconButton, Textarea, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Select, Tooltip } from "@chakra-ui/react";
 import { FaCopy } from "react-icons/fa";
 import { MdAttachFile } from "react-icons/md";
@@ -15,6 +15,15 @@ const PaymentFormPopout = ({ isOpen, onClose, role, values, onValuesChange, onNe
   const toast = useToast();
 
   const bankAccountDetails = { accountName: "Timsan southwest", accountNumber: "2283452778", bank: "UBA" };
+
+  // Update form values and minimum amount when balance prop changes
+  useEffect(() => {
+    setFormValues(prev => ({
+      ...prev,
+      amount: balance?.toString() || "35000"
+    }));
+    setMinimumAmountRequired(balance || 35000);
+  }, [balance]);
 
   const handleCopyToClipboard = (text, label) => {
     toast({ title: `${label} copied to clipboard!`, status: "success", duration: 2000, isClosable: true });

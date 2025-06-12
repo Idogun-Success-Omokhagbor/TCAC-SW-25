@@ -25,6 +25,7 @@
     "formidable": "^3.5.1",
     "formik": "^2.4.6",
     "framer-motion": "^11.3.31",
+    "html2pdf.js": "^0.10.3",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.1",
     "mongoose": "^8.6.1",

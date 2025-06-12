@@ -42,18 +42,24 @@ const UserDashboard = ({ accountData: initialData }) => {
     setShowSlip(true);
   };
 
-  const handlePrint = () => {
-    const printContents = slipRef.current.innerHTML;
-    const win = window.open("", "", "width=900,height=700");
-    win.document.write(`<html><head><title>Print Slip</title></head><body>${printContents}</body></html>`);
-    Array.from(document.querySelectorAll('style,link[rel="stylesheet"]'))
-      .forEach(node => win.document.head.appendChild(node.cloneNode(true)));
-    win.document.close();
-    win.onload = () => {
-      win.focus();
-      win.print();
-      win.close();
-    };
+  const handlePrint = async () => {
+    if (slipRef.current && typeof window !== 'undefined') {
+      try {
+        const html2pdf = (await import('html2pdf.js')).default;
+        const userName = `${accountData?.firstName || ''} ${accountData?.lastName || ''}`.trim();
+        const filename = userName ? `${userName}-TIMSAN-2025.pdf` : 'TIMSAN-2025-PaymentSlip.pdf';
+
+        html2pdf().set({
+          margin: 10,
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(slipRef.current).save();
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+      }
+    }
   };
 
   const refreshUserData = async () => {

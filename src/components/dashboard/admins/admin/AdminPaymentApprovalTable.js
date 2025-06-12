@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Text, Link, Badge, Button, Input, Select, useToast, Spinner } from "@chakra-ui/react";
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Text, Link, Badge, Button, Input, Select, useToast, Spinner, HStack, VStack, Flex } from "@chakra-ui/react";
 
 const statusColor = { pending: "yellow", approved: "green", rejected: "red" };
 
@@ -14,12 +14,24 @@ const AdminPaymentApprovalTable = () => {
   const [adminComments, setAdminComments] = useState({});
   const [statusUpdates, setStatusUpdates] = useState({});
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allPayments, setAllPayments] = useState([]); // Store all payments for counts
   const toast = useToast();
 
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/payments");
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter);
+      }
+      if (searchQuery.trim()) {
+        params.append("search", searchQuery.trim());
+      }
+      
+      const url = `/api/admin/payments${params.toString() ? `?${params.toString()}` : ""}`;
+      const res = await fetch(url);
       const data = await res.json();
       setPayments(Array.isArray(data) ? data : data.payments || []);
     } catch {
@@ -28,7 +40,26 @@ const AdminPaymentApprovalTable = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchPayments(); }, []);
+  // Fetch all payments for status counts
+  const fetchAllPayments = async () => {
+    try {
+      const res = await fetch("/api/admin/payments");
+      const data = await res.json();
+      setAllPayments(Array.isArray(data) ? data : data.payments || []);
+    } catch {
+      setAllPayments([]);
+    }
+  };
+
+  useEffect(() => { 
+    fetchPayments(); 
+    fetchAllPayments(); // Fetch all payments for counts
+  }, [statusFilter, searchQuery]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, searchQuery]);
 
   const handleCommentChange = (id, value) => setAdminComments(prev => ({ ...prev, [id]: value }));
   const handleStatusChange = (id, value) => setStatusUpdates(prev => ({ ...prev, [id]: value }));
@@ -44,6 +75,7 @@ const AdminPaymentApprovalTable = () => {
       if (res.ok && data.success) {
         toast({ title: "Payment updated", status: "success", duration: 3000, isClosable: true });
         fetchPayments();
+        fetchAllPayments(); // Refresh counts
       } else {
         toast({ title: "Error", description: data.error || "Failed to update payment", status: "error", duration: 4000, isClosable: true });
       }
@@ -64,9 +96,83 @@ const AdminPaymentApprovalTable = () => {
   const paginatedPayments = payments.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const totalAmount = payments.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
+  // Get counts for each status from all payments
+  const statusCounts = {
+    all: allPayments.length,
+    pending: allPayments.filter(p => p.status === "pending").length,
+    approved: allPayments.filter(p => p.status === "approved").length,
+    rejected: allPayments.filter(p => p.status === "rejected").length,
+  };
+
   return (
     <Box bg="white" borderRadius="md" boxShadow="md" p={6} mb={8} maxW="1100px" mx="auto" border="1px solid #e2e8f0">
       <Text fontWeight="bold" fontSize="xl" mb={4}>Payment Approvals</Text>
+      
+      {/* Filters and Search Section */}
+      <VStack spacing={4} mb={6} align="stretch">
+        <Flex direction={{ base: "column", md: "row" }} gap={4} justify="space-between" align={{ base: "stretch", md: "center" }}>
+          {/* Status Filter */}
+          <Box flex="1">
+            <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">Filter by Status</Text>
+            <HStack spacing={2} flexWrap="wrap">
+              <Button
+                size="sm"
+                variant={statusFilter === "all" ? "solid" : "outline"}
+                colorScheme="blue"
+                onClick={() => setStatusFilter("all")}
+              >
+                All ({statusCounts.all})
+              </Button>
+              <Button
+                size="sm"
+                variant={statusFilter === "pending" ? "solid" : "outline"}
+                colorScheme="yellow"
+                onClick={() => setStatusFilter("pending")}
+              >
+                Pending ({statusCounts.pending})
+              </Button>
+              <Button
+                size="sm"
+                variant={statusFilter === "approved" ? "solid" : "outline"}
+                colorScheme="green"
+                onClick={() => setStatusFilter("approved")}
+              >
+                Approved ({statusCounts.approved})
+              </Button>
+              <Button
+                size="sm"
+                variant={statusFilter === "rejected" ? "solid" : "outline"}
+                colorScheme="red"
+                onClick={() => setStatusFilter("rejected")}
+              >
+                Rejected ({statusCounts.rejected})
+              </Button>
+            </HStack>
+          </Box>
+
+          {/* Search Bar */}
+          <Box flex="1" maxW={{ base: "100%", md: "300px" }}>
+            <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">Search by User Name</Text>
+            <Input
+              placeholder="Search by first name or last name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              size="md"
+            />
+          </Box>
+        </Flex>
+
+        {/* Results Summary */}
+        <Box>
+          <Text fontSize="sm" color="gray.600">
+            Showing {payments.length} payments
+            {searchQuery && ` matching "${searchQuery}"`}
+            {statusFilter !== "all" && ` with status "${statusFilter}"`}
+            {statusFilter === "all" && searchQuery === "" && ` (${allPayments.length} total)`}
+          </Text>
+        </Box>
+      </VStack>
+
       {loading ? (
         <Box textAlign="center" py={10}><Spinner size="lg" /></Box>
       ) : (
