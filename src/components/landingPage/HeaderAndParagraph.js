@@ -41,7 +41,6 @@ const HeroSection = () => {
       <Box
         as="section"
         className="hero-section"
-        bg="green.50"
         p={{base: 8, md: 12}}
         display="flex"
         flexDirection="column"
@@ -49,15 +48,15 @@ const HeroSection = () => {
         justifyContent="center"
         textAlign="center"
       >
-        <Heading as="h1" size="xl" fontWeight="bold" mb={4}>
+        <Heading as="h1" size="3xl" fontWeight="bold" mb={4} color="black">
           TIMSAN Camp and Conference 2025 (TCAC &apos;25)
         </Heading>
-        <Text fontSize="lg" mb={8} maxW="2xl" mx="auto">
+        <Text fontSize="md" mb={8} maxW="2xl" mx="auto" color="black" fontWeight="normal">
           Participate in an extraordinary experience while delving into the
           heart of leadership excellence, creativity, innovation, brotherhood,
           and exponential growth.
         </Text>
-        <Box display="flex" justifyContent="center" gap={4}>
+        {/* <Box display="flex" justifyContent="center" gap={4}>
           <Button
             className="shadow-md"
             colorScheme="white"
@@ -85,7 +84,7 @@ const HeroSection = () => {
           >
             Donate
           </Button>
-        </Box>
+        </Box> */}
       </Box>
 
       {/* Modal for displaying bank details */}

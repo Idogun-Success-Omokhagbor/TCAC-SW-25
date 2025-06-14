@@ -1,28 +1,29 @@
-import Head from "next/head";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
+  Heading,
+  Text,
   Spinner,
   Alert,
   AlertIcon,
   VStack,
-  Container,
-  Text,
-  Heading,
   Image,
   HStack,
   Badge,
   Icon,
   Grid,
-  Button,
-  useDisclosure,
+  GridItem,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalBody,
   ModalCloseButton,
+  useDisclosure,
   AspectRatio,
   Flex,
+  Container,
+  Button,
   useBreakpointValue,
   useToast
 } from "@chakra-ui/react";
@@ -34,19 +35,20 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaInfoCircle,
-  FaDownload,
-  FaFileAlt
+  FaDownload
 } from "react-icons/fa";
-import Header from "../components/landingPage/Header";
-import Footer from "../components/landingPage/Footer";
-import ModalRenderer from "../components/ModalRenderer";
+import Header from "../../../../components/landingPage/Header";
+import Footer from "../../../../components/landingPage/Footer";
+import ModalRenderer from "../../../../components/ModalRenderer";
 
-export default function Home() {
+const HomepagePreview = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+  const { token } = router.query;
   const [modalPosts, setModalPosts] = useState([]);
 
   // Utility function to convert YouTube URLs to embed URLs
@@ -71,12 +73,11 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!token) return;
     (async () => {
       try {
-        const r = await fetch("/api/posts/published");
-        if (!r.ok) {
-          throw new Error(`HTTP error! status: ${r.status}`);
-        }
+        const r = await fetch(`/api/preview/home/${token}`);
+        if (!r.ok) throw new Error();
         const j = await r.json();
         if (j.success) {
           setPosts(j.data);
@@ -84,16 +85,15 @@ export default function Home() {
           const modals = j.data.filter(p => p.postType === "Popout/Modal" && p.isPublished);
           setModalPosts(modals);
         } else setError(j.message || "Failed to fetch posts");
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError("Failed to load posts");
+      } catch {
+        setError("Failed to load preview");
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [token]);
 
-  const VideoEmbedComponent = ({ post }) => (
+  const VideoEmbedPreview = ({ post }) => (
     <Box maxW="800px" px={4}>
       {/* Video Title - styled like slider title, left-aligned */}
       {post.name && (
@@ -151,20 +151,18 @@ export default function Home() {
             )}
           </Box>
         </AspectRatio>
+        {post.content.caption && (
+          <Box mt={4} textAlign="center">
+            <Text fontSize="sm" color="gray.600">
+              {post.content.caption}
+            </Text>
+          </Box>
+        )}
       </Box>
-      
-      {/* Video Caption - left-aligned with padding */}
-      {post.content.caption && (
-        <Box mt={6}>
-          <Text fontSize={{ base: "lg", md: "xl" }} color="gray.700" fontWeight="medium">
-            {post.content.caption}
-          </Text>
-        </Box>
-      )}
     </Box>
   );
 
-  const GalleryComponent = ({ post }) => {
+  const GalleryPreview = ({ post }) => {
     const images = post.content.images ?? [];
     return (
       <Container maxW="1200px">
@@ -197,46 +195,47 @@ export default function Home() {
             w="100%"
           >
             {images.map((img, i) => (
-              <Box
-                key={i}
-                overflow="hidden"
-                cursor="pointer"
-                borderRadius="lg"
-                bg="white"
-                shadow="md"
-                transition="all 0.3s"
-                _hover={{ 
-                  transform: "translateY(-4px)",
-                  shadow: "xl"
-                }}
-                onClick={() => {
-                  setSelectedImage(img);
-                  onOpen();
-                }}
-              >
-                <AspectRatio ratio={4 / 3}>
-                  <Image 
-                    src={img.url} 
-                    alt={img.caption ?? `Gallery image ${i + 1}`}
-                    objectFit="cover"
-                  />
-                </AspectRatio>
-                
-                {/* Caption Section */}
-                {img.caption && (
-                  <Box p={4} borderTop="1px solid" borderColor="gray.100">
-                    <Text 
-                      fontSize="sm" 
-                      color="gray.700" 
-                      lineHeight="1.4"
-                      textAlign="center"
-                      fontStyle="italic"
-                    >
-                      {img.caption}
-                    </Text>
-                  </Box>
-                )}
-              </Box>
+              <GridItem key={i}>
+                <Box
+                  overflow="hidden"
+                  cursor="pointer"
+                  borderRadius="lg"
+                  bg="white"
+                  shadow="md"
+                  transition="all 0.3s"
+                  _hover={{ 
+                    transform: "translateY(-4px)",
+                    shadow: "xl"
+                  }}
+                  onClick={() => {
+                    setSelectedImage(img);
+                    onOpen();
+                  }}
+                >
+                  <AspectRatio ratio={4 / 3}>
+                    <Image 
+                      src={img.url} 
+                      alt={img.caption ?? `Gallery image ${i + 1}`}
+                      objectFit="cover"
+                    />
+                  </AspectRatio>
+                  
+                  {/* Caption Section */}
+                  {img.caption && (
+                    <Box p={4} borderTop="1px solid" borderColor="gray.100">
+                      <Text 
+                        fontSize="sm" 
+                        color="gray.700" 
+                        lineHeight="1.4"
+                        textAlign="center"
+                        fontStyle="italic"
+                      >
+                        {img.caption}
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+              </GridItem>
             ))}
           </Grid>
         ) : (
@@ -248,38 +247,18 @@ export default function Home() {
     );
   };
 
-  const HeaderAndParagraphComponent = ({ post }) => {
-    if (!post.content) {
-      return (
-        <Box bg="gray.50" p={6} borderRadius="lg" w="100%">
-          <Text color="gray.600">Invalid header and paragraph data</Text>
-        </Box>
-      );
-    }
-    
-    return (
-      <Box textAlign="center" px={4} py={10}>
-        <Heading size="xl" mb={6}>
-          {post.content.title}
-        </Heading>
-        <Text fontSize="lg" maxW="3xl" mx="auto" lineHeight="1.6">
-          {post.content.subtitle}
-        </Text>
-      </Box>
-    );
-  };
-
-  const SliderComponent = React.memo(({ post }) => {
+  const SliderPreview = ({ post }) => {
     const slides = post.content.slides ?? [];
     const cfgPerSlide = post.content.imagesPerSlide ?? 3;
+    const perSlide = useBreakpointValue({ base: 1, md: cfgPerSlide });
     const sliderTitle = post.content.sliderTitle;
-    const titleBg = post.content.showTitleBackgroundColor
-      ? post.content.titleBackgroundColor ?? "#e9f5e1"
-      : "transparent";
     const bg = post.content.showBackgroundColor
       ? post.content.backgroundColor ?? "#43b02a"
       : "transparent";
-    const perSlide = useBreakpointValue({ base: 1, md: cfgPerSlide });
+    const titleBg = post.content.showTitleBackgroundColor
+      ? post.content.titleBackgroundColor ?? "#e9f5e1"
+      : "transparent";
+
     const chunks = useMemo(() => {
       const out = [];
       for (let i = 0; i < slides.length; i += perSlide) {
@@ -287,23 +266,21 @@ export default function Home() {
       }
       return out;
     }, [slides, perSlide]);
+
     const [idx, setIdx] = useState(0);
-    const chunkRef = useRef(chunks.length);
+
     useEffect(() => {
-      chunkRef.current = chunks.length;
-      setIdx((i) => Math.min(i, chunks.length - 1));
-    }, [chunks.length]);
-    useEffect(() => {
-      if (chunkRef.current <= 1) return;
+      if (chunks.length <= 1) return;
       const id = setInterval(
-        () => setIdx((i) => (i + 1) % chunkRef.current),
+        () => setIdx((i) => (i + 1) % chunks.length),
         3000
       );
       return () => clearInterval(id);
-    }, [chunkRef.current]);
-    const prev = () =>
-      setIdx((i) => (i === 0 ? chunkRef.current - 1 : i - 1));
-    const next = () => setIdx((i) => (i + 1) % chunkRef.current);
+    }, [chunks.length]);
+
+    const prev = () => setIdx((i) => (i === 0 ? chunks.length - 1 : i - 1));
+    const next = () => setIdx((i) => (i + 1) % chunks.length);
+
     if (!slides.length) {
       return (
         <Box bg={bg} p={12} textAlign="center">
@@ -311,6 +288,7 @@ export default function Home() {
         </Box>
       );
     }
+
     return (
       <Box bg={bg} py={8}>
         {sliderTitle && (
@@ -351,14 +329,14 @@ export default function Home() {
                     localBg === "transparent"
                       ? `1px solid ${bg === "transparent" ? "black" : bg}`
                       : "none";
-                  const titCol = s.showTitleTextColor
+                  const titleColor = s.showTitleTextColor
                     ? s.titleTextColor ?? "#fff"
                     : localBg === "transparent"
                     ? "black"
                     : "white";
-                  const subCol = s.showSubtitleTextColor
+                  const subtitleColor = s.showSubtitleTextColor
                     ? s.subtitleTextColor ?? "#fff"
-                    : titCol;
+                    : titleColor;
                   return (
                     <Box
                       key={s.id ?? si}
@@ -378,11 +356,11 @@ export default function Home() {
                         />
                       )}
                       <Box p={4}>
-                        <Text fontWeight="bold" fontSize="xl" color={titCol}>
+                        <Text fontWeight="bold" fontSize="xl" color={titleColor}>
                           {s.title}
                         </Text>
                         {s.subtitle && (
-                          <Text fontSize="md" color={subCol}>
+                          <Text fontSize="md" color={subtitleColor}>
                             {s.subtitle}
                           </Text>
                         )}
@@ -439,45 +417,67 @@ export default function Home() {
         </Box>
       </Box>
     );
-  });
+  };
 
-  SliderComponent.displayName = 'SliderComponent';
+  const HeaderAndParagraphPreview = ({ post }) => (
+    <Box textAlign="center" px={4} py={10}>
+      <Heading size="xl" mb={6}>
+        {post.content.title}
+      </Heading>
+      <Text fontSize="lg" maxW="3xl" mx="auto" lineHeight="1.6">
+        {post.content.subtitle}
+      </Text>
+    </Box>
+  );
 
-  const renderPost = (p) => {
-    switch (p.postType) {
+  const PopoutModalPreview = ({ post }) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    
+    // Trigger modal to open after component mounts
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        onOpen();
+      }, post.content?.showDelay * 1000 || 0);
+      
+      return () => clearTimeout(timer);
+    }, [post.content?.showDelay, onOpen]);
+
+    return (
+      <>
+        <Box textAlign="center" py={8}>
+          <Text fontSize="lg" color="gray.600">
+            Popout/Modal Preview - Modal will appear automatically
+          </Text>
+        </Box>
+        
+        <ModalRenderer
+          post={post}
+          onClose={onClose}
+        />
+      </>
+    );
+  };
+
+  const renderPostContent = (post) => {
+    switch (post.postType) {
       case "Header and Paragraph":
-        return <HeaderAndParagraphComponent post={p} />;
+        return <HeaderAndParagraphPreview post={post} />;
       case "Video Embed":
-        return <VideoEmbedComponent post={p} />;
+        return <VideoEmbedPreview post={post} />;
       case "Popout/Modal":
-        // Don't render modal posts in the main content - they'll be handled by ModalRenderer
-        return null;
+        return <PopoutModalPreview post={post} />;
       case "Gallery":
-        return <GalleryComponent post={p} />;
+        return <GalleryPreview post={post} />;
       case "Slider":
-        return <SliderComponent post={p} />;
+        return <SliderPreview post={post} />;
       default:
-        return (
-          <Container maxW="600px" centerContent>
-            <Box bg="gray.50" p={6} borderRadius="md" textAlign="center">
-              <Text fontWeight="bold">{p.name}</Text>
-              <Text color="gray.600" mt={2}>
-                {p.content?.description ?? p.content?.message}
-              </Text>
-            </Box>
-          </Container>
-        );
+        return null;
     }
   };
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minH="100vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minH="100vh">
         <Spinner size="xl" />
       </Box>
     );
@@ -495,66 +495,60 @@ export default function Home() {
   }
 
   return (
-    <>
-      <Head>
-        <title>TCAC &apos;25</title>
-        <meta name="description" content="TCAC&apos;25 - Connecting the Community" />
-        <link rel="icon" href="/timsan-logo.png" />
-      </Head>
-      <Box>
-        <Box borderBottom="2px solid" borderColor="gray.100">
-          <Header />
-        </Box>
-        <VStack spacing={0} align="stretch">
-          {posts.length ? (
-            posts.map((p, i) => (
-              <Box
-                key={p._id}
-                mt={8}
-                mb={i === posts.length - 1 ? 8 : 0}
-                w="100%"
-              >
-                {renderPost(p)}
-              </Box>
-            ))
-          ) : (
-            <Box textAlign="center" py={12}>
-              <Text fontSize="lg" color="gray.500">
-                No posts available
-              </Text>
-            </Box>
-          )}
-        </VStack>
-        <Footer />
-        
-        {/* Render modals */}
-        {modalPosts.map((modalPost) => (
-          <ModalRenderer
-            key={modalPost._id}
-            post={modalPost}
-            onClose={() => {
-              // Modal will handle its own closing logic
-            }}
-          />
-        ))}
-        
-        <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
-          <ModalOverlay />
-          <ModalContent bg="transparent" boxShadow="none">
-            <ModalCloseButton color="white" />
-            <ModalBody p={0}>
-              {selectedImage && (
-                <Image
-                  src={selectedImage.url}
-                  alt={selectedImage.caption}
-                  borderRadius="md"
-                  w="100%"
-                />
-              )}
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+    <Box>
+      <Box borderBottom="2px solid" borderColor="gray.100">
+        <Header />
       </Box>
-    </>
+      <Box p={4} bg="red.100" textAlign="center">
+        <Text fontWeight="bold" color="red.800">
+          ADMIN PREVIEW MODE
+        </Text>
+      </Box>
+      <VStack spacing={0} align="stretch">
+        {posts.length ? (
+          posts.map((p, i) => (
+            <Box key={p._id} mt={8} mb={i === posts.length - 1 ? 8 : 0} w="100%">
+              {renderPostContent(p)}
+            </Box>
+          ))
+        ) : (
+          <Box textAlign="center" py={12}>
+            <Text fontSize="lg" color="gray.500">
+              No posts available for preview
+            </Text>
+          </Box>
+        )}
+      </VStack>
+      
+      {/* Render modals */}
+      {modalPosts.map((modalPost) => (
+        <ModalRenderer
+          key={modalPost._id}
+          post={modalPost}
+          onClose={() => {
+            // Modal will handle its own closing logic
+          }}
+        />
+      ))}
+      
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+        <ModalOverlay />
+        <ModalContent bg="transparent" boxShadow="none">
+          <ModalCloseButton color="white" />
+          <ModalBody p={0}>
+            {selectedImage && (
+              <Image
+                src={selectedImage.url}
+                alt={selectedImage.caption || "Gallery image"}
+                w="100%"
+              />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Footer />
+    </Box>
   );
-}
+};
+
+export default HomepagePreview;

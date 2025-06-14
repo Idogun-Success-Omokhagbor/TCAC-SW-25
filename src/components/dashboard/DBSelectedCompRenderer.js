@@ -14,6 +14,7 @@ import AdminPaymentApprovalTable from "./admins/admin/AdminPaymentApprovalTable"
 import SlipManagement from "./admins/admin/SlipManagement";
 import Settings from "./superAdmin/Settings";
 import PaymentRequestManagement from "./superAdmin/PaymentRequestManagement";
+import PostManagement from "./admins/admin/PostManagement";
 
 const DashboardSelectedComponentRenderer = ({
   role,
@@ -70,6 +71,8 @@ const DashboardSelectedComponentRenderer = ({
                 <MealManagement />
               ) : selectedComponent === "activities-management" ? (
                 <ActivitiesManagement />
+              ) : selectedComponent === "post-management" ? (
+                <PostManagement />
               ) : selectedComponent === "days-management" ? (
                 <DaysManagement />
               ) : selectedComponent === "payment-management" ? (
@@ -96,6 +99,8 @@ const DashboardSelectedComponentRenderer = ({
           return <ActivitiesManagement />;
         case "meal-management":
           return <MealManagement />;
+        case "post-management":
+          return <PostManagement />;
         case "days-management":
           return <DaysManagement />;
         case "payment-management":

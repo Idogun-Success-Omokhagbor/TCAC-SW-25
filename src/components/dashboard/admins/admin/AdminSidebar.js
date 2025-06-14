@@ -19,7 +19,7 @@ import {
   ChevronRightIcon,
   HamburgerIcon,
 } from "@chakra-ui/icons";
-import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt, FaMoneyCheckAlt } from "react-icons/fa";
+import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt, FaMoneyCheckAlt, FaNewspaper } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import { MdDashboard, MdRestaurantMenu, MdToday } from "react-icons/md";
 import { useRouter } from "next/router";
@@ -201,6 +201,42 @@ const AdminSidebar = ({ onMenuClick, accountData }) => {
         >
           <MdDashboard />
           {!isSidebarCollapsed && <Text>Activities Management</Text>}
+        </Link>
+      </Box>
+
+      <Box
+        onClick={() => {
+          onMenuClick("post-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap="6"
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <FaNewspaper />
+          {!isSidebarCollapsed && <Text>Information Management</Text>}
         </Link>
       </Box>
 

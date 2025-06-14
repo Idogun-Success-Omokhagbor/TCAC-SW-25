@@ -18,7 +18,7 @@ import {
   ChevronRightIcon,
   HamburgerIcon,
 } from "@chakra-ui/icons";
-import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt, FaMoneyCheckAlt, FaCog, FaClock } from "react-icons/fa";
+import { FaUser, FaUserCog, FaEnvelope, FaSignOutAlt, FaMoneyCheckAlt, FaCog, FaClock, FaNewspaper } from "react-icons/fa";
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import { MdDashboard, MdRestaurantMenu, MdToday } from "react-icons/md";
 
@@ -253,6 +253,43 @@ const SuperAdminSidebar = ({ onMenuClick, accountData }) => {
         >
           <MdToday />
           {!isSidebarCollapsed && <Text>Days Management</Text>}
+        </Link>
+      </Box>
+
+      {/* Post Management */}
+      <Box
+        onClick={() => {
+          onMenuClick("post-management");
+          if (sidebarVariant === "drawer") toggleDrawer();
+        }}
+        _focus={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "4",
+        }}
+        _hover={{
+          size: "md",
+          border: "1px solid black",
+          boxShadow: "2px 2px 0px 0px #000000",
+          p: "2",
+          textDecoration: "none",
+          scale: "1",
+        }}
+      >
+        <Link
+          display="flex"
+          alignItems="center"
+          gap="6"
+          _hover={{
+            textDecoration: "none",
+          }}
+          _focus={{
+            textDecoration: "none",
+          }}
+        >
+          <FaNewspaper />
+          {!isSidebarCollapsed && <Text>Information Management</Text>}
         </Link>
       </Box>
 

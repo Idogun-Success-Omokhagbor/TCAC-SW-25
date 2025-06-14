@@ -24,7 +24,13 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: 'loose'
-  }
+  },
+  // Increase API body size limit to handle large slider content
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
 };
 
 export default nextConfig;
