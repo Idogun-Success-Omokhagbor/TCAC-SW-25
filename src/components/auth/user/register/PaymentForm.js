@@ -13,6 +13,7 @@ import {
   IconButton,
   Textarea,
   useToast,
+  Select,
 } from "@chakra-ui/react";
 import { FaCopy } from "react-icons/fa";
 import { MdAttachFile } from "react-icons/md";
@@ -47,21 +48,113 @@ const PaymentForm = ({
     bank: "UBA",
   };
 
-  useEffect(() => {
-    if (prevFormValues?.userCategory === "Child") {
-      setFormValues(prev => ({
-        ...prev,
-        amount: "3500"
-      }));
-      setMinimumAmountRequired(3500);
-    } else {
-      setFormValues(prev => ({
-        ...prev,
-        amount: "7000"
-      }));
-      setMinimumAmountRequired(7000);
+  // Calculate amount based on camp type and user category
+  const calculateAmount = (campType, userCategory, paymentType) => {
+    if (userCategory === "Child") {
+      // Children only get Camp Only option with 50% discount
+      return "3500";
     }
-  }, [prevFormValues?.userCategory]);
+    
+    switch (campType) {
+      case "Camp Only":
+        return "7000"; // Fixed amount
+      case "Conference Only":
+        if (paymentType === "Installmental") {
+          return ""; // User will select from dropdown
+        }
+        return "35000"; // Full payment
+      case "Camp + Conference":
+        if (paymentType === "Installmental") {
+          return ""; // User will select from dropdown
+        }
+        return "42000"; // Full payment for Camp + Conference (₦7,000 + ₦35,000)
+      default:
+        return "7000";
+    }
+  };
+
+  // Calculate minimum amount based on camp type and user category
+  const calculateMinimumAmount = (campType, userCategory, paymentType) => {
+    if (userCategory === "Child") {
+      return 3500;
+    }
+    
+    switch (campType) {
+      case "Camp Only":
+        return 7000; // Fixed amount
+      case "Conference Only":
+        if (paymentType === "Installmental") {
+          return 5000; // Minimum installmental
+        }
+        return 35000; // Full payment
+      case "Camp + Conference":
+        if (paymentType === "Installmental") {
+          return 5000; // Minimum installmental
+        }
+        return 42000; // Full payment for Camp + Conference (₦7,000 + ₦35,000)
+      default:
+        return 7000;
+    }
+  };
+
+  // Get available camp types based on user category
+  const getAvailableCampTypes = (userCategory) => {
+    if (userCategory === "Child") {
+      return [
+        { value: "Camp Only", label: "Camp Only - ₦3,500" }
+      ];
+    }
+    
+    return [
+      { value: "Camp Only", label: "Camp Only - ₦7,000" },
+      { value: "Conference Only", label: "Conference Only - ₦35,000" },
+      { value: "Camp + Conference", label: "Camp + Conference - ₦42,000" }
+    ];
+  };
+
+  useEffect(() => {
+    const newAmount = calculateAmount(formValues.campType, prevFormValues?.userCategory, formValues.paymentType);
+    const newMinimum = calculateMinimumAmount(formValues.campType, prevFormValues?.userCategory, formValues.paymentType);
+    
+    setFormValues(prev => ({
+      ...prev,
+      amount: newAmount
+    }));
+    setMinimumAmountRequired(newMinimum);
+  }, [formValues.campType, formValues.paymentType, prevFormValues?.userCategory]);
+
+  const handleCampTypeChange = (e) => {
+    const newCampType = e.target.value;
+    const newAmount = calculateAmount(newCampType, prevFormValues?.userCategory, formValues.paymentType);
+    const newMinimum = calculateMinimumAmount(newCampType, prevFormValues?.userCategory, formValues.paymentType);
+    
+    setFormValues(prev => ({
+      ...prev,
+      campType: newCampType,
+      amount: newAmount
+    }));
+    setMinimumAmountRequired(newMinimum);
+  };
+
+  const handlePaymentTypeChange = (e) => {
+    const newPaymentType = e.target.value;
+    const newAmount = calculateAmount(formValues.campType, prevFormValues?.userCategory, newPaymentType);
+    const newMinimum = calculateMinimumAmount(formValues.campType, prevFormValues?.userCategory, newPaymentType);
+    
+    setFormValues(prev => ({
+      ...prev,
+      paymentType: newPaymentType,
+      amount: newAmount
+    }));
+    setMinimumAmountRequired(newMinimum);
+  };
+
+  const handleAmountChange = (e) => {
+    setFormValues(prev => ({
+      ...prev,
+      amount: e.target.value
+    }));
+  };
 
   const handleCopyToClipboard = (text, label) => {
     toast({
@@ -155,6 +248,8 @@ const PaymentForm = ({
     inputFileRef.current.click();
   };
 
+  const availableCampTypes = getAvailableCampTypes(prevFormValues?.userCategory);
+
   return (
     <form onSubmit={handleFormSubmit}>
       <Box display={"flex"} flexDirection={"column"} gap={6}>
@@ -235,7 +330,16 @@ const PaymentForm = ({
 
         <FormControl id="paymentType" isInvalid={!!formErrors.paymentType}>
           <FormLabel>Mode of Payment</FormLabel>
-          <Input value="Full Payment" readOnly />
+          <Select
+            value={formValues.paymentType}
+            onChange={handlePaymentTypeChange}
+            placeholder="Select payment type"
+          >
+            <option value="Full Payment">Full Payment</option>
+            {(formValues.campType === "Conference Only" || formValues.campType === "Camp + Conference") && (
+              <option value="Installmental">Installmental</option>
+            )}
+          </Select>
           {formErrors.paymentType && (
             <Text color="red.500" fontSize="sm">
               {formErrors.paymentType}
@@ -245,7 +349,17 @@ const PaymentForm = ({
 
         <FormControl id="campType" isInvalid={!!formErrors.campType}>
           <FormLabel>What part of the Camp/Conference?</FormLabel>
-          <Input value="Camp Only" readOnly />
+          <Select
+            value={formValues.campType}
+            onChange={handleCampTypeChange}
+            placeholder="Select camp type"
+          >
+            {availableCampTypes.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </Select>
           {formErrors.campType && (
             <Text color="red.500" fontSize="sm">
               {formErrors.campType}
@@ -255,7 +369,25 @@ const PaymentForm = ({
 
         <FormControl id="amount" isInvalid={!!formErrors.amount}>
           <FormLabel>Amount</FormLabel>
-          <Input value={formValues.amount} readOnly />
+          {formValues.paymentType === "Installmental" && (formValues.campType === "Conference Only" || formValues.campType === "Camp + Conference") ? (
+            <Select
+              value={formValues.amount}
+              onChange={handleAmountChange}
+              placeholder="Select amount"
+            >
+              <option value="5000">₦5,000</option>
+              <option value="10000">₦10,000</option>
+              <option value="20000">₦20,000</option>
+            </Select>
+          ) : (
+            <Input 
+              value={formValues.amount} 
+              onChange={handleAmountChange}
+              placeholder="Enter amount"
+              readOnly={true}
+              bg="gray.100"
+            />
+          )}
           {formErrors.amount && (
             <Text color="red.500" fontSize="sm">
               {formErrors.amount}

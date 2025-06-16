@@ -48,7 +48,11 @@ const userSchema = new mongoose.Schema(
 
     // Payment-related fields
     paymentType: { type: String },
-    campType: { type: String },
+    campType: { 
+      type: String, 
+      enum: ["Camp Only", "Conference Only", "Camp + Conference"],
+      default: "Camp Only" 
+    },
     amount: { type: Number },
     receiptUrl: { type: String },
     payementNarration: { type: String },

@@ -1,5 +1,6 @@
 import connectDB from "../../../../utils/connectDB";
 import User from "../../../../models/User";
+import Payment from "../../../../models/Payment";
 import Settings from "../../../../models/Settings";
 import bcryptjs from "bcryptjs";
 
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === "POST") {
-    const { role, email, password, userCategory } = req.body;
+    const { role, email, password, userCategory, campType, amount } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -34,8 +35,32 @@ export default async function handler(req, res) {
       const hashedPassword = await bcryptjs.hash(password, 12);
       const userID = await generateUserID(userCategory);
 
+      // Calculate balance based on camp type and amount paid
+      let balance = 0;
+      const amountPaid = parseInt(amount);
       
-      const balance = userCategory === "Child" ? 0 : 35000;
+      if (userCategory === "Child") {
+        // Children only get Camp Only with 50% discount
+        const campPrice = 3500; // 50% of ₦7,000
+        balance = Math.max(0, campPrice - amountPaid);
+      } else {
+        switch (campType) {
+          case "Camp Only":
+            const campPrice = 7000;
+            balance = Math.max(0, campPrice - amountPaid);
+            break;
+          case "Conference Only":
+            const conferencePrice = 35000;
+            balance = Math.max(0, conferencePrice - amountPaid);
+            break;
+          case "Camp + Conference":
+            const totalPrice = 42000; // ₦7,000 + ₦35,000
+            balance = Math.max(0, totalPrice - amountPaid);
+            break;
+          default:
+            balance = 0;
+        }
+      }
 
       const newUser = new User({
         ...req.body,
@@ -47,6 +72,24 @@ export default async function handler(req, res) {
 
       await newUser.save();
       console.log("New User Saved:", newUser);
+
+      // Create a Payment record for the registration payment
+      if (amount && parseInt(amount) > 0) {
+        const registrationPayment = new Payment({
+          userId: newUser._id,
+          paymentType: req.body.paymentType || "Full Payment",
+          campType: campType,
+          amount: parseInt(amount),
+          transactionDate: new Date(),
+          receiptUrl: req.body.receiptUrl || "",
+          paymentNarration: req.body.paymentNarration || "Registration payment",
+          status: "approved", // Registration payments are automatically approved
+          adminComment: "Registration payment"
+        });
+
+        await registrationPayment.save();
+        console.log("Registration Payment Saved:", registrationPayment);
+      }
 
       return res.status(201).json({ message: "User registered successfully" });
     } catch (error) {

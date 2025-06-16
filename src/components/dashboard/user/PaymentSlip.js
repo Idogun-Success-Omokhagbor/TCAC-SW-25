@@ -37,6 +37,7 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
         <Text><b>Name:</b> {user?.firstName} {user?.lastName}</Text>
         <Text><b>Reg No.:</b> {user?.userID}</Text>
         <Text><b>Category:</b> {user?.userCategory}</Text>
+        <Text><b>Camp Type:</b> {user?.campType}</Text>
         <Text><b>Phone Number:</b> {user?.phoneNumber}</Text>
         <Text><b>Email:</b> {user?.email}</Text>
         <Box height={6} />

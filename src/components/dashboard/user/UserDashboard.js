@@ -148,7 +148,7 @@ const UserDashboard = ({ accountData: initialData }) => {
         </Heading>
       </Box>
 
-      {accountData?.balance > 0 && (
+      {accountData?.balance > 0 && accountData?.campType !== "Camp Only" && (
         <Flex className={styles.balancePaymentSection}>
           <Text className={styles.balanceText}>
             You are{" "}
@@ -410,6 +410,8 @@ const UserDashboard = ({ accountData: initialData }) => {
         onClose={onClose}
         userId={accountData?._id}
         balance={accountData?.balance}
+        userCampType={accountData?.campType}
+        userCategory={accountData?.userCategory}
         refreshUserData={refreshUserData}
       />
     <Modal isOpen={showSlip} onClose={() => setShowSlip(false)} size="xl">

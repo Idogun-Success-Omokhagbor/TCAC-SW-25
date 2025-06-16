@@ -60,6 +60,12 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
                   </span>
                 </div>
                 <div className={styles.mobilePaymentRow}>
+                  <span className={styles.mobilePaymentLabel}>Camp Type</span>
+                  <span className={styles.mobilePaymentValue}>
+                    {payment.campType || "-"}
+                  </span>
+                </div>
+                <div className={styles.mobilePaymentRow}>
                   <span className={styles.mobilePaymentLabel}>Status</span>
                   <span className={styles.mobilePaymentStatus} style={{ backgroundColor: `${getStatusColor(payment.status)}20`, color: getStatusColor(payment.status) }}>
                     {payment.status}
@@ -91,6 +97,7 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
                 <Th className={styles.tableHeader}>Date</Th>
                 <Th className={styles.tableHeader}>Transaction Date</Th>
                 <Th className={styles.tableHeader}>Amount</Th>
+                <Th className={styles.tableHeader}>Camp Type</Th>
                 <Th className={styles.tableHeader}>Receipt</Th>
                 <Th className={styles.tableHeader}>Status</Th>
                 <Th className={styles.tableHeader}>Admin Comment</Th>
@@ -99,7 +106,7 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
             <Tbody>
               {paymentHistory.length === 0 ? (
                 <Tr>
-                  <Td colSpan={6} className={styles.emptyState}>
+                  <Td colSpan={7} className={styles.emptyState}>
                     <Text textAlign="center" color="gray.500">No payment history yet.</Text>
                   </Td>
                 </Tr>
@@ -109,6 +116,7 @@ const PaymentHistoryTable = ({ paymentHistory = [], balance = null, onPrintSlip 
                     <Td className={styles.tableCell}>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}</Td>
                     <Td className={styles.tableCell}>{item.transactionDate ? new Date(item.transactionDate).toLocaleString() : "-"}</Td>
                     <Td className={styles.tableCell}>₦{item.amount ? Number(item.amount).toLocaleString() : "-"}</Td>
+                    <Td className={styles.tableCell}>{item.campType || "-"}</Td>
                     <Td className={styles.tableCell}>
                       {item.receiptUrl ? (
                         <Link href={item.receiptUrl} target="_blank" rel="noopener noreferrer" className={styles.receiptLink}>View</Link>

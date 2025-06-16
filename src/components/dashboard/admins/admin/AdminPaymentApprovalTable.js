@@ -184,6 +184,7 @@ const AdminPaymentApprovalTable = () => {
                 <Th>Transaction Date</Th>
                 <Th>User Name</Th>
                 <Th>Amount</Th>
+                <Th>Camp Type</Th>
                 <Th>Receipt</Th>
                 <Th>Status</Th>
                 <Th>Admin Comment</Th>
@@ -192,7 +193,7 @@ const AdminPaymentApprovalTable = () => {
             </Thead>
             <Tbody>
               {paginatedPayments.length === 0 ? (
-                <Tr><Td colSpan={8}><Text textAlign="center" color="gray.500">No payments found.</Text></Td></Tr>
+                <Tr><Td colSpan={9}><Text textAlign="center" color="gray.500">No payments found.</Text></Td></Tr>
               ) : (
                 paginatedPayments.map(item => (
                   <Tr key={item._id}>
@@ -200,6 +201,7 @@ const AdminPaymentApprovalTable = () => {
                     <Td>{item.transactionDate ? new Date(item.transactionDate).toLocaleString() : "-"}</Td>
                     <Td>{item.userId && (item.userId.firstName || item.userId.lastName) ? getFullName(item.userId) : "-"}</Td>
                     <Td>₦{item.amount ? Number(item.amount).toLocaleString() : "-"}</Td>
+                    <Td>{item.campType || "-"}</Td>
                     <Td>{item.receiptUrl ? (<Link href={item.receiptUrl} target="_blank" rel="noopener noreferrer" color="blue.500" textDecoration="underline">View</Link>) : "-"}</Td>
                     <Td><Badge colorScheme={statusColor[item.status] || "gray"}>{item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : "-"}</Badge></Td>
                     <Td><Input size="sm" value={adminComments[item._id] ?? item.adminComment ?? ""} onChange={e => handleCommentChange(item._id, e.target.value)} placeholder="Add comment" disabled={item.status !== "pending"} /></Td>

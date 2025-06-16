@@ -242,6 +242,7 @@ const SlipManagement = () => {
                     <Th>Date</Th>
                     <Th>Amount</Th>
                     <Th>Type</Th>
+                    <Th>Camp Type</Th>
                     <Th>Status</Th>
                     <Th>Receipt</Th>
                   </Tr>
@@ -252,6 +253,7 @@ const SlipManagement = () => {
                       <Td>{payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : "-"}</Td>
                       <Td>₦{payment.amount ? Number(payment.amount).toLocaleString() : "-"}</Td>
                       <Td>{payment.paymentType}</Td>
+                      <Td>{payment.campType || "-"}</Td>
                       <Td>{payment.status}</Td>
                       <Td>
                         {payment.receiptUrl ? (

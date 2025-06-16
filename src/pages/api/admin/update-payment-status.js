@@ -30,10 +30,8 @@ export default async function handler(req, res) {
         userId,
         {
           $inc: {
-            balance: -Number(amount),
-            amount: Number(amount)
-          },
-          campType: "Camp/ConFerence"
+            balance: -Number(amount)
+          }
         },
         { new: true }
       );
