@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -95,7 +95,7 @@ const NotificationManagement = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/notifications");
@@ -123,11 +123,11 @@ const NotificationManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, []);
 
   const handleOpenModal = (notification = null) => {
     if (notification) {
