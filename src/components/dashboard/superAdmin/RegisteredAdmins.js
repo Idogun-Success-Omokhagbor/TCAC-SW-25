@@ -29,9 +29,12 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Center,
 } from "@chakra-ui/react";
 import { FaSearch, FaDownload, FaSync } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { Empty } from "antd";
+import "antd/dist/reset.css";
 import {
   fetchAdmins,
   approveAdmin,
@@ -211,11 +214,25 @@ const RegisteredAdmins = () => {
 
   // Filtered admins based on search term
   const filteredAdmins = admins.filter(
-    (admin) =>
-      admin?.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin?.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin?.adminFunction.toLowerCase().includes(searchTerm.toLowerCase())
+    (admin) => {
+      if (!admin) return false;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const firstName = admin.firstName ? admin.firstName.toLowerCase() : '';
+      const lastName = admin.lastName ? admin.lastName.toLowerCase() : '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const fullNameReversed = `${lastName} ${firstName}`.trim();
+      
+      return (
+        firstName.includes(searchLower) ||
+        lastName.includes(searchLower) ||
+        fullName.includes(searchLower) ||
+        fullNameReversed.includes(searchLower) ||
+        (admin.email && admin.email.toLowerCase().includes(searchLower)) ||
+        (admin.adminFunction && admin.adminFunction.toLowerCase().includes(searchLower)) ||
+        (admin.adminID && admin.adminID.toLowerCase().includes(searchLower))
+      );
+    }
   );
 
   // Admins to display on the current page
@@ -237,9 +254,6 @@ const RegisteredAdmins = () => {
             size="sm"
             width="200px"
           />
-          <Button size="sm" ml={2} onClick={handleSearch} icon={<FaSearch />}>
-            <FaSearch />
-          </Button>
         </Flex>
 
         {/* update and download buttons */}
@@ -276,20 +290,44 @@ const RegisteredAdmins = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {currentAdmins.map((admin, index) => (
-              <Tr key={admin._id}>
-                <Td>{index + 1 + currentPage * adminsPerPage}</Td>
-                <Td>{admin.firstName}</Td>
-                <Td>{admin.lastName}</Td>
-                <Td>{admin.email}</Td>
-                <Td>{admin.adminFunction}</Td>
-                <Td>
-                  <Button size="sm" onClick={() => handleViewMore(admin)}>
-                    View More
-                  </Button>
+            {loading ? (
+              <Tr>
+                <Td colSpan={6}>
+                  <Center>
+                    <Text>Loading...</Text>
+                  </Center>
                 </Td>
               </Tr>
-            ))}
+            ) : currentAdmins.length === 0 ? (
+              <Tr>
+                <Td colSpan={6}>
+                  <Center>
+                    <Empty 
+                      description={
+                        <span style={{ color: "#A0AEC0", fontWeight: 600 }}>
+                          {searchTerm ? `No admins found for "${searchTerm}"` : "No data"}
+                        </span>
+                      }
+                    />
+                  </Center>
+                </Td>
+              </Tr>
+            ) : (
+              currentAdmins.map((admin, index) => (
+                <Tr key={admin._id}>
+                  <Td>{index + 1 + currentPage * adminsPerPage}</Td>
+                  <Td>{admin.firstName}</Td>
+                  <Td>{admin.lastName}</Td>
+                  <Td>{admin.email}</Td>
+                  <Td>{admin.adminFunction}</Td>
+                  <Td>
+                    <Button size="sm" onClick={() => handleViewMore(admin)}>
+                      View More
+                    </Button>
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </TableContainer>

@@ -25,9 +25,12 @@ import {
   Box,
   Flex,
   useToast,
+  Center,
 } from "@chakra-ui/react";
 import { FaSearch, FaDownload, FaSync } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { Empty } from "antd";
+import "antd/dist/reset.css";
 import {
   fetchUsers,
   approveUser,
@@ -181,11 +184,25 @@ const RegisteredUsers = () => {
   };
 
   const filteredUsers = users.filter(
-    (user) =>
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (user) => {
+      if (!user) return false;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const firstName = user.firstName ? user.firstName.toLowerCase() : '';
+      const lastName = user.lastName ? user.lastName.toLowerCase() : '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const fullNameReversed = `${lastName} ${firstName}`.trim();
+      
+      return (
+        firstName.includes(searchLower) ||
+        lastName.includes(searchLower) ||
+        fullName.includes(searchLower) ||
+        fullNameReversed.includes(searchLower) ||
+        (user.email && user.email.toLowerCase().includes(searchLower)) ||
+        (user.userCategory && user.userCategory.toLowerCase().includes(searchLower)) ||
+        (user.userID && user.userID.toLowerCase().includes(searchLower))
+      );
+    }
   );
 
   const currentUsers = filteredUsers.slice(
@@ -204,9 +221,6 @@ const RegisteredUsers = () => {
             size="sm"
             width="200px"
           />
-          <Button size="sm" ml={2} onClick={handleSearch} icon={<FaSearch />}>
-            <FaSearch />
-          </Button>
         </Flex>
 
         <Flex align="center" gap={4}>
@@ -242,20 +256,44 @@ const RegisteredUsers = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {currentUsers.map((user, index) => (
-              <Tr key={user._id}>
-                <Td>{index + 1 + currentPage * usersPerPage}</Td>
-                <Td>{user.firstName}</Td>
-                <Td>{user.lastName}</Td>
-                <Td>{user.email}</Td>
-                <Td>{user.userCategory}</Td>
-                <Td>
-                  <Button size="sm" onClick={() => handleViewMore(user)}>
-                    View More
-                  </Button>
+            {loading ? (
+              <Tr>
+                <Td colSpan={6}>
+                  <Center>
+                    <Text>Loading...</Text>
+                  </Center>
                 </Td>
               </Tr>
-            ))}
+            ) : currentUsers.length === 0 ? (
+              <Tr>
+                <Td colSpan={6}>
+                  <Center>
+                    <Empty 
+                      description={
+                        <span style={{ color: "#A0AEC0", fontWeight: 600 }}>
+                          {searchTerm ? `No users found for "${searchTerm}"` : "No data"}
+                        </span>
+                      }
+                    />
+                  </Center>
+                </Td>
+              </Tr>
+            ) : (
+              currentUsers.map((user, index) => (
+                <Tr key={user._id}>
+                  <Td>{index + 1 + currentPage * usersPerPage}</Td>
+                  <Td>{user.firstName}</Td>
+                  <Td>{user.lastName}</Td>
+                  <Td>{user.email}</Td>
+                  <Td>{user.userCategory}</Td>
+                  <Td>
+                    <Button size="sm" onClick={() => handleViewMore(user)}>
+                      View More
+                    </Button>
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </TableContainer>
