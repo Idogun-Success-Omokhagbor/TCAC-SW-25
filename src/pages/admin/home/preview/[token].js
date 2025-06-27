@@ -40,6 +40,7 @@ import {
 import Header from "../../../../components/landingPage/Header";
 import Footer from "../../../../components/landingPage/Footer";
 import ModalRenderer from "../../../../components/ModalRenderer";
+import ImageLightboxModal from '../../../../components/landingPage/ImageLightboxModal'
 
 const HomepagePreview = () => {
   const [posts, setPosts] = useState([]);
@@ -284,6 +285,9 @@ const HomepagePreview = () => {
     }, [slides, perSlide]);
 
     const [idx, setIdx] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIdx, setLightboxIdx] = useState(0);
+    const allImages = slides.filter(s => s.image);
 
     useEffect(() => {
       if (chunks.length <= 1) return;
@@ -369,6 +373,12 @@ const HomepagePreview = () => {
                           w="100%"
                           h={{ base: "200px", md: "220px" }}
                           objectFit="cover"
+                          cursor="pointer"
+                          onClick={() => {
+                            const imgIdx = allImages.findIndex(img => img.image === s.image);
+                            setLightboxIdx(imgIdx);
+                            setLightboxOpen(true);
+                          }}
                         />
                       )}
                       <Box p={4}>
@@ -431,6 +441,7 @@ const HomepagePreview = () => {
             </HStack>
           )}
         </Box>
+        <ImageLightboxModal images={allImages.map(img => ({ url: img.image, caption: img.title }))} initialIndex={lightboxIdx} isOpen={lightboxOpen} onClose={() => setLightboxOpen(false)} />
       </Box>
     );
   };

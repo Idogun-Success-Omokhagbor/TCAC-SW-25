@@ -40,6 +40,7 @@ import {
 import Header from "../components/landingPage/Header";
 import Footer from "../components/landingPage/Footer";
 import ModalRenderer from "../components/ModalRenderer";
+import ImageLightboxModal from '../components/landingPage/ImageLightboxModal'
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -321,6 +322,9 @@ export default function Home() {
     const prev = () =>
       setIdx((i) => (i === 0 ? chunkRef.current - 1 : i - 1));
     const next = () => setIdx((i) => (i + 1) % chunkRef.current);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIdx, setLightboxIdx] = useState(0);
+    const allImages = slides.filter(s => s.image);
     if (!slides.length) {
       return (
         <Box bg={bg} p={12} textAlign="center">
@@ -392,6 +396,12 @@ export default function Home() {
                           w="100%"
                           h={{ base: "200px", md: "220px" }}
                           objectFit="cover"
+                          cursor="pointer"
+                          onClick={() => {
+                            const imgIdx = allImages.findIndex(img => img.image === s.image);
+                            setLightboxIdx(imgIdx);
+                            setLightboxOpen(true);
+                          }}
                         />
                       )}
                       <Box p={4}>
@@ -454,6 +464,7 @@ export default function Home() {
             </HStack>
           )}
         </Box>
+        <ImageLightboxModal images={allImages.map(img => ({ url: img.image, caption: img.title }))} initialIndex={lightboxIdx} isOpen={lightboxOpen} onClose={() => setLightboxOpen(false)} />
       </Box>
     );
   });

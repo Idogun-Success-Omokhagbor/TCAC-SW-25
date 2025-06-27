@@ -41,6 +41,7 @@ import {
 import Header from "../../../../components/landingPage/Header";
 import Footer from "../../../../components/landingPage/Footer";
 import ModalRenderer from "../../../../components/ModalRenderer";
+import ImageLightboxModal from '../../../../components/landingPage/ImageLightboxModal'
 
 const PostPreview = () => {
   const [post, setPost] = useState(null);
@@ -314,6 +315,8 @@ const PostPreview = () => {
     }, [slides, perSlide]);
 
     const [idx, setIdx] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIdx, setLightboxIdx] = useState(0);
 
     useEffect(() => {
       if (chunks.length <= 1) return;
