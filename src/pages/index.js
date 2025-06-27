@@ -48,6 +48,10 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalPosts, setModalPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5); // You can adjust this as needed
+  const [total, setTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Utility function to convert YouTube URLs to embed URLs
   const getEmbedUrl = (url) => {
@@ -71,27 +75,40 @@ export default function Home() {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch("/api/posts/published");
-        if (!r.ok) {
-          throw new Error(`HTTP error! status: ${r.status}`);
-        }
-        const j = await r.json();
-        if (j.success) {
-          setPosts(j.data);
-          // Filter out modal posts to handle them separately
-          const modals = j.data.filter(p => p.postType === "Popout/Modal" && p.isPublished);
-          setModalPosts(modals);
-        } else setError(j.message || "Failed to fetch posts");
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError("Failed to load posts");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    // Initial fetch
+    fetchPosts(1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchPosts = async (pageToFetch, initial = false) => {
+    if (initial) setLoading(true);
+    else setLoadingMore(true);
+    try {
+      const r = await fetch(`/api/posts/published?page=${pageToFetch}&limit=${limit}`);
+      if (!r.ok) {
+        throw new Error(`HTTP error! status: ${r.status}`);
+      }
+      const j = await r.json();
+      if (j.success) {
+        if (initial) {
+          setPosts(j.data);
+        } else {
+          setPosts((prev) => [...prev, ...j.data]);
+        }
+        setTotal(j.total);
+        setPage(j.page);
+        // Only show modal posts from loaded posts
+        const modals = (initial ? j.data : [...posts, ...j.data]).filter(p => p.postType === "Popout/Modal" && p.isPublished);
+        setModalPosts(modals);
+      } else setError(j.message || "Failed to fetch posts");
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to load posts");
+    } finally {
+      if (initial) setLoading(false);
+      else setLoadingMore(false);
+    }
+  };
 
   const VideoEmbedComponent = ({ post }) => (
     <Box maxW="800px" px={4}>
@@ -525,6 +542,21 @@ export default function Home() {
             </Box>
           )}
         </VStack>
+        {/* Load More Button */}
+        {posts.length < total && (
+          <Box textAlign="center" my={8}>
+            <Button
+              onClick={() => fetchPosts(page + 1)}
+              isLoading={loadingMore}
+              loadingText="Loading..."
+              disabled={loadingMore}
+              colorScheme="green"
+              size="lg"
+            >
+              Load More
+            </Button>
+          </Box>
+        )}
         <Footer />
         
         {/* Render modals */}

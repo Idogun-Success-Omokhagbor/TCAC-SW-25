@@ -9,8 +9,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const posts = await Post.find({ isPublished: true }).sort({ sortOrder: 1, createdAt: -1 });
-    res.status(200).json({ success: true, data: posts });
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const skip = (page - 1) * limit;
+    const [posts, total] = await Promise.all([
+      Post.find({ isPublished: true })
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Post.countDocuments({ isPublished: true })
+    ]);
+    res.status(200).json({ success: true, data: posts, total, page, limit });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
