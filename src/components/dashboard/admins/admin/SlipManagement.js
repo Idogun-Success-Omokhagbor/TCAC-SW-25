@@ -21,8 +21,16 @@ import {
   ModalCloseButton,
   ModalBody,
   useDisclosure,
+  Image,
+  VStack,
+  HStack,
+  Badge,
+  Grid,
+  GridItem,
+  useDisclosure as useImageDisclosure,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { FaEye, FaTimes, FaExpand, FaCompress } from "react-icons/fa";
 import PaymentSlip from "../../user/PaymentSlip";
 
 const Empty = ({ description }) => (
@@ -46,6 +54,13 @@ const SlipManagement = () => {
   const [showSlip, setShowSlip] = useState(false);
   const [slipCode, setSlipCode] = useState("");
   const slipRef = useRef();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageZoom, setImageZoom] = useState(1);
+  const { 
+    isOpen: isImageOpen, 
+    onOpen: onImageOpen, 
+    onClose: onImageClose 
+  } = useImageDisclosure();
 
   useEffect(() => {
     const fetchSlips = async () => {
@@ -127,6 +142,24 @@ const SlipManagement = () => {
       win.print();
       win.close();
     };
+  };
+
+  const handleViewImage = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setImageZoom(1);
+    onImageOpen();
+  };
+
+  const handleZoomIn = () => {
+    setImageZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setImageZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setImageZoom(1);
   };
 
   return (
@@ -227,55 +260,237 @@ const SlipManagement = () => {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={showReceiptModal} onClose={() => setShowReceiptModal(false)} size="3xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Payment Receipts</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+      <Modal isOpen={showReceiptModal} onClose={() => setShowReceiptModal(false)} size="6xl">
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+        <ModalContent 
+          maxW="90vw" 
+          maxH="90vh" 
+          bg="white" 
+          borderRadius="xl"
+          boxShadow="2xl"
+          overflow="hidden"
+        >
+          <ModalHeader 
+            bg="gray.50" 
+            borderBottom="1px solid" 
+            borderColor="gray.200"
+            py={6}
+          >
+            <Flex align="center" justify="space-between">
+              <VStack align="start" spacing={1}>
+                <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                  Payment Receipts
+                </Text>
+                <Text fontSize="sm" color="gray.600">
+                  {selectedSlip?.user?.firstName} {selectedSlip?.user?.lastName}
+                </Text>
+              </VStack>
+              <Badge 
+                colorScheme="blue"
+                fontSize="sm"
+                px={3}
+                py={1}
+                borderRadius="full"
+              >
+                {userPayments.length} Payments
+              </Badge>
+            </Flex>
+          </ModalHeader>
+          <ModalCloseButton 
+            size="lg" 
+            top={4} 
+            right={4}
+            bg="white"
+            borderRadius="full"
+            boxShadow="md"
+          />
+          
+          <ModalBody p={0} maxH="70vh" overflowY="auto">
             {userPayments.length === 0 ? (
-              <Text>No payments found for this user.</Text>
+              <Box p={8} textAlign="center">
+                <Text fontSize="lg" color="gray.500">No payments found for this user.</Text>
+              </Box>
             ) : (
-              <Table variant="simple" size="md">
-                <Thead>
-                  <Tr>
-                    <Th>Date</Th>
-                    <Th>Amount</Th>
-                    <Th>Type</Th>
-                    <Th>Camp Type</Th>
-                    <Th>Status</Th>
-                    <Th>Receipt</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {userPayments.map((payment) => (
-                    <Tr key={payment._id}>
-                      <Td>{payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : "-"}</Td>
-                      <Td>₦{payment.amount ? Number(payment.amount).toLocaleString() : "-"}</Td>
-                      <Td>{payment.paymentType}</Td>
-                      <Td>{payment.campType || "-"}</Td>
-                      <Td>{payment.status}</Td>
-                      <Td>
-                        {payment.receiptUrl ? (
-                          <Button
-                            size="sm"
-                            colorScheme="blue"
-                            as="a"
-                            href={payment.receiptUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+              <VStack spacing={4} p={8}>
+                {userPayments.map((payment) => (
+                  <Box 
+                    key={payment._id} 
+                    w="100%" 
+                    p={6} 
+                    bg="gray.50" 
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="gray.200"
+                  >
+                    <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                      {/* Payment Details */}
+                      <VStack align="stretch" spacing={3}>
+                        <Flex justify="space-between" p={3} bg="white" borderRadius="md">
+                          <Text fontWeight="semibold" color="gray.700">Date:</Text>
+                          <Text>{payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : "-"}</Text>
+                        </Flex>
+                        <Flex justify="space-between" p={3} bg="white" borderRadius="md">
+                          <Text fontWeight="semibold" color="gray.700">Amount:</Text>
+                          <Text fontSize="lg" fontWeight="bold" color="green.600">
+                            ₦{payment.amount ? Number(payment.amount).toLocaleString() : "-"}
+                          </Text>
+                        </Flex>
+                        <Flex justify="space-between" p={3} bg="white" borderRadius="md">
+                          <Text fontWeight="semibold" color="gray.700">Type:</Text>
+                          <Badge colorScheme="blue" px={2} py={1}>
+                            {payment.paymentType}
+                          </Badge>
+                        </Flex>
+                        <Flex justify="space-between" p={3} bg="white" borderRadius="md">
+                          <Text fontWeight="semibold" color="gray.700">Camp Type:</Text>
+                          <Text>{payment.campType || "-"}</Text>
+                        </Flex>
+                        <Flex justify="space-between" p={3} bg="white" borderRadius="md">
+                          <Text fontWeight="semibold" color="gray.700">Status:</Text>
+                          <Badge 
+                            colorScheme={
+                              payment.status === "completed" ? "green" : 
+                              payment.status === "pending" ? "yellow" : "red"
+                            }
+                            px={2}
+                            py={1}
                           >
-                            View
-                          </Button>
-                        ) : (
-                          "-"
-                        )}
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
+                            {payment.status}
+                          </Badge>
+                        </Flex>
+                      </VStack>
+
+                      {/* Receipt Image */}
+                      {payment.receiptUrl && (
+                        <Box>
+                          <Text fontSize="lg" fontWeight="bold" color="gray.800" mb={4}>
+                            Receipt Document
+                          </Text>
+                          <Box 
+                            position="relative" 
+                            borderRadius="lg" 
+                            overflow="hidden"
+                            boxShadow="md"
+                            cursor="pointer"
+                            onClick={() => handleViewImage(payment.receiptUrl)}
+                            _hover={{ transform: 'scale(1.02)', transition: 'transform 0.2s' }}
+                          >
+                            <Image
+                              src={payment.receiptUrl}
+                              alt="Receipt"
+                              w="100%"
+                              h="200px"
+                              objectFit="cover"
+                            />
+                            <Box
+                              position="absolute"
+                              top={2}
+                              right={2}
+                              bg="blackAlpha.700"
+                              color="white"
+                              p={2}
+                              borderRadius="full"
+                            >
+                              <FaEye size={16} />
+                            </Box>
+                          </Box>
+                        </Box>
+                      )}
+                    </Grid>
+                  </Box>
+                ))}
+              </VStack>
             )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* Image Viewer Modal */}
+      <Modal isOpen={isImageOpen} onClose={onImageClose} size="6xl">
+        <ModalOverlay bg="blackAlpha.800" backdropFilter="blur(10px)" />
+        <ModalContent 
+          maxW="95vw" 
+          maxH="95vh" 
+          bg="transparent" 
+          boxShadow="none"
+          overflow="hidden"
+        >
+          <ModalCloseButton 
+            size="lg" 
+            top={4} 
+            right={4}
+            bg="white"
+            color="gray.800"
+            borderRadius="full"
+            boxShadow="lg"
+            zIndex={10}
+          />
+          
+          <ModalBody p={0} position="relative">
+            <Box
+              position="relative"
+              w="100%"
+              h="90vh"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="blackAlpha.900"
+            >
+              <Image
+                src={selectedImage}
+                alt="Full size image"
+                maxW="100%"
+                maxH="100%"
+                objectFit="contain"
+                transform={`scale(${imageZoom})`}
+                transition="transform 0.3s ease"
+              />
+              
+              {/* Zoom Controls */}
+              <HStack
+                position="absolute"
+                bottom={4}
+                left="50%"
+                transform="translateX(-50%)"
+                bg="blackAlpha.700"
+                color="white"
+                p={3}
+                borderRadius="full"
+                spacing={2}
+                backdropFilter="blur(10px)"
+              >
+                <IconButton
+                  icon={<FaCompress />}
+                  onClick={handleZoomOut}
+                  size="sm"
+                  variant="ghost"
+                  color="white"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                  aria-label="Zoom out"
+                />
+                <Text fontSize="sm" fontWeight="bold" minW="60px" textAlign="center">
+                  {Math.round(imageZoom * 100)}%
+                </Text>
+                <IconButton
+                  icon={<FaExpand />}
+                  onClick={handleZoomIn}
+                  size="sm"
+                  variant="ghost"
+                  color="white"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                  aria-label="Zoom in"
+                />
+                <IconButton
+                  icon={<FaTimes />}
+                  onClick={handleResetZoom}
+                  size="sm"
+                  variant="ghost"
+                  color="white"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                  aria-label="Reset zoom"
+                />
+              </HStack>
+            </Box>
           </ModalBody>
         </ModalContent>
       </Modal>

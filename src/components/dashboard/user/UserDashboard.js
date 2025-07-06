@@ -30,6 +30,7 @@ const UserDashboard = ({ accountData: initialData }) => {
 
   const [showSlip, setShowSlip] = useState(false);
   const [slipCode, setSlipCode] = useState("");
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const slipRef = useRef();
   const printSlip = async () => {
     const res = await fetch("/api/slip", {
@@ -44,20 +45,47 @@ const UserDashboard = ({ accountData: initialData }) => {
 
   const handlePrint = async () => {
     if (slipRef.current && typeof window !== 'undefined') {
+      setIsGeneratingPDF(true);
       try {
         const html2pdf = (await import('html2pdf.js')).default;
         const userName = `${accountData?.firstName || ''} ${accountData?.lastName || ''}`.trim();
-        const filename = userName ? `${userName}-TIMSAN-2025.pdf` : 'TIMSAN-2025-PaymentSlip.pdf';
+        const filename = userName ? `${userName}-TCAC-2025.pdf` : 'TCAC-2025-PaymentSlip.pdf';
+
+        const images = slipRef.current.querySelectorAll('img');
+        const imagePromises = Array.from(images).map(img => {
+          return new Promise((resolve, reject) => {
+            if (img.complete) {
+              resolve();
+            } else {
+              img.onload = resolve;
+              img.onerror = reject;
+            }
+          });
+        });
+
+        await Promise.all(imagePromises);
 
         html2pdf().set({
           margin: 10,
           filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true
+          }
         }).from(slipRef.current).save();
       } catch (error) {
         console.error('Error generating PDF:', error);
+      } finally {
+        setIsGeneratingPDF(false);
       }
     }
   };
@@ -146,6 +174,24 @@ const UserDashboard = ({ accountData: initialData }) => {
             {accountData?.firstName || accountData?.userID}!
           </Box>
         </Heading>
+      </Box>
+
+      <Box 
+        bg="#25D366" 
+        color="white" 
+        py={4} 
+        px={6} 
+        borderRadius="lg" 
+        mb={6}
+        textAlign="center"
+        boxShadow="md"
+        border="2px solid #128C7E"
+      >
+        <Text fontSize="lg" fontWeight="bold">
+          <a href="https://chat.whatsapp.com/CT3a2TJ3c3R7IjfbYoQqw7" target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'none' }}>
+            Join the TCAC WhatsApp group 
+          </a>
+        </Text>
       </Box>
 
       {accountData?.balance > 0 && accountData?.campType !== "Camp Only" && (
@@ -423,7 +469,13 @@ const UserDashboard = ({ accountData: initialData }) => {
       </div>
     </ModalBody>
     <ModalFooter>
-      <Button colorScheme="green" mr={3} onClick={handlePrint}>
+      <Button 
+        colorScheme="green" 
+        mr={3} 
+        onClick={handlePrint}
+        isLoading={isGeneratingPDF}
+        loadingText="Generating PDF..."
+      >
         Print
       </Button>
       <Button variant="ghost" onClick={() => setShowSlip(false)}>

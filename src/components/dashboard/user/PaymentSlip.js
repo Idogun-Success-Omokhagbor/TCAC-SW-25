@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { Box, Heading, Text, Divider, Flex, Image } from "@chakra-ui/react";
+import { Box, Heading, Text, Divider, Flex, Image, VStack, HStack } from "@chakra-ui/react";
 
 const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
   const totalApprovedPaid = payments
@@ -34,13 +34,62 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
           PAYMENT SLIP
         </Text>
         <Divider mb={4} />
-        <Text><b>Name:</b> {user?.firstName} {user?.lastName}</Text>
-        <Text><b>Reg No.:</b> {user?.userID}</Text>
-        <Text><b>Category:</b> {user?.userCategory}</Text>
-        <Text><b>Camp Type:</b> {user?.campType}</Text>
-        <Text><b>Phone Number:</b> {user?.phoneNumber}</Text>
-        <Text><b>Email:</b> {user?.email}</Text>
-        <Box height={6} />
+        
+        {/* Personal Information with Profile Picture */}
+        <HStack spacing={6} align="flex-start" mb={4}>
+          {/* Profile Picture */}
+          <Box flexShrink={0}>
+            {user?.profilePicture ? (
+              <Image
+                src={user.profilePicture}
+                alt="Profile Picture"
+                boxSize="120px"
+                borderRadius="md"
+                objectFit="cover"
+                border="2px solid"
+                borderColor="gray.300"
+                bg="gray.100"
+                crossOrigin="anonymous"
+                loading="eager"
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <Box
+                boxSize="120px"
+                borderRadius="md"
+                border="2px solid"
+                borderColor="gray.300"
+                bg="gray.100"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="lg" color="gray.500" fontWeight="bold">
+                  {user?.firstName?.charAt(0) || "U"}
+                  {user?.lastName?.charAt(0) || ""}
+                </Text>
+              </Box>
+            )}
+          </Box>
+          
+          {/* Personal Details */}
+          <VStack spacing={2} align="flex-start" flex={1}>
+            <Text><b>Name:</b> {user?.firstName} {user?.lastName}</Text>
+            <Text><b>Reg No.:</b> {user?.userID}</Text>
+            <Text><b>Category:</b> {user?.userCategory}</Text>
+            <Text><b>Gender:</b> {user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "-"}</Text>
+            <Text><b>Institution (Local Zawiyyah):</b> {user?.institution || user?.otherInstitution || "-"}</Text>
+            <Text><b>State Affiliated:</b> {user?.state || user?.otherState || "-"}</Text>
+            <Text><b>Camp Type:</b> {user?.campType}</Text>
+            <Text><b>Phone Number:</b> {user?.phoneNumber}</Text>
+            <Text><b>Email:</b> {user?.email}</Text>
+          </VStack>
+        </HStack>
+        
         <Divider my={4} />
         <Text fontWeight="bold" mb={2}>Payment Details</Text>
         <table
@@ -85,6 +134,9 @@ const PaymentSlip = forwardRef(({ user, payments, slipCode }, ref) => {
         <Divider my={4} />
         <Text fontSize="sm" textAlign="center" mt={8}>
           &copy; 2025, TIMSAN Southwest. All rights reserved.
+        </Text>
+        <Text fontSize="sm" textAlign="center" mt={4} fontWeight="bold" color="red.600">
+          A copy of this slip should be submitted at the Camp registration Desk For Physical Confirmation
         </Text>
       </Box>
     </Box>

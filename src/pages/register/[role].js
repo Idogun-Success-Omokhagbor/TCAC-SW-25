@@ -72,6 +72,8 @@ const Register = () => {
       lastName: "",
       email: "",
       phoneNumber: "",
+      gender: "",
+      profilePicture: "",
     },
     CAC: {
       userCategory: "Student",
